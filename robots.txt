@@ -1,0 +1,3 @@
+# Pre-launch: keep the whole site out of search engines until launch.
+User-agent: *
+Disallow: /
