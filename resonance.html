@@ -205,7 +205,7 @@ footer{padding:4rem 3.5rem;border-top:1px solid rgba(20,20,18,.08);max-width:110
 }
 </style>
 </head>
-<body class="lk">
+<body>
 
 <nav>
   <a href="#" class="brand"><img src="assets/resonance-icon.png" alt="Resonance"><span class="wordmark">Resonance</span></a>
@@ -392,7 +392,7 @@ footer{padding:4rem 3.5rem;border-top:1px solid rgba(20,20,18,.08);max-width:110
 <script>
 function tl(){
   document.body.classList.toggle('lk');
-  document.querySelector('.lang').textContent = document.body.classList.contains('lk') ? '한국어' : 'English';
+  document.querySelector('.lang').textContent = document.body.classList.contains('lk') ? 'English' : '한국어';
 }
 document.querySelectorAll('.rv').forEach(el=>
   new IntersectionObserver(e=>e.forEach(x=>{if(x.isIntersecting)x.target.classList.add('in')}),{threshold:.12}).observe(el)
