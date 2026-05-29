@@ -423,8 +423,10 @@ footer{
 /* ── RESPONSIVE ── */
 @media(max-width:900px){
   html{font-size:16px}
-  nav{padding:1rem 1.5rem}
-  .nr{gap:1.4rem}
+  nav{padding:1rem 1.5rem;flex-wrap:wrap;gap:.6rem}
+  .nr{gap:1rem;flex-wrap:wrap;justify-content:flex-end}
+  .nl{font-size:.62rem}
+  .lb{font-size:.6rem;padding:.35rem .7rem}
   .hero{padding:0 1.5rem 5rem}
   .hl{height:clamp(3.5rem,14vw,6rem)}
   section,.rules{padding-left:1.5rem;padding-right:1.5rem}
@@ -506,7 +508,7 @@ body.editing [contenteditable]:focus{
     <a href="resonance.html" class="nl fx">Resonance</a>
     <a href="#principles" class="nl fx">Principles</a>
     <a href="#about" class="nl fx">About</a>
-    <button class="lb fx" onclick="tl()">English</button><button class="lb" id="edit-btn" onclick="toggleEdit()" style="border-color: rgba(20, 20, 18, 0.15); color: var(--mid);">Edit</button>
+    <button class="lb fx" onclick="tl()">English</button>
   </div>
 </nav>
 
