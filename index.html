@@ -1,0 +1,799 @@
+<!DOCTYPE html>
+<!-- saved from url=(0048)file:///C:/Users/1/Downloads/albers-site_10.html -->
+<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Albers — Personal Intelligence Studio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com/">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Lora:ital@0;1&family=Syne:wght@400;500;600;700;800&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="icon" type="image/png" href="assets/resonance-icon.png">
+<link rel="apple-touch-icon" href="assets/resonance-icon.png">
+<style>
+:root{
+  --sand:#E2D5BC;--sand-lt:#EDE3CE;--sand-dk:#C8B89E;--sand-xlt:#F5EFE3;
+  --blk:#141412;
+  --pink:#D4245C;--amber:#CC8E00;--coral:#C02416;
+  --gray:#46423E;--mid:#7C7468;--lt:#C4B8A8;
+  --sf:'Instrument Serif',Georgia,serif;
+  --sn:'Syne',sans-serif;
+  --kr:'Noto Sans KR',sans-serif
+}
+
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth;font-size:17px}
+body{font-family:var(--sn);background:var(--sand);color:var(--blk);-webkit-font-smoothing:antialiased;overflow-x:hidden;line-height:1.65}
+
+.ko{display:none}
+body.lk .ko{display:block}body.lk .en{display:none}
+body.lk .koi{display:inline}body.lk .eni{display:none}.koi{display:none}
+
+.rv{opacity:0;transform:translateY(24px);transition:opacity 1s ease,transform 1s ease}
+.rv.in{opacity:1;transform:none}
+
+/* ── KEYFRAMES ── */
+@keyframes fu{from{opacity:0;transform:translateY(28px)}to{opacity:1;transform:none}}
+@keyframes lg{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+
+/* Vivid Bauhaus sweep — bold color band racing across */
+@keyframes bauhaus-sweep{
+  0%  {transform:translateX(-110%) skewX(-8deg);opacity:1}
+  80% {opacity:1}
+  100%{transform:translateX(120%) skewX(-8deg);opacity:0}
+}
+/* Slow principle underline draw */
+@keyframes principle-draw{
+  0%  {transform:scaleX(0);opacity:1}
+  100%{transform:scaleX(1);opacity:1}
+}
+/* Belief block: color flood from left */
+@keyframes belief-sweep-beam{
+  0%  {transform:translateX(-110%) skewX(-6deg);opacity:0}
+  8%  {opacity:1}
+  100%{transform:translateX(115%) skewX(-6deg);opacity:0}
+}
+
+/* ── FX BASE ── */
+.fx{position:relative;overflow:hidden}
+.fx::after{
+  content:'';position:absolute;
+  bottom:0;left:0;width:80%;height:2.5px;
+  background:linear-gradient(90deg,var(--amber) 0%,var(--pink) 40%,var(--coral) 70%,var(--amber) 100%);
+  transform:translateX(-110%) skewX(-12deg);
+  pointer-events:none;opacity:0
+}
+.fx:hover::after{animation:bauhaus-sweep .32s cubic-bezier(.16,1,.3,1) forwards}
+
+/* ── NAV ── */
+nav{
+  position:fixed;top:0;left:0;right:0;z-index:200;
+  display:flex;justify-content:space-between;align-items:center;
+  padding:1.5rem 3.5rem;
+  background:rgba(226,213,188,0.94);
+  backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+  border-bottom:1px solid rgba(200,184,158,0.6);
+  transition:padding .4s cubic-bezier(.4,0,.2,1)
+}
+nav.sc{padding:1rem 3.5rem}
+.logo{text-decoration:none;display:flex;align-items:center}
+.logo-svg{height:2.2rem;width:auto;color:var(--blk);transition:opacity .3s}
+.logo-svg:hover{opacity:.7}
+.nr{display:flex;align-items:center;gap:2.6rem}
+
+.nl{
+  font-size:.68rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--blk);text-decoration:none;transition:opacity .25s;padding:.2rem 0
+}
+.nl.fx::after{width:100%;height:1.5px;bottom:-4px}
+.nl:hover{opacity:.65}
+
+.lb{
+  font-family:var(--sn);font-size:.65rem;font-weight:700;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--blk);
+  background:none;border:1.5px solid rgba(20,20,18,.25);
+  padding:.4rem .9rem;cursor:pointer;
+  transition:background .28s,color .28s,border-color .28s
+}
+.lb.fx::after{width:100%;height:100%;bottom:0;opacity:.15}
+.lb:hover{background:var(--blk);color:var(--sand);border-color:var(--blk)}
+
+/* ── LAVA LAMP METABALLS ── */
+.abt{display:grid;grid-template-columns:180px 1fr;gap:5rem;position:relative;overflow:hidden}
+.lava-wrap{
+  position:absolute;top:0;right:0;bottom:0;
+  width:40%;
+  pointer-events:none;
+  z-index:0;
+  opacity:.18
+}
+.lava-wrap svg{width:100%;height:100%}
+
+/* ── HERO ── */
+.hero{
+  min-height:100vh;
+  display:flex;flex-direction:column;justify-content:flex-end;
+  padding:0 3.5rem 8rem;
+  background:var(--blk);position:relative;overflow:hidden;
+  max-width:none;width:100%
+}
+.hero::before{
+  content:'';position:absolute;top:0;right:0;width:42%;height:100%;
+  background:repeating-linear-gradient(90deg,transparent 0,transparent 8px,rgba(226,213,188,0.055) 8px,rgba(226,213,188,0.055) 10px);
+  pointer-events:none
+}
+.hco{position:relative;z-index:2}
+.hl{
+  height:clamp(6rem,13vw,11rem);width:auto;
+  color:var(--sand);display:block;
+  animation:fu 1.1s ease .2s both
+}
+.hero h1{animation:fu 1.1s ease .2s both}
+.hs{
+  font-size:1.05rem;font-weight:400;color:var(--mid);
+  margin-top:3rem;max-width:480px;line-height:1.85;
+  animation:fu 1s ease .5s both
+}
+.hln{
+  width:52px;height:1.5px;background:rgba(200,184,158,.5);
+  margin-top:2.8rem;transform-origin:left;
+  animation:lg .8s ease .8s both
+}
+
+/* ── SECTIONS ── */
+section{padding:9rem 3.5rem;max-width:1100px;margin:0 auto}
+.sl{
+  font-size:.65rem;font-weight:800;letter-spacing:.2em;
+  text-transform:uppercase;color:var(--mid);margin-bottom:1.4rem
+}
+
+/* ── BELIEF ── */
+.bel{
+  padding:8rem 0;position:relative;overflow:hidden;
+  background:var(--sand);
+  transition:background 1.2s cubic-bezier(.4,0,.2,1)
+}
+.bel:hover{background:rgba(204,142,0,0.82)}
+/* The sweeping color beam inside belief */
+.bel::before{
+  content:'';position:absolute;top:0;bottom:0;
+  width:55%;
+  background:linear-gradient(90deg,transparent 0%,rgba(212,36,92,0.9) 30%,rgba(192,36,22,0.95) 70%,transparent 100%);
+  left:-60%;
+  pointer-events:none;
+  z-index:0;
+  opacity:0
+}
+.bel:hover::before{animation:belief-sweep-beam .55s cubic-bezier(.16,1,.3,1) forwards}
+.bel-inner{max-width:1100px;margin:0 auto;padding:0 3.5rem;position:relative;z-index:1}
+.bel-label{
+  font-size:.65rem;font-weight:800;letter-spacing:.2em;
+  text-transform:uppercase;color:var(--mid);margin-bottom:2.2rem
+}
+.bt{
+  font-family:var(--sf);
+  font-size:clamp(2.4rem,4.8vw,4.2rem);
+  font-weight:400;line-height:1.28;
+  color:var(--blk);max-width:860px;
+  letter-spacing:-.01em
+}
+.bt em{font-style:italic}
+
+/* ── PRODUCTS ── */
+.ps{padding-bottom:5rem}
+.ptabs{display:flex;margin-top:3.5rem;border-bottom:1px solid rgba(20,20,18,.12)}
+
+.ptab{
+  font-family:var(--sf);font-size:1.5rem;
+  padding:1.1rem 2.2rem 1.1rem 0;
+  margin-right:2rem;
+  background:none;border:none;cursor:pointer;
+  color:rgba(122,116,104,.5);
+  position:relative;
+  transition:color .3s ease;
+  letter-spacing:-.01em
+}
+.ptab:hover{color:rgba(20,20,18,.6)}
+.ptab.act{color:var(--blk)}
+
+/* Bauhaus sweep on tabs */
+.ptab.fx::after{width:100%;height:2.5px;bottom:-1px;
+  transform:scaleX(0);transform-origin:left;opacity:1;
+  background:var(--amber)
+}
+.ptab.fx:hover::after{
+  animation:principle-draw 1.2s cubic-bezier(.4,0,.2,1) forwards
+}
+
+/* Active tab: persistent underline */
+.ptab.act::before{
+  content:'';position:absolute;bottom:-1px;left:0;
+  width:100%;height:2px;background:var(--blk)
+}
+
+.ptab .tr{
+  font-family:var(--sn);font-size:.6rem;font-weight:700;
+  letter-spacing:.14em;text-transform:uppercase;
+  display:block;margin-top:.25rem;color:var(--mid);
+  opacity:.7
+}
+
+.ppanels{margin-top:0}
+.ppan{display:none;padding:3.5rem 0;animation:fu .55s cubic-bezier(.16,1,.3,1) both}
+.ppan.act{display:grid;grid-template-columns:1fr 1fr;gap:4rem;align-items:start}
+#p-canopy.act{grid-template-columns:1fr}
+
+.pd{
+  font-size:1.1rem;color:var(--gray);line-height:1.9;
+  font-weight:400;letter-spacing:.005em
+}
+.ppts{margin-top:2rem}
+.pp{
+  font-size:.92rem;color:var(--blk);line-height:1.9;
+  padding-left:1.4rem;text-indent:-1.4rem;
+  margin-bottom:.35rem;letter-spacing:.01em;opacity:.75
+}
+.pp::before{content:'—\00a0';color:var(--lt)}
+
+/* Product aside */
+.pa{
+  background:var(--blk);
+  border-radius:2px;
+  overflow:hidden;
+  position:relative
+}
+
+/* ── APP PREVIEW MOCKUPS ── */
+.mock{
+  background:#0e0c0a;
+  padding:2rem 1.8rem;
+  font-family:var(--sn)
+}
+.mock-bar{
+  display:flex;align-items:center;gap:.5rem;
+  margin-bottom:1.5rem;padding-bottom:1rem;
+  border-bottom:1px solid rgba(255,255,255,.06)
+}
+.mock-dot{width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,.12)}
+.mock-title{
+  font-size:.62rem;font-weight:600;letter-spacing:.14em;text-transform:uppercase;
+  color:rgba(255,255,255,.3);margin-left:.5rem
+}
+.mock-badge{
+  margin-left:auto;font-size:.55rem;letter-spacing:.1em;text-transform:uppercase;
+  padding:.2rem .55rem;border:1px solid rgba(204,142,0,.4);
+  color:rgba(204,142,0,.8);border-radius:20px
+}
+
+/* Canopy mock */
+.canopy-thought{
+  display:flex;align-items:flex-start;gap:.8rem;
+  padding:.75rem 0;border-bottom:1px solid rgba(255,255,255,.04)
+}
+.canopy-thought:last-child{border-bottom:none}
+.ct-dot{
+  width:6px;height:6px;border-radius:50%;
+  background:rgba(204,142,0,.5);margin-top:.35rem;flex-shrink:0
+}
+.ct-dot.pink{background:rgba(212,36,92,.5)}
+.ct-dot.coral{background:rgba(192,36,22,.5)}
+.ct-text{font-size:.82rem;color:rgba(245,240,232,.7);line-height:1.6;flex:1}
+.ct-tag{
+  font-size:.55rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;
+  color:rgba(245,240,232,.25);margin-top:.3rem
+}
+.canopy-btn{
+  margin-top:1.5rem;width:100%;
+  padding:.8rem;border-radius:32px;
+  background:rgba(204,142,0,.15);border:1px solid rgba(204,142,0,.3);
+  display:flex;align-items:center;justify-content:center;gap:.6rem
+}
+.canopy-btn-label{font-size:.72rem;color:rgba(204,142,0,.8);letter-spacing:.08em;font-weight:600}
+.canopy-layers{display:grid;grid-template-columns:1fr 1fr 1fr;gap:.5rem;margin-top:1rem}
+.cl{
+  padding:.6rem;border:1px solid rgba(255,255,255,.06);
+  text-align:center
+}
+.cl-n{font-size:.55rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.2);margin-bottom:.2rem}
+.cl-v{font-size:.7rem;color:rgba(255,255,255,.45)}
+
+/* Lectio mock */
+.lectio-progress{
+  height:2px;background:rgba(255,255,255,.06);margin-bottom:1.5rem;position:relative
+}
+.lectio-progress-fill{
+  height:100%;width:38%;
+  background:linear-gradient(90deg,rgba(204,142,0,.7),rgba(212,36,92,.5))
+}
+.lectio-text{
+  font-family:var(--sf);font-size:.9rem;color:rgba(245,240,232,.55);
+  line-height:1.75;margin-bottom:1.2rem
+}
+.lectio-text mark{
+  background:rgba(247,217,107,.2);color:rgba(247,217,107,.9);
+  padding:0 .1rem;border-radius:2px
+}
+.lectio-controls{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:.9rem 0;border-top:1px solid rgba(255,255,255,.06)
+}
+.lc-voice{font-size:.6rem;color:rgba(204,142,0,.7);letter-spacing:.08em;font-weight:600;text-transform:uppercase}
+.lc-btns{display:flex;gap:1.1rem;align-items:center}
+.lc-btn{font-size:.85rem;color:rgba(255,255,255,.35)}
+.lc-btn.main{
+  width:30px;height:30px;border-radius:50%;
+  background:rgba(255,255,255,.08);display:flex;align-items:center;justify-content:center;
+  color:rgba(255,255,255,.7);font-size:.75rem
+}
+.lc-speed{font-size:.6rem;color:rgba(255,255,255,.25);letter-spacing:.06em}
+.lectio-tiers{display:grid;grid-template-columns:1fr 1fr 1fr;gap:.5rem;margin-top:1rem}
+.lt-tier{padding:.6rem;border:1px solid rgba(255,255,255,.06)}
+.lt-n{font-size:.55rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.2);margin-bottom:.2rem}
+.lt-v{font-size:.65rem;color:rgba(255,255,255,.4)}
+.lt-tier.highlight{border-color:rgba(204,142,0,.3)}
+.lt-tier.highlight .lt-n{color:rgba(204,142,0,.6)}
+.lt-tier.highlight .lt-v{color:rgba(204,142,0,.8)}
+
+.mock-info{
+  padding:1.4rem 1.8rem;border-top:1px solid rgba(255,255,255,.05);
+  display:flex;justify-content:space-between;align-items:center
+}
+.mock-info-label{font-size:.62rem;color:rgba(255,255,255,.2);letter-spacing:.1em;text-transform:uppercase;font-weight:600}
+.ptgs{display:flex;flex-wrap:wrap;gap:.45rem;margin-top:2rem}
+.ptg{
+  font-size:.68rem;font-weight:600;letter-spacing:.09em;text-transform:uppercase;
+  padding:.28rem .72rem;
+  border:1px solid rgba(20,20,18,.15);color:var(--mid);
+  transition:border-color .25s,color .25s
+}
+.ptg.fx::after{width:100%;height:100%;bottom:0;opacity:.12}
+.ptg:hover{border-color:var(--mid);color:var(--blk)}
+
+/* Relic aside */
+.relic-pa{
+  background:var(--sand-lt);padding:2.8rem;
+  border-left:1px solid rgba(20,20,18,.08)
+}
+.pat{
+  font-family:var(--sf);font-size:1.22rem;color:var(--blk);
+  margin-bottom:1.1rem;letter-spacing:-.01em;
+  transition:color .3s
+}
+.pa:hover .pat,.relic-pa:hover .pat{color:var(--amber)}
+.pax{font-size:.95rem;color:var(--gray);line-height:1.85}
+
+/* ── PRINCIPLES ── */
+.rules{background:var(--blk);padding:9rem 3.5rem;max-width:none;position:relative}
+.ri{max-width:1100px;margin:0 auto;display:grid;grid-template-columns:180px 1fr;gap:5rem}
+.rules .sl{color:rgba(200,184,158,.45)}
+.rl{display:grid;grid-template-columns:1fr 1fr;gap:3.5rem 5rem}
+
+.rl .rv{
+  padding:.8rem 0 1.4rem;
+  position:relative;
+  border-bottom:1px solid transparent;
+  cursor:default
+}
+/* Ensure underline pseudo-elements aren't clipped */
+.rl .rv.fx{overflow:visible}
+/* Very slow underline draw — 1.8s */
+.rl .rv.fx::after{
+  content:'';position:absolute;left:0;
+  width:100%;height:1px;bottom:0;
+  transform:scaleX(0);transform-origin:left;opacity:1;
+  pointer-events:none
+}
+.rl .rv:nth-child(1).fx::after{background:var(--amber)}
+.rl .rv:nth-child(2).fx::after{background:var(--pink)}
+.rl .rv:nth-child(3).fx::after{background:var(--coral)}
+.rl .rv:nth-child(4).fx::after{background:var(--amber)}
+.rl .rv:nth-child(5).fx::after{background:var(--pink)}
+.rl .rv:nth-child(6).fx::after{background:var(--coral)}
+.rl .rv.fx:hover::after{
+  animation:principle-draw 1.8s cubic-bezier(.4,0,.2,1) forwards
+}
+.rlt{
+  font-family:var(--sf);font-size:1.3rem;
+  color:rgba(226,213,188,.85);margin-bottom:.5rem;
+  transition:color .4s ease;letter-spacing:-.01em
+}
+.rl .rv:nth-child(1):hover .rlt{color:var(--amber)}
+.rl .rv:nth-child(2):hover .rlt{color:var(--pink)}
+.rl .rv:nth-child(3):hover .rlt{color:var(--coral)}
+.rl .rv:nth-child(4):hover .rlt{color:var(--amber)}
+.rl .rv:nth-child(5):hover .rlt{color:var(--pink)}
+.rl .rv:nth-child(6):hover .rlt{color:var(--coral)}
+.rlx{font-size:.9rem;color:rgba(122,116,104,.7);line-height:1.8}
+
+/* ── ABOUT ── */
+.ab{max-width:580px;position:relative;z-index:1}
+.ab p{font-size:1rem;color:var(--gray);line-height:1.9;letter-spacing:.01em}
+.ab p+p{margin-top:1.8rem}
+.ab em{color:var(--blk);font-style:normal;font-weight:700}
+
+/* ── FOOTER ── */
+footer{
+  padding:4.5rem 3.5rem 3.5rem;
+  border-top:1px solid rgba(20,20,18,.08);
+  max-width:1100px;margin:0 auto;
+  display:flex;justify-content:space-between;align-items:flex-end
+}
+.fl{height:1.9rem;width:auto;color:var(--blk);display:block;margin-bottom:.65rem}
+.fs{font-size:.72rem;color:var(--mid);letter-spacing:.03em}
+.fr{font-size:.72rem;color:var(--mid);text-align:right;line-height:1.9;letter-spacing:.02em}
+
+/* ── RESPONSIVE ── */
+@media(max-width:900px){
+  html{font-size:16px}
+  nav{padding:1rem 1.5rem}
+  .nr{gap:1.4rem}
+  .hero{padding:0 1.5rem 5rem}
+  .hl{height:clamp(3.5rem,14vw,6rem)}
+  section,.rules{padding-left:1.5rem;padding-right:1.5rem}
+  .bel-inner{padding-left:1.5rem;padding-right:1.5rem}
+  .bel{padding:5rem 0}
+  .bt{font-size:clamp(2rem,7vw,3rem)}
+  .abt,.ri{grid-template-columns:1fr;gap:2rem}
+  .ptabs{overflow-x:auto}
+  .ppan.act{grid-template-columns:1fr}
+  .rl{grid-template-columns:1fr;gap:2rem}
+  footer{flex-direction:column;align-items:flex-start;gap:2rem;padding-left:1.5rem}
+  .fr{text-align:left}
+  .lava-wrap{width:60%;opacity:.1}
+}
+
+/* ── EDIT MODE ── */
+body.editing [contenteditable]{
+  outline:none;
+  border-bottom:1.5px dashed rgba(20,20,18,.2);
+  cursor:text;
+  min-width:4px;
+  display:inline-block
+}
+body.editing [contenteditable]:focus{
+  border-bottom-color:var(--amber);
+  background:rgba(204,142,0,.04)
+}
+.edit-bar{
+  position:fixed;bottom:2rem;left:50%;transform:translateX(-50%);
+  z-index:500;
+  display:flex;align-items:center;gap:1rem;
+  background:var(--blk);color:var(--sand);
+  padding:.75rem 1.5rem;
+  font-family:var(--sn);font-size:.68rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;
+  opacity:0;pointer-events:none;
+  transition:opacity .3s ease;
+  border:1px solid rgba(255,255,255,.08)
+}
+.edit-bar.show{opacity:1;pointer-events:all}
+.edit-bar span{opacity:.4}
+.edit-done{
+  background:none;border:1px solid rgba(255,255,255,.2);color:var(--sand);
+  font-family:var(--sn);font-size:.65rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;
+  padding:.35rem .8rem;cursor:pointer;transition:background .2s
+}
+.edit-done:hover{background:rgba(255,255,255,.1)}
+/* Resonance showcase mockup — real light-parchment palette (ReadingTheme.light), 2026-05-29 */
+.pa .mock{background:#EFE4CB}
+.pa .mock-bar{border-bottom-color:#D9CFB3}
+.pa .mock-dot{background:#C4A878}
+.pa .mock-title{color:#574C47}
+.pa .mock-badge{border-color:#C4A878;color:#7A5F3A}
+.pa .lectio-progress{background:#E0D2B6}
+.pa .lectio-progress-fill{background:linear-gradient(90deg,#C4A878,#7A5F3A)}
+.pa .lectio-text{font-family:'Lora',Georgia,serif;color:#140F0D}
+.pa .lectio-text mark{background:rgba(250,199,117,.55);color:#140F0D}
+.pa .lectio-controls{border-top-color:#D9CFB3}
+.pa .lc-voice{color:#7A5F3A}
+.pa .lc-btn{color:#574C47}
+.pa .lc-btn.main{background:#140F0D;color:#EFE4CB}
+.pa .lc-speed{color:#8A7D6F}
+.pa .mock-info{border-top-color:#D9CFB3}
+.pa .mock-info-label{color:#7A5F3A}
+</style>
+</head>
+<body class="lk">
+
+<svg xmlns="http://www.w3.org/2000/svg" style="display:none">
+<symbol id="al" viewBox="108 198 808 212">
+<path fill="currentColor" d="M532.483276,397.335571 C531.013855,390.555878 530.720093,384.094391 531.367615,377.604095 C531.911438,372.153687 531.230164,366.820770 530.644226,361.249176 C528.578247,362.058533 528.482666,363.501404 528.104004,364.700867 C521.711304,384.950348 507.089966,395.205109 486.841400,398.305695 C465.469757,401.578278 443.952759,400.050812 422.480499,399.746887 C414.661804,399.636230 406.843567,399.496368 399.024933,399.379578 C392.514709,399.282349 391.040497,397.826996 391.038055,391.494232 C391.023041,352.181152 391.004456,312.868103 390.988007,273.555023 C390.979919,254.224075 390.955841,234.893112 390.975861,215.562195 C390.983917,207.780884 391.915009,206.852768 399.493713,206.859344 C422.491272,206.879288 445.489777,206.806671 468.485870,207.006195 C477.661285,207.085800 486.800964,208.219528 495.613037,210.879807 C509.739838,215.144592 519.163086,224.170685 522.924866,238.744186 C525.937988,250.417236 526.228577,262.072815 523.477905,273.835754 C521.261230,283.315186 516.358032,290.965179 508.561035,296.781830 C507.495972,297.576385 506.480682,298.441742 505.486084,299.323669 C505.271332,299.514099 505.245483,299.917542 504.887787,300.885223 C518.953430,307.961578 526.252075,320.363037 529.631714,335.573242 C530.088074,335.455414 530.544495,335.337616 531.000916,335.219788 C531.000916,332.825714 531.004089,330.431641 531.000427,328.037567 C530.943420,290.708771 530.871521,253.380005 530.838074,216.051193 C530.830383,207.443939 531.410034,206.880814 539.821533,206.877518 C569.652039,206.865845 599.482605,206.865845 629.313110,206.890060 C637.914490,206.897049 638.356812,207.378174 638.350220,215.877991 C638.339294,229.876633 638.205872,243.876709 638.375305,257.873138 C638.432556,262.601471 636.677002,264.475677 631.922852,264.388794 C621.260742,264.193909 610.592651,264.290070 599.927246,264.325806 C593.717102,264.346588 593.100037,264.974670 593.113403,271.267822 C593.141357,284.416870 592.235107,282.942688 604.506042,283.017792 C611.671753,283.061646 618.838379,283.094818 626.003601,283.025909 C630.264038,282.984985 632.524231,284.572876 632.417053,289.208527 C632.232178,297.203735 632.389099,305.206207 632.320312,313.204926 C632.268250,319.262329 631.306152,320.231476 625.370605,320.257996 C616.538330,320.297455 607.700806,320.425171 598.875122,320.176422 C594.592957,320.055725 593.024231,321.410339 593.030273,325.860107 C593.050354,340.732880 592.900452,340.733643 607.745728,340.749908 C617.244873,340.760284 626.744202,340.810669 636.242981,340.754242 C639.319580,340.735992 641.903564,341.231567 642.766113,345.671539 C644.235291,334.140320 642.889099,323.495605 642.829651,312.872589 C642.647888,280.383362 642.048340,247.896576 641.664490,215.408218 C641.576172,207.933228 642.575256,206.942520 649.896606,206.927444 C671.727783,206.882523 693.560364,206.742523 715.389709,206.940277 C726.231750,207.038498 737.006348,208.253784 747.393555,211.673630 C765.122192,217.510559 776.455322,229.205765 780.390686,247.720367 C783.331360,261.555176 782.712402,275.153839 778.196289,288.584351 C774.976746,298.159210 769.848694,306.335236 761.408936,312.166809 C759.374634,313.572449 757.909729,314.868256 759.112671,317.856232 C768.681335,341.624481 778.105042,365.451080 788.568909,389.080170 C788.568909,381.402954 788.671997,373.723907 788.538086,366.049042 C788.418945,359.223694 787.941833,352.404938 787.799438,345.579590 C787.670410,339.397461 788.991455,338.003418 795.391968,337.892822 C805.888123,337.711395 816.389099,337.820831 826.886169,337.675018 C831.049316,337.617157 835.207275,337.220673 838.946777,335.043945 C843.361572,332.474121 843.695679,329.493439 839.940857,325.951477 C837.461914,323.613068 834.308411,322.443390 831.313843,321.005127 C825.159363,318.049164 819.002625,315.097565 812.832275,312.174988 C795.942139,304.174957 786.184021,291.128174 784.438660,272.319366 C782.904358,255.785034 784.525452,240.056168 795.435791,226.503174 C801.502747,218.966675 809.476257,214.304489 818.436646,211.252319 C839.796143,203.976532 861.746399,204.821960 883.730774,206.979675 C889.684814,207.564056 895.564697,208.869232 901.500916,209.680557 C905.739929,210.259918 907.494019,212.418732 907.337463,216.748337 C906.825867,230.898224 906.483337,245.054718 906.161133,259.210632 C906.061768,263.577026 904.081360,265.400574 899.667114,265.464966 C890.187927,265.603210 880.672058,264.521240 871.230347,266.161713 C870.902222,266.218719 870.559082,266.211395 870.240845,266.299194 C866.773193,267.255951 862.338806,267.374603 861.499512,271.712708 C860.622437,276.246399 865.198914,277.103424 868.009460,278.821472 C877.384155,284.552155 887.214478,289.568604 895.878784,296.407959 C912.321228,309.387268 919.632446,326.240570 917.654297,347.225433 C916.438599,360.122528 912.975037,371.992218 904.667786,382.237885 C894.723633,394.502411 881.036255,399.363190 866.200012,401.147369 C841.006409,404.177094 816.013916,402.490204 790.940918,395.874512 C789.106873,400.232391 785.022705,400.119995 780.990540,399.885925 C764.172119,398.909485 747.353577,399.364441 730.538086,399.857727 C725.497070,400.005615 722.172058,398.843536 720.797302,393.123901 C717.764954,380.507599 714.063721,368.052063 710.639587,355.529816 C710.206482,353.945770 709.961853,352.272858 708.294067,351.008392 C706.622559,352.418243 707.226196,354.324982 707.256226,355.954254 C707.477600,367.946838 707.816711,379.937195 708.058472,391.929474 C708.191833,398.545929 707.098022,399.495697 700.693237,399.464081 C684.528625,399.384247 668.363281,399.432495 652.198364,399.394379 C644.940369,399.377289 643.912292,398.337402 643.892883,390.911743 C643.857178,377.268372 643.882629,363.624847 642.691772,349.872925 C642.586487,351.169891 642.392151,352.466675 642.389771,353.763824 C642.366333,366.595673 642.408875,379.427734 642.359619,392.259460 C642.335449,398.568787 640.906067,400.053925 634.705322,399.851746 C603.050842,398.819855 571.388428,399.712799 539.732056,399.358490 C537.313171,399.331421 534.652832,399.998505 532.483276,397.335571 M453.905975,342.174194 C453.674133,345.659241 455.402313,346.803619 458.748444,346.727570 C465.627502,346.571167 469.025574,342.985931 469.018433,335.497986 C469.011902,328.621582 464.987366,324.507141 458.334778,324.323669 C455.434570,324.243713 453.931274,325.276947 453.939941,328.279022 C453.952423,332.601257 453.905792,336.923645 453.905975,342.174194 M719.630920,278.723846 C720.161011,274.715546 720.435547,270.676910 718.380188,267.009613 C716.488647,263.634644 713.263000,262.030609 709.554199,262.708374 C705.787659,263.396729 706.356079,266.836151 706.313965,269.622498 C706.258606,273.287537 706.181152,276.958923 706.339233,280.617828 C706.426636,282.639465 705.289612,285.349518 707.880432,286.425934 C710.266418,287.417267 712.792725,286.652466 715.070862,285.396118 C717.426086,284.097229 718.544678,281.892456 719.630920,278.723846 M464.911072,275.360077 C466.236572,272.985138 466.898010,270.518341 466.352478,267.753693 C465.390442,262.878235 462.184784,260.568359 457.023590,261.132141 C452.060669,261.674225 453.665894,265.554443 453.364746,268.402039 C453.191833,270.037201 453.317047,271.705902 453.336853,273.359131 C453.402466,278.838531 455.605286,280.388794 460.799835,278.413361 C462.136078,277.905182 463.246521,276.803223 464.911072,275.360077 z"></path>
+<path fill="currentColor" d="M155.260895,240.380310 C157.441803,230.384659 159.595688,220.811676 161.499466,211.189194 C162.160233,207.849365 164.056686,206.867065 167.109970,206.871201 C190.600769,206.903000 214.091629,206.913162 237.582428,206.885712 C241.176041,206.881500 242.712097,208.419830 243.515686,212.066971 C251.747711,249.428238 260.149261,286.752380 268.590179,324.067291 C273.725464,346.768921 279.012177,369.436279 284.231232,392.118958 C285.467133,397.490356 283.813965,399.625305 278.238708,399.610931 C259.914307,399.563782 241.589676,399.375580 223.266052,399.454803 C219.060440,399.472992 217.205856,397.839294 216.786652,393.764160 C216.344543,389.466553 215.380325,385.223267 214.920624,380.926697 C214.502762,377.021210 212.467163,375.357849 208.672455,375.393555 C204.008118,375.437469 199.338501,375.511475 194.679642,375.340973 C191.525497,375.225525 190.129105,376.690704 189.708252,379.617157 C188.997681,384.558167 188.084274,389.472839 187.487473,394.426453 C187.072220,397.873108 185.399048,399.409363 181.933258,399.398010 C163.440521,399.337402 144.947250,399.398926 126.454865,399.293518 C121.574905,399.265717 120.251282,397.456543 121.324982,392.600555 C125.488449,373.770660 129.775955,354.968201 133.934753,336.137299 C138.952454,313.417267 143.856247,290.672058 148.871246,267.951416 C150.874268,258.876678 153.042572,249.838409 155.260895,240.380310 M197.325058,318.142975 C199.118546,322.694550 203.042648,320.968140 205.870834,320.412628 C209.159424,319.766724 207.566605,316.619202 207.215439,314.521973 C206.419403,309.768066 205.498901,305.025360 204.359650,300.343628 C203.943558,298.633698 204.096085,296.419434 201.531509,294.822052 C200.045197,302.707458 198.667572,310.016144 197.325058,318.142975 z"></path>
+<path fill="currentColor" d="M354.157593,335.960266 C363.668701,337.210876 372.827576,336.374664 381.969330,336.579895 C388.409882,336.724457 389.279755,337.437927 389.293823,343.714600 C389.330475,360.035187 389.352112,376.355927 389.325958,392.676514 C389.317139,398.194855 387.762726,399.944794 382.735107,399.787781 C353.432068,398.872772 324.123444,399.621094 294.818420,399.415131 C286.406158,399.356018 285.813629,398.721649 285.733337,390.270660 C285.375946,352.640869 285.318146,315.003448 284.444855,277.385193 C283.953949,256.239655 283.951782,235.097214 283.610138,213.955215 C283.517944,208.250687 284.836334,206.861725 290.593384,206.844223 C308.912750,206.788513 327.232452,206.786606 345.551819,206.840866 C351.477173,206.858398 352.415924,208.061295 352.401581,213.903275 C352.306274,252.706985 352.256287,291.510834 352.231812,330.314667 C352.230621,332.232391 351.729187,334.400757 354.157593,335.960266 z"></path>
+</symbol>
+</svg>
+
+<nav id="nv" class="sc">
+  <a href="#" class="logo"><svg class="logo-svg"><use href="#al"></use></svg></a>
+  <div class="nr">
+    <a href="resonance.html" class="nl fx">Resonance</a>
+    <a href="#principles" class="nl fx">Principles</a>
+    <a href="#about" class="nl fx">About</a>
+    <button class="lb fx" onclick="tl()">English</button><button class="lb" id="edit-btn" onclick="toggleEdit()" style="border-color: rgba(20, 20, 18, 0.15); color: var(--mid);">Edit</button>
+  </div>
+</nav>
+
+<section class="hero">
+  <div class="hco">
+    <h1 class="en" contenteditable="false"><svg class="hl"><use href="#al"></use></svg></h1>
+    <h1 class="ko" style="font-family:var(--kr);font-size:clamp(6rem,13vw,11rem);font-weight:700;color:var(--sand);animation:fu 1.1s ease .2s both;line-height:1" contenteditable="false">알버스</h1>
+    <p class="hs en" contenteditable="false">Designed by people, for the people&nbsp;</p>
+    <p class="hs ko" style="font-family:var(--kr)" contenteditable="false">디자인, 인<span style="font-size: 17.85px;">간을 의한, 인</span><span style="font-size: 17.85px;">간을 위한&nbsp;</span>&nbsp;</p>
+    <div class="hln"></div>
+  </div>
+</section>
+
+<div class="bel" id="belief" style="padding:9rem 0;">
+  <div class="bel-inner">
+    <div class="bel-label rv en in" contenteditable="false">Belief</div>
+    <div class="bel-label rv ko in" style="font-family:var(--kr)" contenteditable="false">신념</div>
+    <p class="bt rv en in" contenteditable="false">Design and technology as the experience. Make technology useful and simple.</p>
+    <p class="bt rv ko in" style="font-family:var(--kr)" contenteditable="false">디자인과 기술이 제품인. 기술을 실용적이며 간단한게.</p>
+  </div>
+</div>
+
+<section class="ps" id="products">
+  <div class="sl rv en in" contenteditable="false">Resonance — Read</div>
+  <div class="sl rv ko in" style="font-family:var(--kr)" contenteditable="false">Resonance — 독서</div>
+  <!-- Resonance is the studio's shipping product. The Canopy & Relic panels below are kept but hidden until those products ship. -->
+  <div class="ppanels">
+
+    <div class="ppan" id="p-canopy" style="display: none;">
+      <div>
+        <p class="pd en" contenteditable="false">A place for every thought. Speak or type in under three seconds — Canopy transcribes, tags, and connects it silently in the background. The problem with most tools is they ask you to organize before you've even finished thinking.</p>
+        <p class="pd ko" style="font-family:var(--kr)" contenteditable="false">모든 생각을 위한 공간. 3초 이내에 말하거나 입력하면 Canopy가 조용히 태그를 달고 연결합니다.</p>
+        <div class="ppts en">
+          <div class="pp" contenteditable="false">One tap to type. Two taps to speak — zero cognitive load at capture</div>
+          <div class="pp" contenteditable="false">Three-layer architecture — Raw Feed, Working Layer, Organized Layer</div>
+          <div class="pp" contenteditable="false">Rhizome View maps your thinking as a living node graph</div>
+          <div class="pp" contenteditable="false">Resurfacing — old thoughts find you again, full-screen, unhurried</div>
+        </div>
+        <div class="ppts ko" style="font-family:var(--kr)">
+          <div class="pp" contenteditable="false">한 번 탭으로 입력, 두 번 탭으로 음성 — 분류 결정 없음</div>
+          <div class="pp" contenteditable="false">3계층 구조 — 원본 피드, 작업 레이어, 정리 레이어</div>
+          <div class="pp" contenteditable="false">리좀 뷰 — 사고를 살아있는 노드 지도로 시각화</div>
+          <div class="pp" contenteditable="false">재발견 — 잊고 있던 생각이 다시 찾아옵니다</div>
+        </div>
+        <div class="ptgs">
+          <span class="ptg fx">SwiftUI</span><span class="ptg fx">Supabase</span><span class="ptg fx">GPT-4o mini</span><span class="ptg fx">pgvector</span><span class="ptg fx">iOS</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="ppan" id="p-relic" style="display: none;">
+      <div>
+        <p class="pd en" contenteditable="false"><strong style="color:var(--amber)">Coming soon.</strong> Your digital past, preserved. Import data exports from Facebook, Google, Twitter, WhatsApp, and more. Relic parses everything into one archive on your device.</p>
+        <p class="pd ko" style="font-family:var(--kr)" contenteditable="false"><strong style="color:var(--amber)">준비 중.</strong> 당신의 디지털 과거를 보존합니다. 페이스북, 구글, 트위터 등의 데이터를 가져오세요. 하나의 아카이브로 통합합니다.</p>
+        <div class="ppts en">
+          <div class="pp" contenteditable="false">8 platforms parsed into one unified schema</div>
+          <div class="pp" contenteditable="false">Semantic search across all your history</div>
+          <div class="pp" contenteditable="false">Export as PDF, JSON, HTML, or plain text</div>
+          <div class="pp" contenteditable="false">Local-first — no server, no cloud, no telemetry</div>
+        </div>
+        <div class="ppts ko" style="font-family:var(--kr)">
+          <div class="pp" contenteditable="false">8개 플랫폼을 하나의 스키마로 통합</div>
+          <div class="pp" contenteditable="false">전체 히스토리 시맨틱 검색</div>
+          <div class="pp" contenteditable="false">PDF, JSON, HTML, 텍스트 내보내기</div>
+          <div class="pp" contenteditable="false">로컬 우선 — 서버 없음, 클라우드 없음</div>
+        </div>
+        <div class="ptgs">
+          <span class="ptg fx">Swift</span><span class="ptg fx">SQLite</span><span class="ptg fx">8 Parsers</span><span class="ptg fx">Local-first</span>
+        </div>
+      </div>
+      <div class="relic-pa">
+        <div class="pat en" contenteditable="false">The idea</div><div class="pat ko" style="font-family:var(--kr)" contenteditable="false">핵심</div>
+        <div class="pax en" contenteditable="false">Platforms hold your memories hostage — not maliciously, but structurally. Relic breaks that dependency. Extract, own, delete the platform. Walk away.</div>
+        <div class="pax ko" style="font-family:var(--kr)" contenteditable="false">플랫폼은 기억을 인질로 잡고 있습니다. Relic은 종속성을 끊습니다. 추출하고, 소유하고, 떠나세요.</div>
+      </div>
+    </div>
+
+    <div class="ppan act" id="p-lectio" style="display: grid;">
+      <div>
+        <p class="pd en" contenteditable="false">A reading room for books you read on purpose. Drop in a PDF or ebook and it starts reading aloud in seconds — sentence by sentence, in a voice that sounds human. Highlight what matters, ask questions, and let Resonance learn what you read toward and bring it back to you.</p>
+        <p class="pd ko" style="font-family:var(--kr)" contenteditable="false">목적을 가지고 책을 읽는 사람을 위한 리더. PDF나 전자책을 넣으면 몇 초 만에 사람 같은 목소리로, 문장을 한 줄씩 따라가며 읽어줍니다. 중요한 곳을 표시하고 질문하면, Resonance가 당신이 무엇을 향해 읽는지 배워 다시 꺼내 보여줍니다.</p>
+        <div class="ppts en">
+          <div class="pp" contenteditable="false">Instant import — drop in a PDF or ebook and start listening in seconds</div>
+          <div class="pp" contenteditable="false">Instant play — tap once and it reads aloud naturally, following each sentence; tap any word to jump</div>
+          <div class="pp" contenteditable="false">Personalized — Resonance learns what you read toward and brings back your marks, the themes across your books, and a portrait of your reading</div>
+          <div class="pp" contenteditable="false">Capture &amp; understand — highlights, margin notes, voice notes, a journal, plus summaries, vocabulary, and answers that stay private on your device</div>
+        </div>
+        <div class="ppts ko" style="font-family:var(--kr)">
+          <div class="pp" contenteditable="false">즉시 가져오기 — PDF나 전자책을 넣으면 몇 초 안에 듣기 시작</div>
+          <div class="pp" contenteditable="false">즉시 재생 — 한 번 탭하면 문장을 따라가며 자연스럽게 낭독, 단어를 탭하면 위치 이동</div>
+          <div class="pp" contenteditable="false">개인화 — 당신이 향해 읽는 주제를 배워 표시·책들 사이의 테마·읽기 초상을 다시 꺼내 보여줍니다</div>
+          <div class="pp" contenteditable="false">기록과 이해 — 하이라이트, 여백 메모, 음성 메모, 저널, 그리고 기기 안에 머무는 요약·어휘·답변</div>
+        </div>
+        <div class="ptgs">
+          <span class="ptg fx">Instant import</span><span class="ptg fx">Read-aloud</span><span class="ptg fx">Personalized</span><span class="ptg fx">Private &amp; offline</span><span class="ptg fx">30+ languages</span>
+        </div>
+        <a href="resonance.html" style="display:inline-block;margin-top:1.8rem;font-size:.7rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;background:var(--blk);color:var(--sand);padding:.7rem 1.2rem;border-radius:30px;text-decoration:none"><span class="en">See the full Resonance page →</span><span class="ko" style="font-family:var(--kr)">Resonance 전체 페이지 보기 →</span></a>
+      </div>
+      <div class="pa">
+        <div class="mock">
+          <div class="mock-bar">
+            <span class="mock-dot"></span><span class="mock-dot"></span><span class="mock-dot"></span>
+            <span class="mock-title">Resonance</span>
+            <span class="mock-badge">Now playing</span>
+          </div>
+          <div class="lectio-progress"><div class="lectio-progress-fill"></div></div>
+          <div class="lectio-text">The light in the room had changed while she read, and <mark>she had not noticed the hours passing</mark> until the page went dim.</div>
+          <div class="lectio-controls">
+            <span class="lc-voice">Voice · Bella</span>
+            <div class="lc-btns">
+              <span class="lc-btn">↺</span>
+              <span class="lc-btn main">❚❚</span>
+              <span class="lc-btn">↻</span>
+            </div>
+            <span class="lc-speed">1.0×</span>
+          </div>
+        </div>
+        <div class="mock-info">
+          <span class="mock-info-label">Personalized</span>
+          <span class="mock-info-label">On-device · Private</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="rv in" style="margin-top:2.5rem;display:flex;align-items:baseline;gap:1rem;flex-wrap:wrap">
+    <span class="sl en" style="margin:0" contenteditable="false">Coming from Albers</span>
+    <span class="sl ko" style="margin:0;font-family:var(--kr)" contenteditable="false">알버스의 다음 작업</span>
+    <span class="en" style="font-size:.9rem;color:var(--mid);opacity:.75" contenteditable="false">Canopy — a place for every thought · Relic — your digital past, preserved</span>
+    <span class="ko" style="font-size:.9rem;color:var(--mid);opacity:.75;font-family:var(--kr)" contenteditable="false">Canopy — 모든 생각을 위한 공간 · Relic — 당신의 디지털 과거</span>
+  </div>
+</section>
+
+<div class="rules" id="principles">
+  <div class="ri">
+    <div><div class="sl rv en in" contenteditable="false">Principles</div><div class="sl rv ko in" style="font-family:var(--kr)" contenteditable="false">원칙</div></div>
+    <div class="rl">
+      <div class="rv fx in"><div class="rlt en" contenteditable="false">Honest pricing.</div><div class="rlt ko" style="font-family:var(--kr)" contenteditable="false">정직한 가격.</div><div class="rlx en" contenteditable="false">Canopy is pay-once. Resonance is a subscription whose free tier is the whole reader. No dark patterns.</div><div class="rlx ko" style="font-family:var(--kr)" contenteditable="false">Canopy는 한 번 구매. Resonance는 구독이지만, 무료만으로도 리더 전체를 씁니다. 다크 패턴 없음.</div></div>
+      <div class="rv fx in"><div class="rlt en" contenteditable="false">No ads.</div><div class="rlt ko" style="font-family:var(--kr)" contenteditable="false">광고 없음.</div><div class="rlx en" contenteditable="false">Your thinking and your memories are not inventory.</div><div class="rlx ko" style="font-family:var(--kr)" contenteditable="false">사고와 기억은 상품이 아닙니다.</div></div>
+      <div class="rv fx in"><div class="rlt en" contenteditable="false">No training on your data.</div><div class="rlt ko" style="font-family:var(--kr)" contenteditable="false">데이터 학습 없음.</div><div class="rlx en" contenteditable="false">Your data is never used to train AI models.</div><div class="rlx ko" style="font-family:var(--kr)" contenteditable="false">데이터는 AI 학습에 사용되지 않습니다.</div></div>
+      <div class="rv fx in"><div class="rlt en" contenteditable="false">Full export. Always free.</div><div class="rlt ko" style="font-family:var(--kr)" contenteditable="false">내보내기 항상 무료.</div><div class="rlx en" contenteditable="false">Your data leaves when you leave. No restrictions.</div><div class="rlx ko" style="font-family:var(--kr)" contenteditable="false">떠날 때 데이터도 함께. 제한 없음.</div></div>
+      <div class="rv fx in"><div class="rlt en" contenteditable="false">AI is invisible.</div><div class="rlt ko" style="font-family:var(--kr)" contenteditable="false">AI는 보이지 않습니다.</div><div class="rlx en" contenteditable="false">It runs silently. It surfaces only when useful.</div><div class="rlx ko" style="font-family:var(--kr)" contenteditable="false">조용히 작동합니다. 유용할 때만 나타납니다.</div></div>
+      <div class="rv fx in"><div class="rlt en" contenteditable="false">Privacy by default.</div><div class="rlt ko" style="font-family:var(--kr)" contenteditable="false">기본값은 프라이버시.</div><div class="rlx en" contenteditable="false">Local-first. No telemetry on content. Your device, your data.</div><div class="rlx ko" style="font-family:var(--kr)" contenteditable="false">로컬 우선. 콘텐츠 분석 없음. 당신의 데이터.</div></div>
+    </div>
+  </div>
+</div>
+
+<section class="abt" id="about">
+  <div style="position:relative;z-index:1"><div class="sl rv en in" contenteditable="false">About</div><div class="sl rv ko in" style="font-family:var(--kr)" contenteditable="false">소개</div></div>
+  <div class="ab">
+    <p class="rv en in" contenteditable="false">Albers is carefully designed by an individual.&nbsp;</p>
+    <p class="rv ko in" style="font-family:var(--kr)" contenteditable="false">알버스는 일인 회사입니다.</p>
+    <p class="rv en in" contenteditable="false"></p>
+    <p class="rv ko in" style="font-family:var(--kr)" contenteditable="false"></p>
+    <p class="rv en in" contenteditable="false">Technology and art should not be separated. Rather, it should work hand in hand.</p>
+    <p class="rv ko in" style="font-family:var(--kr)" contenteditable="false">기술과 예술은 분리되선 안되고 같이 작용해야 합니다.</p>
+    <p class="rv en in" contenteditable="false">Albers will focus on ethical, human friendly designs.</p>
+    <p class="rv ko in" style="font-family:var(--kr)" contenteditable="false">알버스는 윤리적이며 유저 친화적인 디자인을 집중 할 것 입니다.</p>
+  </div>
+  <!-- Lava lamp metaballs -->
+  <div class="lava-wrap">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 500" preserveAspectRatio="xMidYMid slice">
+      <defs>
+        <filter id="metaball">
+          <feGaussianBlur in="SourceGraphic" stdDeviation="18" result="blur"/>
+          <feColorMatrix in="blur" mode="matrix"
+            values="1 0 0 0 0
+                    0 1 0 0 0
+                    0 0 1 0 0
+                    0 0 0 60 -29" result="meta"/>
+          <feComposite in="SourceGraphic" in2="meta" operator="atop"/>
+        </filter>
+      </defs>
+      <g filter="url(#metaball)" id="lava-blobs">
+        <circle class="lava-c" cx="200" cy="80" r="42" fill="#141412"/>
+        <circle class="lava-c" cx="160" cy="200" r="36" fill="#141412"/>
+        <circle class="lava-c" cx="250" cy="320" r="44" fill="#141412"/>
+        <circle class="lava-c" cx="180" cy="420" r="38" fill="#141412"/>
+        <circle class="lava-c" cx="280" cy="160" r="30" fill="#141412"/>
+        <circle class="lava-c" cx="130" cy="360" r="34" fill="#141412"/>
+        <circle class="lava-c" cx="300" cy="440" r="28" fill="#141412"/>
+      </g>
+    </svg>
+  </div>
+</section>
+
+<footer>
+  <div><svg class="fl"><use href="#al"></use></svg><div class="fs" contenteditable="false">Personal Intelligence Studio · 2026</div></div>
+  <div class="fr en" contenteditable="false">ㅇYours.</div>
+  <div class="fr ko" style="font-family:var(--kr)" contenteditable="false"><br></div>
+</footer>
+
+<script>
+function tl(){
+  document.body.classList.toggle('lk');
+  document.querySelector('.lb').textContent=document.body.classList.contains('lk')?'English':'한국어'
+}
+function st(n,el){
+  document.querySelectorAll('.ptab').forEach(t=>t.classList.remove('act'));
+  document.querySelectorAll('.ppan').forEach(p=>{p.classList.remove('act');p.style.display='none'});
+  el.classList.add('act');
+  const p=document.getElementById('p-'+n);
+  p.style.display='grid';void p.offsetWidth;p.classList.add('act')
+}
+window.addEventListener('scroll',()=>document.getElementById('nv').classList.toggle('sc',window.scrollY>50));
+
+// Belief: fast beam sweep via CSS ::before, amber fill via .bel:hover background transition
+document.querySelectorAll('.rv').forEach(el=>
+  new IntersectionObserver(e=>e.forEach(x=>{if(x.isIntersecting)x.target.classList.add('in')}),{threshold:.1}).observe(el)
+);
+
+// Lava lamp metaball animation
+(function(){
+  const blobs = document.querySelectorAll('.lava-c');
+  if(!blobs.length) return;
+  const W=400, H=500;
+  const state = [];
+  blobs.forEach((b,i)=>{
+    const cx=parseFloat(b.getAttribute('cx'));
+    const cy=parseFloat(b.getAttribute('cy'));
+    const r=parseFloat(b.getAttribute('r'));
+    // Each blob gets a unique slow drift with slight randomness
+    state.push({
+      el:b, ox:cx, oy:cy, r:r,
+      // Two sine waves per axis for organic motion
+      ax: 35 + Math.random()*40,  // amplitude x
+      ay: 30 + Math.random()*45,  // amplitude y
+      fx: 0.0003 + Math.random()*0.0004, // freq x
+      fy: 0.0002 + Math.random()*0.0004, // freq y
+      px: Math.random()*Math.PI*2, // phase x
+      py: Math.random()*Math.PI*2, // phase y
+      // secondary wobble
+      ax2: 10 + Math.random()*20,
+      ay2: 12 + Math.random()*18,
+      fx2: 0.0005 + Math.random()*0.0006,
+      fy2: 0.0004 + Math.random()*0.0005,
+      px2: Math.random()*Math.PI*2,
+      py2: Math.random()*Math.PI*2
+    });
+  });
+
+  let running = false;
+  function animate(t){
+    state.forEach(s=>{
+      const x = s.ox + Math.sin(t*s.fx + s.px)*s.ax + Math.sin(t*s.fx2 + s.px2)*s.ax2;
+      const y = s.oy + Math.cos(t*s.fy + s.py)*s.ay + Math.cos(t*s.fy2 + s.py2)*s.ay2;
+      // Clamp within bounds
+      const cx = Math.max(s.r, Math.min(W-s.r, x));
+      const cy = Math.max(s.r, Math.min(H-s.r, y));
+      s.el.setAttribute('cx', cx);
+      s.el.setAttribute('cy', cy);
+    });
+    if(running) requestAnimationFrame(animate);
+  }
+
+  // Only animate when about section is in view
+  const abt = document.querySelector('.abt');
+  if(abt){
+    new IntersectionObserver(entries=>{
+      entries.forEach(e=>{
+        if(e.isIntersecting && !running){
+          running=true;
+          requestAnimationFrame(animate);
+        } else if(!e.isIntersecting){
+          running=false;
+        }
+      });
+    },{threshold:0.05}).observe(abt);
+  }
+})();
+const EDITABLE = 'p, h1, h2, .bt, .rlt, .rlx, .pd, .pp, .pat, .pax, .hs, .sl, .bel-label, .bel-inner p, .ab p, .fs, .fr, .ct-text, .ct-tag, .mock-title, .lc-voice, .bel-label';
+function toggleEdit(){
+  const on = document.body.classList.toggle('editing');
+  document.getElementById('edit-bar').classList.toggle('show', on);
+  document.getElementById('edit-btn').textContent = on ? 'Exit' : 'Edit';
+  document.getElementById('edit-btn').style.color = on ? 'var(--blk)' : 'var(--mid)';
+  document.querySelectorAll(EDITABLE).forEach(el => {
+    el.contentEditable = on ? 'true' : 'false';
+  });
+}
+</script>
+
+<div class="edit-bar" id="edit-bar">
+  <span>Edit mode — click any text to change it</span>
+  <button class="edit-done" onclick="toggleEdit()">Done</button>
+</div>
+
+
+</body></html>
