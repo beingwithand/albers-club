@@ -5,7 +5,7 @@
 <title>Resonance — A reading room for books you read on purpose</title>
 <meta name="description" content="Resonance turns any PDF or ebook into a reading room: natural narration that follows every sentence, a margin for what you notice, and a reader that learns what you read toward. The full reader is free.">
 <link rel="preconnect" href="https://fonts.googleapis.com/">
-<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Lora:ital@0;1&family=Saira+Condensed:wght@700;800;900&family=Syne:wght@400;500;600;700;800&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Lora:ital@0;1&family=Saira+Condensed:wght@700;800;900&family=Inter:wght@400;500;600;700&family=Syne:wght@400;500;600;700;800&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
 <link rel="icon" type="image/png" href="assets/resonance-icon.png">
 <link rel="apple-touch-icon" href="assets/resonance-icon.png">
 <style>
@@ -13,11 +13,15 @@
   --sand:#E2D5BC;--sand-lt:#EDE3CE;--sand-dk:#C8B89E;--sand-xlt:#F5EFE3;
   --blk:#141412;--pink:#D4245C;--amber:#CC8E00;--coral:#C02416;
   --gray:#46423E;--mid:#7C7468;--lt:#C4B8A8;
-  --sf:'Instrument Serif',Georgia,serif;--sn:'Syne',sans-serif;--kr:'Noto Sans KR',sans-serif
+  --sf:'Instrument Serif',Georgia,serif;--sn:'Syne',sans-serif;--kr:'Noto Sans KR',sans-serif;
+  --bd:'Inter',system-ui,-apple-system,sans-serif
 }
 *{margin:0;padding:0;box-sizing:border-box}
 html{scroll-behavior:smooth;font-size:17px}
-body{font-family:var(--sn);background:var(--sand);color:var(--blk);-webkit-font-smoothing:antialiased;overflow-x:hidden;line-height:1.65}
+body{font-family:var(--bd);background:var(--sand);color:var(--blk);-webkit-font-smoothing:antialiased;overflow-x:hidden;line-height:1.65}
+/* Syne clips lowercase descenders on iOS Safari — keep it only on the uppercase
+   chrome (no descenders); body text uses Inter. */
+.nl,.lang,.eyebrow,.appstore .as-sm,.d-title,.d-badge,.d-voice,.scene-eyebrow,.sl,.f-links,.rcard{font-family:var(--sn)}
 .ko{display:none}body.lk .ko{display:block}body.lk .en{display:none}
 .inko{display:none}body.lk .inko{display:inline}body.lk .inen{display:none}
 a{color:inherit}
@@ -55,7 +59,7 @@ nav.scrolled{padding:.7rem 3.5rem}
   background:repeating-linear-gradient(90deg,transparent 0,transparent 8px,rgba(226,213,188,.055) 8px,rgba(226,213,188,.055) 10px);pointer-events:none}
 .hero-grid{position:relative;z-index:2;max-width:1180px;margin:0 auto;width:100%;display:grid;grid-template-columns:1.05fr .95fr;gap:4rem;align-items:center}
 .eyebrow{font-size:.65rem;font-weight:800;letter-spacing:.24em;text-transform:uppercase;color:rgba(204,142,0,.85);margin-bottom:1.5rem;animation:fu 1s ease .1s both}
-.hero h1{font-family:var(--sf);font-size:clamp(3.2rem,7vw,6rem);line-height:1.18;color:var(--sand);letter-spacing:-.015em;animation:fu 1s ease .2s both}
+.hero h1{font-family:var(--sf);font-size:clamp(3.2rem,7vw,6rem);line-height:1.02;color:var(--sand);letter-spacing:-.015em;animation:fu 1s ease .2s both}
 .hero h1 em{font-style:italic;color:var(--amber)}
 .hsub{font-size:1.08rem;color:rgba(226,213,188,.62);max-width:520px;margin-top:1.8rem;line-height:1.8;animation:fu 1s ease .4s both}
 .cta-row{display:flex;align-items:center;gap:1.2rem;margin-top:2.6rem;flex-wrap:wrap;animation:fu 1s ease .6s both}
@@ -90,7 +94,7 @@ nav.scrolled{padding:.7rem 3.5rem}
 .scene-sticky{position:sticky;top:0;height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2.6rem;padding:5rem 1.5rem;overflow:hidden}
 .scene-eyebrow{font-size:.65rem;font-weight:800;letter-spacing:.24em;text-transform:uppercase;color:rgba(204,142,0,.85)}
 .scene-cap{position:relative;min-height:3.2em;width:100%;max-width:720px;text-align:center}
-.scene-cap p{position:absolute;left:0;right:0;top:0;margin:0;font-family:var(--sf);font-size:clamp(1.9rem,4.4vw,3.2rem);line-height:1.26;letter-spacing:-.01em;color:var(--sand);opacity:0;transform:translateY(14px);transition:opacity .6s cubic-bezier(.16,1,.3,1),transform .6s cubic-bezier(.16,1,.3,1)}
+.scene-cap p{position:absolute;left:0;right:0;top:0;margin:0;font-family:var(--sf);font-size:clamp(1.9rem,4.4vw,3.2rem);line-height:1.15;letter-spacing:-.01em;color:var(--sand);opacity:0;transform:translateY(14px);transition:opacity .6s cubic-bezier(.16,1,.3,1),transform .6s cubic-bezier(.16,1,.3,1)}
 .scene-cap p.on{opacity:1;transform:none}
 .scene-reader{width:min(440px,86vw);background:#EFE4CB;border:1px solid #D9CFB3;border-radius:20px;padding:1.8rem;box-shadow:0 50px 100px -30px rgba(0,0,0,.6)}
 .scene-reader .d-prog{height:2px;background:#E0D2B6;margin-bottom:1.4rem}
@@ -107,7 +111,7 @@ section{padding:8rem 3.5rem;max-width:1100px;margin:0 auto}
 .sl{font-size:.65rem;font-weight:800;letter-spacing:.2em;text-transform:uppercase;color:var(--mid);margin-bottom:1.3rem}
 .feat{display:grid;grid-template-columns:1fr 1fr;gap:4.5rem;align-items:center;padding:5rem 0;border-top:1px solid rgba(20,20,18,.08)}
 .feat:nth-child(even) .feat-vis{order:-1}
-.feat h2{font-family:var(--sf);font-size:clamp(2rem,3.6vw,3rem);line-height:1.26;letter-spacing:-.01em;margin-bottom:1.2rem}
+.feat h2{font-family:var(--sf);font-size:clamp(2rem,3.6vw,3rem);line-height:1.15;letter-spacing:-.01em;margin-bottom:1.2rem}
 .feat p{font-size:1.02rem;color:var(--gray);line-height:1.85;max-width:440px}
 .feat-vis{background:var(--sand-lt);border:1px solid rgba(20,20,18,.07);border-radius:8px;padding:2.4rem;min-height:240px;display:flex;flex-direction:column;justify-content:center;gap:.9rem}
 .chip{font-size:.78rem;color:var(--blk);background:var(--sand-xlt);border:1px solid rgba(20,20,18,.08);border-radius:6px;padding:.7rem .9rem}

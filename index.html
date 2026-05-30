@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="robots" content="noindex,nofollow">
 <title>Albers Club — Personal Intelligence Studio</title>
 <link rel="preconnect" href="https://fonts.googleapis.com/">
-<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Lora:ital@0;1&family=Syne:wght@400;500;600;700;800&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Lora:ital@0;1&family=Inter:wght@400;500;600;700&family=Syne:wght@400;500;600;700;800&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
 <link rel="icon" type="image/png" href="assets/resonance-icon.png">
 <link rel="apple-touch-icon" href="assets/resonance-icon.png">
 <style>
@@ -16,12 +16,16 @@
   --gray:#46423E;--mid:#7C7468;--lt:#C4B8A8;
   --sf:'Instrument Serif',Georgia,serif;
   --sn:'Syne',sans-serif;
+  --bd:'Inter',system-ui,-apple-system,sans-serif;
   --kr:'Noto Sans KR',sans-serif
 }
 
 *{margin:0;padding:0;box-sizing:border-box}
 html{scroll-behavior:smooth;font-size:17px}
-body{font-family:var(--sn);background:var(--sand);color:var(--blk);-webkit-font-smoothing:antialiased;overflow-x:hidden;line-height:1.65}
+body{font-family:var(--bd);background:var(--sand);color:var(--blk);-webkit-font-smoothing:antialiased;overflow-x:hidden;line-height:1.65}
+/* Syne clips lowercase descenders on iOS Safari (any load method) — keep it
+   only on the uppercase chrome that has no descenders; body text uses Inter. */
+.nl,.sl,.bel-label,.ptg,.mock-title,.mock-badge,.ct-tag,.cl-n,.lt-n,.lc-voice,.mock-info-label{font-family:var(--sn)}
 
 .ko{display:none}
 body.lk .ko{display:block}body.lk .en{display:none}
@@ -175,7 +179,7 @@ section{padding:9rem 3.5rem;max-width:1100px;margin:0 auto}
 .bt{
   font-family:var(--sf);
   font-size:clamp(2.4rem,4.8vw,4.2rem);
-  font-weight:400;line-height:1.36;
+  font-weight:400;line-height:1.28;
   color:var(--blk);max-width:860px;
   letter-spacing:-.01em
 }
