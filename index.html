@@ -2,12 +2,26 @@
 <!-- saved from url=(0048)file:///C:/Users/1/Downloads/albers-site_10.html -->
 <html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 
-<meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="robots" content="noindex,nofollow">
-<title>Albers Club — Personal Intelligence Studio</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="robots" content="index,follow">
+<meta name="google-site-verification" content="uAmt2rvxSkHdlXvX4qebIb3Os8r64iMpXfIbKTIcDqg">
+<title>Albers Club — Design and technology for people</title>
+<meta name="description" content="Albers Club — design and technology for people. Makers of Resonance.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Albers">
+<meta property="og:title" content="Albers Club — Design and technology for people">
+<meta property="og:description" content="Designed by people, for people. Makers of Resonance — the reader that turns any PDF or ebook into a reading room.">
+<meta property="og:url" content="https://albers.club/">
+<meta property="og:image" content="https://albers.club/assets/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Albers Club — Design and technology for people">
+<meta name="twitter:description" content="Designed by people, for people. Makers of Resonance.">
+<meta name="twitter:image" content="https://albers.club/assets/og-image.png">
 <link rel="preconnect" href="https://fonts.googleapis.com/">
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Lora:ital@0;1&family=Inter:wght@400;500;600;700&family=Syne:wght@400;500;600;700;800&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
-<link rel="icon" type="image/png" href="assets/resonance-icon.png">
-<link rel="apple-touch-icon" href="assets/resonance-icon.png">
+<link rel="icon" type="image/png" href="assets/albers-icon.png">
+<link rel="apple-touch-icon" href="assets/albers-icon.png">
 <style>
 :root{
   --sand:#E2D5BC;--sand-lt:#EDE3CE;--sand-dk:#C8B89E;--sand-xlt:#F5EFE3;
@@ -36,7 +50,6 @@ body.lk .koi{display:inline}body.lk .eni{display:none}.koi{display:none}
 
 /* ── KEYFRAMES ── */
 @keyframes fu{from{opacity:0;transform:translateY(28px)}to{opacity:1;transform:none}}
-@keyframes lg{from{transform:scaleX(0)}to{transform:scaleX(1)}}
 
 /* Vivid Bauhaus sweep — bold color band racing across */
 @keyframes bauhaus-sweep{
@@ -113,7 +126,7 @@ nav.sc{padding:1rem 3.5rem}
   -webkit-mask-image:radial-gradient(125% 80% at 82% 50%,#000 40%,transparent 82%);
   mask-image:radial-gradient(125% 80% at 82% 50%,#000 40%,transparent 82%)
 }
-.lava-wrap svg{width:100%;height:100%}
+.lava-wrap img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;pointer-events:none}
 
 /* ── HERO ── */
 .hero{
@@ -141,10 +154,11 @@ nav.sc{padding:1rem 3.5rem}
   animation:fu 1s ease .5s both
 }
 .hln{
-  width:52px;height:1.5px;background:rgba(200,184,158,.5);
-  margin-top:2.8rem;transform-origin:left;
-  animation:lg .8s ease .8s both
+  width:52px;height:2px;background:rgba(200,184,158,.5);
+  margin-top:2.8rem;
+  animation:hln-grow .8s ease .8s both
 }
+@keyframes hln-grow{from{width:0}to{width:52px}}
 
 /* ── SECTIONS ── */
 section{padding:9rem 3.5rem;max-width:1100px;margin:0 auto}
@@ -157,9 +171,9 @@ section{padding:9rem 3.5rem;max-width:1100px;margin:0 auto}
 .bel{
   padding:8rem 0;position:relative;overflow:hidden;
   background:var(--sand);
-  transition:background 1.2s cubic-bezier(.4,0,.2,1)
+  transition:background 2s cubic-bezier(.4,0,.2,1)
 }
-.bel:hover{background:rgba(204,142,0,0.82)}
+.bel:hover,.bel.lit{background:rgba(204,142,0,0.82)}
 /* The sweeping color beam inside belief */
 .bel::before{
   content:'';position:absolute;top:0;bottom:0;
@@ -170,7 +184,7 @@ section{padding:9rem 3.5rem;max-width:1100px;margin:0 auto}
   z-index:0;
   opacity:0
 }
-.bel:hover::before{animation:belief-sweep-beam .55s cubic-bezier(.16,1,.3,1) forwards}
+.bel:hover::before,.bel.lit::before{animation:belief-sweep-beam .55s cubic-bezier(.16,1,.3,1) forwards}
 .bel-inner{max-width:1100px;margin:0 auto;padding:0 3.5rem;position:relative;z-index:1}
 .bel-label{
   font-size:.65rem;font-weight:800;letter-spacing:.2em;
@@ -387,7 +401,8 @@ section{padding:9rem 3.5rem;max-width:1100px;margin:0 auto}
   content:'';position:absolute;left:0;
   width:100%;height:1px;bottom:0;
   transform:scaleX(0);transform-origin:left;opacity:1;
-  pointer-events:none
+  pointer-events:none;
+  transition:transform 1.2s cubic-bezier(.4,0,.2,1)
 }
 .rl .rv:nth-child(1).fx::after{background:var(--amber)}
 .rl .rv:nth-child(2).fx::after{background:var(--pink)}
@@ -409,6 +424,14 @@ section{padding:9rem 3.5rem;max-width:1100px;margin:0 auto}
 .rl .rv:nth-child(4):hover .rlt{color:var(--amber)}
 .rl .rv:nth-child(5):hover .rlt{color:var(--pink)}
 .rl .rv:nth-child(6):hover .rlt{color:var(--coral)}
+/* Touch devices (no hover): same color shimmer fires once on scroll-into-view */
+.rl .rv.fx.lit::after{transform:scaleX(1)}
+.rl .rv:nth-child(1).lit .rlt{color:var(--amber)}
+.rl .rv:nth-child(2).lit .rlt{color:var(--pink)}
+.rl .rv:nth-child(3).lit .rlt{color:var(--coral)}
+.rl .rv:nth-child(4).lit .rlt{color:var(--amber)}
+.rl .rv:nth-child(5).lit .rlt{color:var(--pink)}
+.rl .rv:nth-child(6).lit .rlt{color:var(--coral)}
 .rlx{font-size:.9rem;color:rgba(122,116,104,.7);line-height:1.8}
 
 /* ── ABOUT ── */
@@ -525,18 +548,16 @@ body.editing [contenteditable]:focus{
   <div class="hco">
     <h1 class="en" contenteditable="false"><svg class="hl"><use href="#al"></use></svg></h1>
     <h1 class="ko" style="font-family:var(--kr);font-size:clamp(6rem,13vw,11rem);font-weight:700;color:var(--sand);animation:fu 1.1s ease .2s both;line-height:1" contenteditable="false">알버스</h1>
-    <p class="hs en" contenteditable="false">Designed by people, for the people&nbsp;</p>
-    <p class="hs ko" style="font-family:var(--kr)" contenteditable="false">디자인, 인<span style="font-size: 17.85px;">간을 의한, 인</span><span style="font-size: 17.85px;">간을 위한&nbsp;</span>&nbsp;</p>
+    <p class="hs en" contenteditable="false">Designed by people, for people&nbsp;</p>
+    <p class="hs ko" style="font-family:var(--kr)" contenteditable="false">디자인, 인<span style="font-size: 17.85px;">간에 의한, 인</span><span style="font-size: 17.85px;">간을 위한&nbsp;</span>&nbsp;</p>
     <div class="hln"></div>
   </div>
 </section>
 
 <div class="bel" id="belief" style="padding:9rem 0;">
   <div class="bel-inner">
-    <div class="bel-label rv en in" contenteditable="false">Belief</div>
-    <div class="bel-label rv ko in" style="font-family:var(--kr)" contenteditable="false">신념</div>
-    <p class="bt rv en in" contenteditable="false">Design and technology as the experience. Make technology useful and simple.</p>
-    <p class="bt rv ko in" style="font-family:var(--kr)" contenteditable="false">디자인과 기술이 제품인. 기술을 실용적이며 간단한게.</p>
+    <p class="bt rv en in" contenteditable="false">Technology useful and simple. Intuitive and alive.</p>
+    <p class="bt rv ko in" style="font-family:var(--kr)" contenteditable="false">편리하고 직관적이며 생기있는 디자인과 기술</p>
   </div>
 </div>
 
@@ -571,7 +592,7 @@ body.editing [contenteditable]:focus{
     <div class="ppan" id="p-relic" style="display: none;">
       <div>
         <p class="pd en" contenteditable="false"><strong style="color:var(--amber)">Coming soon.</strong> Your digital past, preserved. Import data exports from Facebook, Google, Twitter, WhatsApp, and more. Relic parses everything into one archive on your device.</p>
-        <p class="pd ko" style="font-family:var(--kr)" contenteditable="false"><strong style="color:var(--amber)">준비 중.</strong> 당신의 디지털 과거를 보존합니다. 페이스북, 구글, 트위터 등의 데이터를 가져오세요. 하나의 아카이브로 통합합니다.</p>
+        <p class="pd ko" style="font-family:var(--kr)" contenteditable="false"><strong style="color:var(--amber)">준비 중.</strong> 사용자의 디지털 과거를 보존합니다. 페이스북, 구글, 트위터 등의 데이터를 가져오세요. 하나의 아카이브로 통합합니다.</p>
         <div class="ppts en">
           <div class="pp" contenteditable="false">8 platforms parsed into one unified schema</div>
           <div class="pp" contenteditable="false">Semantic search across all your history</div>
@@ -598,7 +619,7 @@ body.editing [contenteditable]:focus{
     <div class="ppan act" id="p-lectio" style="display: grid;">
       <div>
         <p class="pd en" contenteditable="false">A reading room for books you read on purpose. Drop in a PDF or ebook and it starts reading aloud in seconds — sentence by sentence, in a voice that sounds human. Highlight what matters, ask questions, and let Resonance learn what you read toward and bring it back to you.</p>
-        <p class="pd ko" style="font-family:var(--kr)" contenteditable="false">목적을 가지고 책을 읽는 사람을 위한 리더. PDF나 전자책을 넣으면 몇 초 만에 사람 같은 목소리로, 문장을 한 줄씩 따라가며 읽어줍니다. 중요한 곳을 표시하고 질문하면, Resonance가 당신이 무엇을 향해 읽는지 배워 다시 꺼내 보여줍니다.</p>
+        <p class="pd ko" style="font-family:var(--kr)" contenteditable="false">진정으로 읽는 사람들을 위한 앱. PDF 파일이나 전자책을 순식간에 사람 목소리로, 문장을 한 줄씩 짚어가며 읽어줍니다. 중요한 부분을 표시하고 질문하면, Resonance가 사용자의 관심사와 과거 일지를 연결해줍니다.</p>
         <div class="ppts en">
           <div class="pp" contenteditable="false">Instant import — drop in a PDF or ebook and start listening in seconds</div>
           <div class="pp" contenteditable="false">Instant play — tap once and it reads aloud naturally, following each sentence; tap any word to jump</div>
@@ -606,10 +627,10 @@ body.editing [contenteditable]:focus{
           <div class="pp" contenteditable="false">Capture &amp; understand — highlights, margin notes, voice notes, a journal, plus summaries, vocabulary, and answers that stay private on your device</div>
         </div>
         <div class="ppts ko" style="font-family:var(--kr)">
-          <div class="pp" contenteditable="false">즉시 가져오기 — PDF나 전자책을 넣으면 몇 초 안에 듣기 시작</div>
-          <div class="pp" contenteditable="false">즉시 재생 — 한 번 탭하면 문장을 따라가며 자연스럽게 낭독, 단어를 탭하면 위치 이동</div>
-          <div class="pp" contenteditable="false">개인화 — 당신이 향해 읽는 주제를 배워 표시·책들 사이의 테마·읽기 초상을 다시 꺼내 보여줍니다</div>
-          <div class="pp" contenteditable="false">기록과 이해 — 하이라이트, 여백 메모, 음성 메모, 저널, 그리고 기기 안에 머무는 요약·어휘·답변</div>
+          <div class="pp" contenteditable="false">신속한 가져오기 — PDF나 전자책을 넣으면 몇 초 만에 정리하고 읽기 시작</div>
+          <div class="pp" contenteditable="false">즉시 재생 — 한 번 터치로 자연스럽게 낭독 시작</div>
+          <div class="pp" contenteditable="false">개인화 — 사용자의 관심사를 배워 표시·책들 사이의 테마·읽기 프로필을 꺼내 보여줍니다</div>
+          <div class="pp" contenteditable="false">기록과 이해 — 하이라이트, 메모, 음성 녹음, 수첩, 그리고 기기 안에서만 머무는 요약·어휘·답변</div>
         </div>
         <div class="ptgs">
           <span class="ptg fx">Instant import</span><span class="ptg fx">Read-aloud</span><span class="ptg fx">Personalized</span><span class="ptg fx">Private &amp; offline</span><span class="ptg fx">30+ languages</span>
@@ -648,7 +669,7 @@ body.editing [contenteditable]:focus{
     <span class="sl en" style="margin:0" contenteditable="false">Coming from Albers</span>
     <span class="sl ko" style="margin:0;font-family:var(--kr)" contenteditable="false">알버스의 다음 작업</span>
     <span class="en" style="font-size:.9rem;color:var(--mid);opacity:.75" contenteditable="false">Canopy — a place for every thought · Relic — your digital past, preserved</span>
-    <span class="ko" style="font-size:.9rem;color:var(--mid);opacity:.75;font-family:var(--kr)" contenteditable="false">Canopy — 모든 생각을 위한 공간 · Relic — 당신의 디지털 과거</span>
+    <span class="ko" style="font-size:.9rem;color:var(--mid);opacity:.75;font-family:var(--kr)" contenteditable="false">Canopy — 모든 생각을 위한 공간 · Relic — 사용자의 디지털 과거</span>
   </div>
 </section>
 
@@ -656,12 +677,12 @@ body.editing [contenteditable]:focus{
   <div class="ri">
     <div><div class="sl rv en in" contenteditable="false">Principles</div><div class="sl rv ko in" style="font-family:var(--kr)" contenteditable="false">원칙</div></div>
     <div class="rl">
-      <div class="rv fx in"><div class="rlt en" contenteditable="false">Honest pricing.</div><div class="rlt ko" style="font-family:var(--kr)" contenteditable="false">정직한 가격.</div><div class="rlx en" contenteditable="false">Canopy is pay-once. Resonance is a subscription whose free tier is the whole reader. No dark patterns.</div><div class="rlx ko" style="font-family:var(--kr)" contenteditable="false">Canopy는 한 번 구매. Resonance는 구독이지만, 무료만으로도 리더 전체를 씁니다. 다크 패턴 없음.</div></div>
+      <div class="rv fx in"><div class="rlt en" contenteditable="false">Honest pricing.</div><div class="rlt ko" style="font-family:var(--kr)" contenteditable="false">정직한 가격.</div><div class="rlx en" contenteditable="false">Canopy is pay-once. Resonance is a subscription whose free tier is the whole reader. No dark patterns.</div><div class="rlx ko" style="font-family:var(--kr)" contenteditable="false">Canopy는 한 번 구매. Resonance는 구독형, 무료로 듣기와 읽기 가능. 투명성.</div></div>
       <div class="rv fx in"><div class="rlt en" contenteditable="false">No ads.</div><div class="rlt ko" style="font-family:var(--kr)" contenteditable="false">광고 없음.</div><div class="rlx en" contenteditable="false">Your thinking and your memories are not inventory.</div><div class="rlx ko" style="font-family:var(--kr)" contenteditable="false">사고와 기억은 상품이 아닙니다.</div></div>
       <div class="rv fx in"><div class="rlt en" contenteditable="false">No training on your data.</div><div class="rlt ko" style="font-family:var(--kr)" contenteditable="false">데이터 학습 없음.</div><div class="rlx en" contenteditable="false">Your data is never used to train AI models.</div><div class="rlx ko" style="font-family:var(--kr)" contenteditable="false">데이터는 AI 학습에 사용되지 않습니다.</div></div>
       <div class="rv fx in"><div class="rlt en" contenteditable="false">Full export. Always free.</div><div class="rlt ko" style="font-family:var(--kr)" contenteditable="false">내보내기 항상 무료.</div><div class="rlx en" contenteditable="false">Your data leaves when you leave. No restrictions.</div><div class="rlx ko" style="font-family:var(--kr)" contenteditable="false">떠날 때 데이터도 함께. 제한 없음.</div></div>
       <div class="rv fx in"><div class="rlt en" contenteditable="false">AI is invisible.</div><div class="rlt ko" style="font-family:var(--kr)" contenteditable="false">AI는 보이지 않습니다.</div><div class="rlx en" contenteditable="false">It runs silently. It surfaces only when useful.</div><div class="rlx ko" style="font-family:var(--kr)" contenteditable="false">조용히 작동합니다. 유용할 때만 나타납니다.</div></div>
-      <div class="rv fx in"><div class="rlt en" contenteditable="false">Privacy by default.</div><div class="rlt ko" style="font-family:var(--kr)" contenteditable="false">기본값은 프라이버시.</div><div class="rlx en" contenteditable="false">Local-first. No telemetry on content. Your device, your data.</div><div class="rlx ko" style="font-family:var(--kr)" contenteditable="false">로컬 우선. 콘텐츠 분석 없음. 당신의 데이터.</div></div>
+      <div class="rv fx in"><div class="rlt en" contenteditable="false">Privacy by default.</div><div class="rlt ko" style="font-family:var(--kr)" contenteditable="false">기본값은 프라이버시.</div><div class="rlx en" contenteditable="false">Local-first. No telemetry on content. Your device, your data.</div><div class="rlx ko" style="font-family:var(--kr)" contenteditable="false">로컬 우선. 콘텐츠 분석 없음. 사용자의 데이터.</div></div>
     </div>
   </div>
 </div>
@@ -669,45 +690,25 @@ body.editing [contenteditable]:focus{
 <section class="abt" id="about">
   <div style="position:relative;z-index:1"><div class="sl rv en in" contenteditable="false">About</div><div class="sl rv ko in" style="font-family:var(--kr)" contenteditable="false">소개</div></div>
   <div class="ab">
-    <p class="rv en in" contenteditable="false">Albers Club is carefully designed by an individual.&nbsp;</p>
+    <p class="rv en in" contenteditable="false">Albers Club is a one-person studio.&nbsp;</p>
     <p class="rv ko in" style="font-family:var(--kr)" contenteditable="false">알버스 클럽은 일인 스튜디오입니다.</p>
     <p class="rv en in" contenteditable="false"></p>
     <p class="rv ko in" style="font-family:var(--kr)" contenteditable="false"></p>
     <p class="rv en in" contenteditable="false">Technology and art should not be separated. Rather, it should work hand in hand.</p>
-    <p class="rv ko in" style="font-family:var(--kr)" contenteditable="false">기술과 예술은 분리되선 안되고 같이 작용해야 합니다.</p>
+    <p class="rv ko in" style="font-family:var(--kr)" contenteditable="false">기술과 예술은 분리되선 안 되며 서로 작용해야 합니다.</p>
     <p class="rv en in" contenteditable="false">Albers Club will focus on ethical, human friendly designs.</p>
     <p class="rv ko in" style="font-family:var(--kr)" contenteditable="false">알버스 클럽은 윤리적이며 유저 친화적인 디자인에 집중할 것입니다.</p>
   </div>
-  <!-- Lava lamp metaballs -->
+  <!-- Lava lamp: seamless metaball loop as an animated WebP. Unlike <video>, an animated
+       image autoplays even in iOS Low Power Mode, with no play button. -->
   <div class="lava-wrap">
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 500" preserveAspectRatio="xMidYMid slice">
-      <defs>
-        <filter id="metaball">
-          <feGaussianBlur in="SourceGraphic" stdDeviation="18" result="blur"/>
-          <feColorMatrix in="blur" mode="matrix"
-            values="1 0 0 0 0
-                    0 1 0 0 0
-                    0 0 1 0 0
-                    0 0 0 60 -29" result="meta"/>
-          <feComposite in="SourceGraphic" in2="meta" operator="atop"/>
-        </filter>
-      </defs>
-      <g filter="url(#metaball)" id="lava-blobs">
-        <circle class="lava-c" cx="200" cy="80" r="42" fill="#141412"/>
-        <circle class="lava-c" cx="160" cy="200" r="36" fill="#141412"/>
-        <circle class="lava-c" cx="250" cy="320" r="44" fill="#141412"/>
-        <circle class="lava-c" cx="180" cy="420" r="38" fill="#141412"/>
-        <circle class="lava-c" cx="280" cy="160" r="30" fill="#141412"/>
-        <circle class="lava-c" cx="130" cy="360" r="34" fill="#141412"/>
-        <circle class="lava-c" cx="300" cy="440" r="28" fill="#141412"/>
-      </g>
-    </svg>
+    <img class="lava-vid" src="assets/lava.webp?v=18" alt="" aria-hidden="true">
   </div>
 </section>
 
 <footer>
-  <div><svg class="fl"><use href="#al"></use></svg><div class="fs" contenteditable="false">Personal Intelligence Studio · 2026</div></div>
-  <div class="fr en" contenteditable="false">ㅇYours.</div>
+  <div><svg class="fl"><use href="#al"></use></svg><div class="fs" contenteditable="false">Design and technology for people · 2026</div></div>
+  <div class="fr en" contenteditable="false">Yours.</div>
   <div class="fr ko" style="font-family:var(--kr)" contenteditable="false"><br></div>
 </footer>
 
@@ -730,66 +731,47 @@ document.querySelectorAll('.rv').forEach(el=>
   new IntersectionObserver(e=>e.forEach(x=>{if(x.isIntersecting)x.target.classList.add('in')}),{threshold:.1}).observe(el)
 );
 
-// Lava lamp metaball animation
+// Belief: amber fill + color beam fires every time the section scrolls into view (re-arms when it leaves)
 (function(){
-  const blobs = document.querySelectorAll('.lava-c');
-  if(!blobs.length) return;
-  const W=400, H=500;
-  const state = [];
-  blobs.forEach((b,i)=>{
-    const cx=parseFloat(b.getAttribute('cx'));
-    const cy=parseFloat(b.getAttribute('cy'));
-    const r=parseFloat(b.getAttribute('r'));
-    // Each blob gets a unique slow drift with slight randomness
-    state.push({
-      el:b, ox:cx, oy:cy, r:r,
-      // Two sine waves per axis for organic motion
-      ax: 35 + Math.random()*40,  // amplitude x
-      ay: 30 + Math.random()*45,  // amplitude y
-      fx: 0.0003 + Math.random()*0.0004, // freq x
-      fy: 0.0002 + Math.random()*0.0004, // freq y
-      px: Math.random()*Math.PI*2, // phase x
-      py: Math.random()*Math.PI*2, // phase y
-      // secondary wobble
-      ax2: 10 + Math.random()*20,
-      ay2: 12 + Math.random()*18,
-      fx2: 0.0005 + Math.random()*0.0006,
-      fy2: 0.0004 + Math.random()*0.0005,
-      px2: Math.random()*Math.PI*2,
-      py2: Math.random()*Math.PI*2
-    });
-  });
-
-  let running = false;
-  function animate(t){
-    state.forEach(s=>{
-      const x = s.ox + Math.sin(t*s.fx + s.px)*s.ax + Math.sin(t*s.fx2 + s.px2)*s.ax2;
-      const y = s.oy + Math.cos(t*s.fy + s.py)*s.ay + Math.cos(t*s.fy2 + s.py2)*s.ay2;
-      // Let blobs drift all the way to (and just past) the edges, where the
-      // wrap's mask fades them out — avoids the flat pile-up against a wall
-      const cx = Math.max(-s.r, Math.min(W+s.r, x));
-      const cy = Math.max(-s.r, Math.min(H+s.r, y));
-      s.el.setAttribute('cx', cx);
-      s.el.setAttribute('cy', cy);
-    });
-    if(running) requestAnimationFrame(animate);
-  }
-
-  // Only animate when about section is in view
-  const abt = document.querySelector('.abt');
-  if(abt){
-    new IntersectionObserver(entries=>{
-      entries.forEach(e=>{
-        if(e.isIntersecting && !running){
-          running=true;
-          requestAnimationFrame(animate);
-        } else if(!e.isIntersecting){
-          running=false;
-        }
-      });
-    },{threshold:0.05}).observe(abt);
-  }
+  const bel=document.getElementById('belief');
+  if(!bel)return;
+  let armed=true, t=null;
+  const io=new IntersectionObserver(e=>e.forEach(x=>{
+    if(x.isIntersecting && armed){
+      armed=false;
+      bel.classList.add('lit');
+      clearTimeout(t);
+      t=setTimeout(()=>bel.classList.remove('lit'),3000);
+    } else if(!x.isIntersecting){
+      armed=true;
+    }
+  }),{threshold:.5});
+  io.observe(bel);
 })();
+
+// Principles: staggered color shimmer (underline draw + title color), re-fires each time the grid scrolls into view
+(function(){
+  const items=[...document.querySelectorAll('.rl .rv.fx')];
+  if(!items.length)return;
+  const grid=document.querySelector('.rl');
+  let armed=true, timers=[];
+  const io=new IntersectionObserver(e=>e.forEach(x=>{
+    if(x.isIntersecting && armed){
+      armed=false;
+      timers.forEach(clearTimeout); timers=[];
+      items.forEach((it,i)=>{
+        timers.push(setTimeout(()=>{
+          it.classList.add('lit');
+          timers.push(setTimeout(()=>it.classList.remove('lit'),6000)); // hold fully-extended much longer
+        },i*750)); // slower sequential interval between rows
+      });
+    } else if(!x.isIntersecting){
+      armed=true;
+    }
+  }),{threshold:.3});
+  io.observe(grid);
+})();
+
 const EDITABLE = 'p, h1, h2, .bt, .rlt, .rlx, .pd, .pp, .pat, .pax, .hs, .sl, .bel-label, .bel-inner p, .ab p, .fs, .fr, .ct-text, .ct-tag, .mock-title, .lc-voice, .bel-label';
 function toggleEdit(){
   const on = document.body.classList.toggle('editing');
