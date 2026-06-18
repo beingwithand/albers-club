@@ -1,3 +1,7 @@
-# Pre-launch: keep the whole site out of search engines until launch.
+# Albers Club — public. Search engines welcome.
+# (Cloudflare prepends its managed rules above this, allowing search and
+# blocking AI-training crawlers.)
 User-agent: *
-Disallow: /
+Allow: /
+
+Sitemap: https://albers.club/sitemap.xml
