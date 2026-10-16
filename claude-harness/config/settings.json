@@ -151,7 +151,10 @@
       "Write(/rubrics/**)",
       "Write(**/rubrics/**)",
       "Edit(~/.claude/settings.json)",
-      "Write(~/.claude/settings.json)"
+      "Write(~/.claude/settings.json)",
+      "Read(~/.config/gh/**)",
+      "Bash(git commit --no-verify *)",
+      "Bash(git push --no-verify *)"
     ]
   },
   "sandbox": {

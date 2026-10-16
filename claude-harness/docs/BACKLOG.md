@@ -1,0 +1,33 @@
+# Harness backlog (from the architecture scout, 2026-10-16)
+
+Full notes: `research_notes/Claude harness/scout_architecture.md`.
+
+## Done
+- [x] Bash write guard for `evals/`, `rubrics/` and `tests/`: the `hooks/guard_protected.py` PreToolUse hook.
+- [x] Extra credential paths added to the Read deny list: gh, docker, kube, npmrc, pypirc.
+- [x] Deny `--no-verify` on git commit and push.
+- [x] Handoff records the git commit and branch, so a stale handoff can be detected.
+
+## Next, in priority order
+1. **Stop-hook verification gate.**
+   - Block the end of a turn when `PROGRESS.md` marks something done with no verification event.
+   - Add a fast-model gate (Trail of Bits style, but checking only the stated criteria).
+   - Guard against the hook triggering itself in a loop (planning-with-files).
+2. **Run skill evals** with `claude plugin eval --ablation with-without`.
+   - Copy Trail of Bits' `check_contamination.py` (CC-BY-SA, so keep attribution).
+   - Needs an API key, so use the Max monthly API credit.
+3. **Tune skill descriptions** with the official skill-creator loop: 20 should-trigger and should-not-trigger queries, split 60/40. These skills currently overlap: retro, handoff and distill-principles; intake and backcatalog; style-capture and style-guide.
+4. **Reshape the librarian loop like SkillOpt-Sleep:** harvest, mine, replay, make a bounded edit, gate it, stage it for review. Port the logic from `gate.py` into `eval_gate.py`.
+5. **Cheap correction detection** in `log_event.py`, using claude-reflect's pattern tables plus **Korean** patterns. The hook only tags; labeling stays weekly.
+6. **`kb.py fidelity`:** every number, date and quote must appear word for word in the raw source (port `check_evidence.py`, MIT). Also add `valid_to` instead of deleting facts, and never record a global "not found" claim.
+7. **Comparison mode for web-research:** an items file × a fields file, one JSON per item, `[uncertain]` markers, a validator, and resumable runs (Deep-Research-skills).
+8. **Browser:** use `playwright-cli` or `agent-browser` with domain allowlists. Keep Claude in Chrome for signed-in pages. Use DevTools MCP only with `--slim --no-usage-statistics`.
+9. **Install the official `hookify` and `session-report` plugins.** hookify gives rules that can be expired, and session-report gives cost per agent and per skill.
+10. **Retro upgrades:** mechanical violations become a lint or a hook. Expiry outcomes are Keep, Update, Consolidate, Replace or Delete. Findings cite `path:line`.
+
+## Avoid
+- fast-jev-compaction: it sends your conversation to a third party.
+- Installing superpowers, ECC, planning-with-files, spec-kit or VoltAgent wholesale. These add context bloat, and ECC auto-applies rules.
+- basic-memory: AGPL plus a paid tier.
+- The reference MCP memory server.
+- browser-use or Stagehand as the main browser: they run a second LLM, and browser-use has telemetry on.

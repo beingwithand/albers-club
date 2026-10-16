@@ -14,7 +14,7 @@ Write `HANDOFF.md` in the project root, overwriting any previous one after first
 4. **Dead ends:** what was tried and why it failed, so it isn't retried.
 5. **Open mishaps / lessons:** anything not yet turned into a rule.
 6. **Verify first:** what the next session must check before trusting this note.
-7. **Pointers:** `PROGRESS.md`, relevant `knowledge/` pages, session notes, commits.
+7. **Pointers:** `PROGRESS.md`, relevant `knowledge/` pages, session notes, commits. Also record the current `git_commit` (`git rev-parse --short HEAD`) and branch at the top, so a stale handoff can be detected: if HEAD has moved since, re-verify before trusting the note.
 
 ## Then
 - Append a `handoff` event to the log (see `schema/event.md`), with intent, situation and meta filled in.
