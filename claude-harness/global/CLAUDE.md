@@ -3,6 +3,14 @@
 My principles: @~/.claude/PRINCIPLES.md
 Why this harness exists: training-grade data, an AI-native Albers, continuous SOTA updates, and humans and agents working together (`docs/VISION.md` in the harness repo).
 
+## Global invariants (apply to everything: every agent, skill, hook, project and ritual)
+1. **Logged.** Every meaningful action, decision, correction and result is an append-only record. Nothing important lives only in chat.
+2. **Labeled.** Every record has its ontology type plus intent, situation and meta (`schema/`). Data is treated like annotation work.
+3. **Indexed.** Every folder or store that holds knowledge has a short index with pointers: what is where, why, and when it was updated. Read the index first, then open only what you need.
+4. **Verified.** Every step is precondition → action → postcondition → proof (`docs/VERIFICATION.md`).
+5. **Learned.** Every process has a learning loop (`learning/contracts.yaml`, principle 22).
+6. **Provenanced and private by tier.** Every record says where it came from and who authored it. Raw third-party or client text stays in the vault.
+
 ## About me
 - I'm a freelance KO↔EN translator and data annotator, I apply for freelance and other jobs, and I do coding, AI work and art/digital projects.
 - I write in both Korean and English. Match my language and register to the context (see the translator agent).
