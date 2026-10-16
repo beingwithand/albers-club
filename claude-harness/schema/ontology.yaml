@@ -17,7 +17,8 @@ types:
   Proof:       {fields: [id, kind, ref]}   # kind: output|test|quote|diff|screenshot|link
   Preference:  {fields: [id, statement, scope, source_event]}
   StylePair:   {fields: [id, ts, draft, final, language, direction, register, domain, audience, client, scope, reasoning, labels, edited, source, supersedes]}
-  Application: {fields: [id, org, role, applied_on, channel, status, next_step]}
+  Application: {fields: [id, org, role, applied_on, channel, status, next_step, joblead, source_thread, last_contact, fit_score]}
+  # Application status pipeline: lead -> applied -> screening -> test_task -> interview -> offer -> accepted | rejected | withdrawn | ghosted
   Evaluation:  {fields: [id, target, rubric, scores, judge, judge_model]}
   Invoice:     {fields: [id, client, project, items, currency, subtotal, withholding, total, issued, due, status]}
 
@@ -28,6 +29,7 @@ types:
   Organization: {fields: [id, name, kind, website, platforms]}   # kind: client|employer|agency|platform
   Platform:     {fields: [id, name, url, kind, account_status, first_seen, last_seen, evidence]}   # kind: job-board|freelance-marketplace|annotation|messaging
   JobLead:      {fields: [id, source, platform, org, role, url, posted, seen, deadline, fit_score, status, dedupe_key]}
+  SyncCursor:   {fields: [id, source, account, last_ts, last_id, updated]}   # incremental sync position per source
   Attachment:   {fields: [id, message, filename, mime, sha256, kind, archived_at]}   # kind: resume|cover-letter|source-doc|deliverable|invoice|other
 
 relations:
