@@ -1,7 +1,7 @@
 # Claude harness blueprint
 
 Working spec for a personal, self-improving Claude setup that survives losing any single machine.
-Status: draft v0.1 (2026-10-16). Source: conversation requirements. Everything here is to be refined, then built into a private `claude-harness` repo.
+Status: draft v0.2 (2026-10-16). Source: conversation requirements. Everything here is to be refined, then built into a private `claude-harness` repo.
 
 ## 0. Non-negotiables
 
@@ -104,6 +104,62 @@ Whenever you redirect an agent, the harness logs:
 
 Weekly, the librarian proposes rule changes. A correction that repeats across two or more projects is proposed as a global rule.
 
+### 4.6 Mishap log (self-correction capture)
+Whenever an agent notices it did something wrong and fixes it, it appends an incident record to `log/mishaps.md` and the event log. Each record covers:
+- what happened
+- how it was noticed
+- the fix
+- the root cause
+- how to prevent it (a proposed rule, check or hook)
+- how to repeat it, if the fix turned out to be a useful pattern
+- proof (a diff, output, screenshot or link)
+
+At session end, the open mishaps are reviewed and their prevention rules are proposed. Rules you approve go into project or global `CLAUDE.md`, a verifier, or a hook.
+
+### 4.7 Session retrospective (automatic)
+At the end of every substantial session (a SessionEnd/Stop hook, or `/retro`), the agent writes a `log/sessions/YYYY-MM-DD_<topic>.md` file covering:
+- the question or goal
+- the paths tried, including dead ends
+- the resolution
+- the decisions made, with their justification
+- the proof
+- lessons learned
+- what to reuse
+- what not to repeat
+- pointers (files, commits, sources)
+
+The note is indexed, so a future session on the same topic loads it first instead of re-deriving it.
+
+### 4.8 Justification + proof on every step
+Every step and decision records three things:
+- **Why:** the specific reason, not "seemed best".
+- **Proof:** the command output, test result, source quote with link, or before/after.
+- **Meta:** how to repeat this if it worked, or how to prevent it if it failed.
+
+A step without proof counts as unverified.
+
+### 4.9 Handoff pointers
+Any handoff (agent to agent, session to session, or machine to machine) carries a pointer block:
+- `PROGRESS.md` location
+- latest decision IDs
+- open mishaps
+- relevant session notes
+- artifacts produced
+- what the receiver must verify first
+
+No handoff relies on context the receiver doesn't have.
+
+### 4.10 Research standard (web-researcher default)
+- **Recency:** "state of the art as of today". Inject the real current date from the system on every run, never a hard-coded one. Rank by recency, flag anything older than about 6 months on fast-moving topics, and note the publication date for every claim.
+- **Source tiers:** set per task in the interview. Defaults:
+  1. Primary sources: arXiv, Google Research, Google DeepMind, MIT, Stanford, other labs' papers and blogs, official docs.
+  2. Code: GitHub repos ranked by stars, recent commits and releases, plus issue activity, which shows real-world health.
+  3. Practitioner sentiment: Reddit, Hacker News, YouTube transcripts.
+  4. Press and vendor blogs: lowest weight, flagged as possibly biased.
+- **Fan-out:** the interview sets the depth. Quick means 1 agent, standard 3, exhaustive 5 or more split by source tier.
+- **Output:** every claim carries a citation, a date and a confidence level. Conflicts between sources are shown, not hidden. Gaps are listed explicitly.
+- **Access fallbacks:** when a site can't be reached (as Reddit and YouTube weren't in this cloud session), say so plainly and ask for links or pasted text rather than guessing.
+
 ## 5. Ontology v0 (`ontology.yaml`)
 
 **Types:**
@@ -120,6 +176,10 @@ Weekly, the librarian proposes rule changes. A correction that repeats across tw
 - Evaluation
 - Application (a job application)
 - Source
+- Mishap
+- SessionNote
+- Proof
+- Lesson
 
 **Relations:**
 - `part_of`
@@ -131,6 +191,10 @@ Weekly, the librarian proposes rule changes. A correction that repeats across tw
 - `corrects`
 - `evaluated_by`
 - `blocks`
+- `prevents` (a Lesson or rule that prevents a Mishap)
+- `proven_by` (any step or decision linked to its Proof)
+- `handed_off_to`
+- `learned_from`
 
 **Rules:**
 - Version the file in git.
