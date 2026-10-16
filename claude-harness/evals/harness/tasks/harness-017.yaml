@@ -1,0 +1,39 @@
+# Harness eval task. Only the user edits this file (evals/harness/README.md).
+id: harness-017
+area: harness
+title: "log_event tags 그게 아니라 as a correction and leaves 아니 괜찮아 / No problem untagged"
+rubric: rubrics/code-change.yaml
+split: train
+status: draft
+lock_sha256: ""
+locked: true
+difficulty: known-failure
+components: [hooks/log_event.py]
+
+input:
+  files: []
+  steps:
+    - id: correction
+      run: ${PY} -I ${ROOT}/hooks/log_event.py prompt
+      stdin: '{"prompt": "그게 아니라 영어로 번역해", "cwd": "/w", "session_id": "s"}'
+    - id: polite_no
+      run: ${PY} -I ${ROOT}/hooks/log_event.py prompt
+      stdin: '{"prompt": "아니 괜찮아", "cwd": "/w", "session_id": "s"}'
+    - id: english_no
+      run: ${PY} -I ${ROOT}/hooks/log_event.py prompt
+      stdin: '{"prompt": "No problem, thanks", "cwd": "/w", "session_id": "s"}'
+
+criteria:
+  - {id: checks_pass, dimension: correctness, weight: 0.9, description: "Every expected check passes (scored 0/1)."}
+  - {id: runtime, dimension: time, weight: 0.1, description: "Wall-clock ms of the steps; lower is better."}
+
+expected_checks:
+  - {id: silent_hook, kind: stdout_empty, step: correction}
+  - {id: three_events, kind: json, source: "file:data/log/*.jsonl", format: jsonl, path: "", len_equals: 3}
+  - {id: correction_tagged, kind: json, source: "file:data/log/*.jsonl", format: jsonl, path: "[0].correction_candidate", equals: true}
+  - {id: correction_confident, kind: json, source: "file:data/log/*.jsonl", format: jsonl, path: "[0].correction_confidence", gte: 0.8}
+  - {id: correction_pattern, kind: json, source: "file:data/log/*.jsonl", format: jsonl, path: "[0].correction_patterns", contains: "그게-아니라"}
+  - {id: polite_no_untagged, kind: json, source: "file:data/log/*.jsonl", format: jsonl, path: "[1].correction_candidate", equals: false}
+  - {id: english_no_untagged, kind: json, source: "file:data/log/*.jsonl", format: jsonl, path: "[2].correction_candidate", equals: false}
+
+human_scores: {}

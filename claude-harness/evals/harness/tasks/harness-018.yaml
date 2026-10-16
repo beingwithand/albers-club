@@ -1,0 +1,44 @@
+# Harness eval task. Only the user edits this file (evals/harness/README.md).
+id: harness-018
+area: harness
+title: "guard_protected blocks Bash writes into rubrics/ and evals/ (sed -i, >) but allows reads and other paths"
+rubric: rubrics/code-change.yaml
+split: train
+status: draft
+lock_sha256: ""
+locked: true
+difficulty: routine
+components: [hooks/guard_protected.py]
+
+input:
+  files: []
+  steps:
+    - id: sed_rubric
+      run: ${PY} -I ${ROOT}/hooks/guard_protected.py
+      stdin: '{"tool_name": "Bash", "tool_input": {"command": "sed -i s/weight/w/ rubrics/x.yaml"}}'
+    - id: redirect_eval
+      run: ${PY} -I ${ROOT}/hooks/guard_protected.py
+      stdin: '{"tool_name": "Bash", "tool_input": {"command": "echo locked: false > evals/harness/tasks/harness-001.yaml"}}'
+    - id: read_rubric
+      run: ${PY} -I ${ROOT}/hooks/guard_protected.py
+      stdin: '{"tool_name": "Bash", "tool_input": {"command": "cat rubrics/x.yaml"}}'
+    - id: sed_source
+      run: ${PY} -I ${ROOT}/hooks/guard_protected.py
+      stdin: '{"tool_name": "Bash", "tool_input": {"command": "sed -i s/a/b/ src/app.py"}}'
+    - id: not_bash
+      run: ${PY} -I ${ROOT}/hooks/guard_protected.py
+      stdin: '{"tool_name": "Read", "tool_input": {"file_path": "rubrics/x.yaml"}}'
+
+criteria:
+  - {id: checks_pass, dimension: correctness, weight: 0.9, description: "Every expected check passes (scored 0/1)."}
+  - {id: runtime, dimension: time, weight: 0.1, description: "Wall-clock ms of the steps; lower is better."}
+
+expected_checks:
+  - {id: sed_blocked, kind: exit_code, step: sed_rubric, value: 2}
+  - {id: sed_reason, kind: stderr_contains, step: sed_rubric, values: ["protected"]}
+  - {id: redirect_blocked, kind: exit_code, step: redirect_eval, value: 2}
+  - {id: read_allowed, kind: exit_code, step: read_rubric, value: 0}
+  - {id: other_path_allowed, kind: exit_code, step: sed_source, value: 0}
+  - {id: other_tool_allowed, kind: exit_code, step: not_bash, value: 0}
+
+human_scores: {}

@@ -1,0 +1,30 @@
+# Harness eval task. Only the user edits this file (evals/harness/README.md).
+id: harness-002
+area: harness
+title: "textlen normalises decomposed (NFD) jamo and collapses whitespace before counting"
+rubric: rubrics/code-change.yaml
+split: holdout
+status: draft
+lock_sha256: ""
+locked: true
+difficulty: hard
+components: [scripts/textlen.py]
+
+input:
+  files:
+    # "  한국\n\n 한국  " written as decomposed jamo (what macOS file names and some editors produce)
+    - path: nfd.txt
+      content: "  한국\n\n 한국  \n"
+  steps:
+    - id: count
+      run: ${PY} -I ${ROOT}/scripts/textlen.py --limit 4 nfd.txt
+
+criteria:
+  - {id: checks_pass, dimension: correctness, weight: 0.9, description: "Every expected check passes (scored 0/1)."}
+  - {id: runtime, dimension: time, weight: 0.1, description: "Wall-clock ms of the steps; lower is better."}
+
+expected_checks:
+  - {id: over_exit, kind: exit_code, value: 1}
+  - {id: syllables_not_jamo, kind: stdout_contains, values: ["chars=5", "chars_nospace=4", "words=2", "OVER by 1"]}
+
+human_scores: {}

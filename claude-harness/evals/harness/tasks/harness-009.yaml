@@ -1,0 +1,39 @@
+# Harness eval task. Only the user edits this file (evals/harness/README.md).
+id: harness-009
+area: harness
+title: "schema_check rejects a value outside an ontology enum and accepts a valid record"
+rubric: rubrics/code-change.yaml
+split: train
+status: draft
+lock_sha256: ""
+locked: true
+difficulty: routine
+components: [scripts/schema_check.py, schema/ontology.yaml]
+
+input:
+  files:
+    - path: good.jsonl
+      content: |
+        {"id": "sp_20261016_120000_ab12", "ts": "2026-10-16T12:00:00+00:00", "draft": "검토 부탁드립니다.", "final": "검토해 주시면 감사하겠습니다.", "language": "ko", "direction": "none", "register": "formal-email"}
+    - path: bad.jsonl
+      content: |
+        {"id": "sp_20261016_120000_ab12", "ts": "2026-10-16T12:00:00+00:00", "draft": "a", "final": "b", "language": "ko", "direction": "none", "register": "poetry"}
+  steps:
+    - id: good
+      run: ${PY} -I ${ROOT}/scripts/schema_check.py --file good.jsonl --type StylePair --json
+    - id: bad
+      run: ${PY} -I ${ROOT}/scripts/schema_check.py --file bad.jsonl --type StylePair --json
+
+criteria:
+  - {id: checks_pass, dimension: correctness, weight: 0.9, description: "Every expected check passes (scored 0/1)."}
+  - {id: runtime, dimension: time, weight: 0.1, description: "Wall-clock ms of the steps; lower is better."}
+
+expected_checks:
+  - {id: good_exit, kind: exit_code, step: good, value: 0}
+  - {id: good_ok, kind: json, step: good, path: ok, equals: true}
+  - {id: good_no_errors, kind: json, step: good, path: errors, len_equals: 0}
+  - {id: bad_exit, kind: exit_code, step: bad, value: 1}
+  - {id: bad_not_ok, kind: json, step: bad, path: ok, equals: false}
+  - {id: bad_names_enum, kind: json, step: bad, path: "errors[0]", contains: "StylePair.register: 'poetry' not one of"}
+
+human_scores: {}

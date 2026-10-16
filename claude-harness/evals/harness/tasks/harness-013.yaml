@@ -1,0 +1,51 @@
+# Harness eval task. Only the user edits this file (evals/harness/README.md).
+id: harness-013
+area: harness
+title: "eval_gate rejects a locked-task regression and a self-judged run, accepts an identical run"
+rubric: rubrics/code-change.yaml
+split: train
+status: draft
+lock_sha256: ""
+locked: true
+difficulty: routine
+components: [scripts/eval_gate.py]
+
+input:
+  files:
+    - path: base.json
+      content: |
+        {"eval_set": "translation", "eval_set_sha256": "abc", "policy": "p0", "producer_model": "sonnet", "judge_model": "opus",
+         "tasks": {"t1": {"locked": true, "scores": {"correctness": 5, "time": 2.0}, "checks": {"numbers_match": true}},
+                   "t2": {"locked": false, "scores": {"correctness": 4, "time": 2.0}}}}
+    - path: regressed.json
+      content: |
+        {"eval_set": "translation", "eval_set_sha256": "abc", "policy": "p1", "producer_model": "sonnet", "judge_model": "opus",
+         "tasks": {"t1": {"locked": true, "scores": {"correctness": 4, "time": 2.0}, "checks": {"numbers_match": false}},
+                   "t2": {"locked": false, "scores": {"correctness": 5, "time": 2.0}}}}
+    - path: selfjudged.json
+      content: |
+        {"eval_set": "translation", "eval_set_sha256": "abc", "policy": "p2", "producer_model": "sonnet", "judge_model": "Sonnet",
+         "tasks": {"t1": {"locked": true, "scores": {"correctness": 5, "time": 2.0}, "checks": {"numbers_match": true}},
+                   "t2": {"locked": false, "scores": {"correctness": 4, "time": 2.0}}}}
+  steps:
+    - id: regressed
+      run: ${PY} -I ${ROOT}/scripts/eval_gate.py base.json regressed.json
+    - id: identical
+      run: ${PY} -I ${ROOT}/scripts/eval_gate.py base.json base.json
+    - id: selfjudged
+      run: ${PY} -I ${ROOT}/scripts/eval_gate.py base.json selfjudged.json --json
+
+criteria:
+  - {id: checks_pass, dimension: correctness, weight: 0.9, description: "Every expected check passes (scored 0/1)."}
+  - {id: runtime, dimension: time, weight: 0.1, description: "Wall-clock ms of the steps; lower is better."}
+
+expected_checks:
+  - {id: regressed_rejected, kind: exit_code, step: regressed, value: 1}
+  - {id: regressed_reasons, kind: stdout_contains, step: regressed, values: ["REJECT", "locked task t1: correctness dropped", "check 'numbers_match' passed in baseline, failed"]}
+  - {id: identical_accepted, kind: exit_code, step: identical, value: 0}
+  - {id: identical_report, kind: stdout_contains, step: identical, values: ["ACCEPT"]}
+  - {id: selfjudged_rejected, kind: exit_code, step: selfjudged, value: 1}
+  - {id: selfjudged_reason, kind: stdout_contains, step: selfjudged, values: ["equals producer model", "self-evaluation"]}
+  - {id: selfjudged_decision, kind: json, step: selfjudged, path: decision, equals: reject}
+
+human_scores: {}

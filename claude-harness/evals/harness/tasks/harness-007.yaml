@@ -1,0 +1,71 @@
+# Harness eval task. Only the user edits this file (evals/harness/README.md).
+id: harness-007
+area: harness
+title: "kb.py register is idempotent and lint fails on a raw/ link that does not resolve"
+rubric: rubrics/code-change.yaml
+split: train
+status: draft
+lock_sha256: ""
+locked: true
+difficulty: routine
+components: [scripts/kb.py]
+
+input:
+  files:
+    - path: brief.pdf          # the bytes "brief" -> sha256 29a8825b...
+      content: "brief"
+  steps:
+    - id: register
+      run: ${PY} -I ${ROOT}/scripts/kb.py --kb knowledge register brief.pdf
+    - id: register_again
+      run: ${PY} -I ${ROOT}/scripts/kb.py --kb knowledge register brief.pdf
+    - id: good_page
+      write: knowledge/wiki/budget.md
+      content: |
+        ---
+        topic: Budget
+        summary: Budget caps per phase
+        source_id: 29a8825b
+        source_name: brief.pdf
+        pages: [1, 2]
+        converter: markitdown@0.1.2
+        confidence: high
+        intake_intent: defines scope limits
+        ---
+
+        Cap is 5k [p.1](../raw/29a8825b_brief.pdf#p.1).
+    - id: lint_clean
+      run: ${PY} -I ${ROOT}/scripts/kb.py --kb knowledge lint
+    - id: broken_page
+      write: knowledge/wiki/people.md
+      content: |
+        ---
+        topic: People
+        summary: Who decides
+        source_id: 29a8825b
+        source_name: brief.pdf
+        pages: [3]
+        converter: markitdown@0.1.2
+        confidence: high
+        intake_intent: names the approver
+        ---
+
+        See [p.3](../raw/missing_file.pdf#p.3).
+    - id: lint_broken
+      run: ${PY} -I ${ROOT}/scripts/kb.py --kb knowledge lint
+
+criteria:
+  - {id: checks_pass, dimension: correctness, weight: 0.9, description: "Every expected check passes (scored 0/1)."}
+  - {id: runtime, dimension: time, weight: 0.1, description: "Wall-clock ms of the steps; lower is better."}
+
+expected_checks:
+  - {id: registered, kind: stdout_contains, step: register, values: ["registered 29a8825b", "raw/29a8825b_brief.pdf"]}
+  - {id: idempotent, kind: stdout_contains, step: register_again, values: ["already registered 29a8825b"]}
+  - {id: raw_copy, kind: file_exists, path: knowledge/raw/29a8825b_brief.pdf}
+  - {id: one_manifest_entry, kind: json, source: "file:knowledge/manifest.json", path: sources, len_equals: 1}
+  - {id: manifest_sha, kind: json, source: "file:knowledge/manifest.json", path: "sources[0].sha256", equals: 29a8825bd242f14386ee528d76e0e8f1e38f3c8c4047d7b2d6df7493368a17d0}
+  - {id: lint_clean_exit, kind: exit_code, step: lint_clean, value: 0}
+  - {id: lint_broken_exit, kind: exit_code, step: lint_broken, value: 1}
+  - {id: lint_broken_reason, kind: stdout_contains, step: lint_broken, values: ["does not resolve"]}
+
+human_scores: {}

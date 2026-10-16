@@ -1,0 +1,43 @@
+# Harness eval task. Only the user edits this file (evals/harness/README.md).
+id: harness-003
+area: harness
+title: "translation_qa blocks a dropped number and accepts 1억 2천만 원 = KRW 120 million"
+rubric: rubrics/code-change.yaml
+split: train
+status: draft
+lock_sha256: ""
+locked: true
+difficulty: routine
+components: [scripts/translation_qa.py]
+
+input:
+  files:
+    - path: dropped.src.txt
+      content: |
+        총 3개 파일을 보냈습니다.
+    - path: dropped.tgt.txt
+      content: |
+        I sent the files.
+    - path: amount.src.txt
+      content: |
+        금액은 1억 2천만 원입니다.
+    - path: amount.tgt.txt
+      content: |
+        The amount is KRW 120 million.
+  steps:
+    - id: dropped
+      run: ${PY} -I ${ROOT}/scripts/translation_qa.py --source dropped.src.txt --target dropped.tgt.txt --by-line --direction ko-en --json dropped.json --md dropped.md
+    - id: amount
+      run: ${PY} -I ${ROOT}/scripts/translation_qa.py --source amount.src.txt --target amount.tgt.txt --by-line --direction ko-en --json amount.json --md amount.md
+
+criteria:
+  - {id: checks_pass, dimension: correctness, weight: 0.9, description: "Every expected check passes (scored 0/1)."}
+  - {id: runtime, dimension: time, weight: 0.1, description: "Wall-clock ms of the steps; lower is better."}
+
+expected_checks:
+  - {id: dropped_blocks, kind: exit_code, step: dropped, value: 1}
+  - {id: dropped_number_named, kind: json, source: "file:dropped.json", path: findings, any_match: {check: numbers, severity: error, "message~": "3"}}
+  - {id: amount_passes, kind: exit_code, step: amount, value: 0}
+  - {id: amount_no_number_finding, kind: json, source: "file:amount.json", path: findings, none_match: {check: numbers}}
+
+human_scores: {}

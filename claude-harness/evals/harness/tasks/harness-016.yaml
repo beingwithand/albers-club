@@ -1,0 +1,59 @@
+# Harness eval task. Only the user edits this file (evals/harness/README.md).
+id: harness-016
+area: harness
+title: "usage_guard fan-out budget levels: 69 normal, 70 conserve, 7d 75 conserve, 7d 76 ask, 90 stop"
+rubric: rubrics/code-change.yaml
+split: train
+status: draft
+lock_sha256: ""
+locked: true
+difficulty: hard
+components: [hooks/usage_guard.py, docs/FANOUT.md]
+
+input:
+  files:
+    - path: state/s69.json
+      content: |
+        {"ts": ${NOW}, "session_id": "s1", "five_hour_pct": 69, "five_hour_resets": ${NOW+3600}, "seven_day_pct": 40, "seven_day_resets": ${NOW+86400}}
+    - path: state/s70.json
+      content: |
+        {"ts": ${NOW}, "session_id": "s1", "five_hour_pct": 70, "five_hour_resets": ${NOW+3600}, "seven_day_pct": 40, "seven_day_resets": ${NOW+86400}}
+    - path: state/s75.json
+      content: |
+        {"ts": ${NOW}, "session_id": "s1", "five_hour_pct": 10, "five_hour_resets": ${NOW+3600}, "seven_day_pct": 75, "seven_day_resets": ${NOW+86400}}
+    - path: state/s76.json
+      content: |
+        {"ts": ${NOW}, "session_id": "s1", "five_hour_pct": 10, "five_hour_resets": ${NOW+3600}, "seven_day_pct": 76, "seven_day_resets": ${NOW+86400}}
+    - path: state/s90.json
+      content: |
+        {"ts": ${NOW}, "session_id": "s1", "five_hour_pct": 10, "five_hour_resets": ${NOW+3600}, "seven_day_pct": 90, "seven_day_resets": ${NOW+86400}}
+  steps:
+    - {id: b69, run: "${PY} -I ${ROOT}/hooks/usage_guard.py --fanout-budget", env: {HARNESS_STATE: "${WORK}/state/s69.json"}}
+    - {id: b70, run: "${PY} -I ${ROOT}/hooks/usage_guard.py --fanout-budget", env: {HARNESS_STATE: "${WORK}/state/s70.json"}}
+    - {id: b75, run: "${PY} -I ${ROOT}/hooks/usage_guard.py --fanout-budget", env: {HARNESS_STATE: "${WORK}/state/s75.json"}}
+    - {id: b76, run: "${PY} -I ${ROOT}/hooks/usage_guard.py --fanout-budget", env: {HARNESS_STATE: "${WORK}/state/s76.json"}}
+    - {id: b90, run: "${PY} -I ${ROOT}/hooks/usage_guard.py --fanout-budget", env: {HARNESS_STATE: "${WORK}/state/s90.json"}}
+    - id: hook70
+      run: ${PY} -I ${ROOT}/hooks/usage_guard.py
+      env: {HARNESS_STATE: "${WORK}/state/s70.json"}
+      stdin: '{"session_id": "s1", "cwd": "${WORK}", "prompt": "keep going", "hook_event_name": "UserPromptSubmit"}'
+
+criteria:
+  - {id: checks_pass, dimension: correctness, weight: 0.9, description: "Every expected check passes (scored 0/1)."}
+  - {id: runtime, dimension: time, weight: 0.1, description: "Wall-clock ms of the steps; lower is better."}
+
+expected_checks:
+  - {id: l69_normal, kind: json, step: b69, path: level, equals: normal}
+  - {id: l70_conserve, kind: json, step: b70, path: level, equals: conserve}
+  - {id: l70_halved, kind: json, step: b70, path: max_width, equals: 5}
+  - {id: l75_conserve, kind: json, step: b75, path: level, equals: conserve}
+  - {id: l75_tier3_allowed, kind: json, step: b75, path: tier3, equals: allowed}
+  - {id: l76_ask, kind: json, step: b76, path: level, equals: ask}
+  - {id: l76_tier3_ask, kind: json, step: b76, path: tier3, equals: ask}
+  - {id: l90_stop, kind: json, step: b90, path: level, equals: stop}
+  - {id: l90_no_width, kind: json, step: b90, path: max_width, equals: 0}
+  - {id: l90_verify_min, kind: json, step: b90, path: verify_min, equals: 2}
+  - {id: hook_never_blocks, kind: json, step: hook70, path: decision, exists: false}
+  - {id: hook_advice, kind: json, step: hook70, path: hookSpecificOutput.additionalContext, contains: "fanout_budget: level=conserve max_width=5"}
+
+human_scores: {}

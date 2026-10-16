@@ -7,7 +7,7 @@ Why this harness exists: training-grade data, an AI-native Albers, continuous SO
 1. **Logged.** Every meaningful action, decision, correction and result is an append-only record. Nothing important lives only in chat.
 2. **Labeled.** Every record has its ontology type plus intent, situation and meta (`schema/`). Data is treated like annotation work.
 3. **Indexed.** Every folder or store that holds knowledge has a short index with pointers: what is where, why, and when it was updated. Read the index first, then open only what you need.
-4. **Verified.** Every step is precondition → action → postcondition → proof (`docs/VERIFICATION.md`).
+4. **Verified.** Every step is precondition → action → postcondition → proof (the step-verification protocol, linked below).
 5. **Learned.** Every process has a learning loop (`learning/contracts.yaml`, principle 22).
 6. **Provenanced and private by tier.** Every record says where it came from and who authored it. Raw third-party or client text stays in the vault.
 

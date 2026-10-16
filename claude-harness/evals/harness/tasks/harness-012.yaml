@@ -1,0 +1,43 @@
+# Harness eval task. Only the user edits this file (evals/harness/README.md).
+id: harness-012
+area: harness
+title: "claim_check flags a cover-letter claim with no source line and keeps the traceable one"
+rubric: rubrics/code-change.yaml
+split: train
+status: draft
+lock_sha256: ""
+locked: true
+difficulty: routine
+components: [scripts/claim_check.py]
+
+input:
+  files:
+    - path: facts.md
+      content: |
+        - Translated 120 legal contracts from Korean to English for Acme Law between 2021 and 2024.
+        - Built a terminology glossary of 3,000 terms for the client's in-house counsel.
+        - Certified ITT Korean-English translator since 2019.
+    - path: draft.md
+      content: |
+        Dear Hiring Manager,
+
+        I translated 120 legal contracts from Korean to English for Acme Law between 2021 and 2024.
+        I led a team of 15 engineers building a payments platform at a startup in 2018.
+
+        Sincerely,
+  steps:
+    - id: check
+      run: ${PY} -I ${ROOT}/scripts/claim_check.py draft.md --facts facts.md --json
+
+criteria:
+  - {id: checks_pass, dimension: correctness, weight: 0.9, description: "Every expected check passes (scored 0/1)."}
+  - {id: runtime, dimension: time, weight: 0.1, description: "Wall-clock ms of the steps; lower is better."}
+
+expected_checks:
+  - {id: blocks, kind: exit_code, value: 1}
+  - {id: unsupported_flagged, kind: json, path: results, any_match: {verdict: unsupported, "claim~": "15 engineers"}}
+  - {id: supported_kept, kind: json, path: results, any_match: {verdict: supported, "claim~": "120 legal contracts"}}
+  - {id: one_unsupported, kind: json, path: counts.unsupported, equals: 1}
+  - {id: courtesy_skipped, kind: json, path: skipped, contains: "Sincerely,"}
+
+human_scores: {}

@@ -1,0 +1,35 @@
+# Harness eval task. Only the user edits this file (evals/harness/README.md). Run:
+#   python3 -I scripts/run_evals.py --area harness --task harness-001
+id: harness-001
+area: harness
+title: "textlen counts composed Hangul syllables once and enforces --limit"
+rubric: rubrics/code-change.yaml
+split: train
+status: draft          # the user sets `locked` and pastes `run_evals.py --lock-hash` into lock_sha256
+lock_sha256: ""
+locked: true
+difficulty: routine
+components: [scripts/textlen.py]
+
+input:
+  files:
+    - path: draft.txt
+      content: |
+        가족의 비밀
+  steps:
+    - id: within_limit
+      run: ${PY} -I ${ROOT}/scripts/textlen.py --limit 6 draft.txt
+    - id: over_limit_nospace
+      run: ${PY} -I ${ROOT}/scripts/textlen.py --limit 4 --unit chars_nospace draft.txt
+
+criteria:
+  - {id: checks_pass, dimension: correctness, weight: 0.9, description: "Every expected check passes (scored 0/1)."}
+  - {id: runtime, dimension: time, weight: 0.1, description: "Wall-clock ms of the steps; lower is better."}
+
+expected_checks:
+  - {id: ok_exit, kind: exit_code, step: within_limit, value: 0}
+  - {id: counts, kind: stdout_contains, step: within_limit, values: ["chars=6", "chars_nospace=5", "words=2", "bytes=16", "OK"]}
+  - {id: over_exit, kind: exit_code, step: over_limit_nospace, value: 1}
+  - {id: over_by_one, kind: stdout_contains, step: over_limit_nospace, values: ["OVER by 1"]}
+
+human_scores: {}

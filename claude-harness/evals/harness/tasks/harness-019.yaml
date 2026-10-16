@@ -1,0 +1,57 @@
+# Harness eval task. Only the user edits this file (evals/harness/README.md).
+id: harness-019
+area: harness
+title: "precompact_snapshot writes a raw-state snapshot with trigger, PROGRESS tail and this project's decisions only"
+rubric: rubrics/code-change.yaml
+split: holdout
+status: draft
+lock_sha256: ""
+locked: true
+difficulty: hard
+components: [hooks/precompact_snapshot.py]
+
+input:
+  files:
+    - path: proj/PROGRESS.md
+      content: |
+        # Progress
+
+        ## Goal
+        Ship it
+
+        ## Done
+        - [x] parser
+
+        ## In progress
+        - writer module
+
+        ## Next
+        - run `make test`
+        - wire CLI
+
+        ## Blockers
+        none
+    - path: data/log/2026-10.jsonl
+      content: |
+        {"id": "evt_d1", "ts": "2026-10-16T10:00:00+00:00", "type": "decision", "scope_hint": "${WORK}/proj", "content": "use Decimal for money", "justification": "float rounding broke the withholding"}
+        {"id": "evt_m1", "ts": "2026-10-16T11:00:00+00:00", "type": "mishap", "scope_hint": "${WORK}/proj", "content": "wrong file edited"}
+        {"id": "evt_x1", "ts": "2026-10-16T11:30:00+00:00", "type": "decision", "scope_hint": "/elsewhere", "content": "not mine"}
+  steps:
+    - id: snapshot
+      run: ${PY} -I ${ROOT}/hooks/precompact_snapshot.py
+      stdin: '{"session_id": "sess-1", "transcript_path": "/t/x.jsonl", "cwd": "${WORK}/proj", "hook_event_name": "PreCompact", "trigger": "manual", "custom_instructions": "keep the parser decisions"}'
+
+criteria:
+  - {id: checks_pass, dimension: correctness, weight: 0.9, description: "Every expected check passes (scored 0/1)."}
+  - {id: runtime, dimension: time, weight: 0.1, description: "Wall-clock ms of the steps; lower is better."}
+
+expected_checks:
+  - {id: exit_ok, kind: exit_code, value: 0}
+  - {id: never_blocks, kind: json, path: decision, exists: false}
+  - {id: points_to_snapshot, kind: json, path: systemMessage, contains: "${WORK}/proj/log/handoffs/auto_"}
+  - {id: snapshot_written, kind: file_exists, path: "proj/log/handoffs/auto_*.md"}
+  - {id: snapshot_contents, kind: file_contains, path: "proj/log/handoffs/auto_*.md", values: ["trigger: `manual`", "keep the parser decisions", "sess-1", "/t/x.jsonl", "## Next", "wire CLI", "use Decimal for money", "float rounding broke the withholding", "wrong file edited", "No HANDOFF.md"]}
+  - {id: other_scope_excluded, kind: file_not_contains, path: "proj/log/handoffs/auto_*.md", values: ["not mine"]}
+  - {id: event_logged, kind: json, source: "file:data/log/2026-10.jsonl", format: jsonl, path: "", any_match: {type: precompact, trigger: manual, session_id: sess-1}}
+
+human_scores: {}

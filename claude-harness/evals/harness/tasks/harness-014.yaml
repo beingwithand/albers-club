@@ -1,0 +1,50 @@
+# Harness eval task. Only the user edits this file (evals/harness/README.md).
+id: harness-014
+area: harness
+title: "patterns.py ladder proposes an L2 promotion only once a third episode arrives, and never writes"
+rubric: rubrics/code-change.yaml
+split: train
+status: draft
+lock_sha256: ""
+locked: true
+difficulty: hard
+components: [scripts/patterns.py]
+
+input:
+  files:
+    - path: P.md
+      content: |
+        # Principles
+
+        1. **Keep it short.** Write short summaries for every report.
+    - path: data/patterns/patterns.jsonl
+      content: |
+        {"id": "pat_preference_formal", "ts": "2026-10-01T00:00:00+00:00", "pattern_level": "L2", "kind": "preference", "statement": "Recurring preference: formal register", "status": "candidate", "evidence": ["evt_20261001_100000_0001", "evt_20261002_100000_0002"], "signals": {"keywords": ["formal", "register"]}}
+    - path: data/log/2026-10.jsonl
+      content: |
+        {"id": "evt_20261001_100000_0001", "ts": "2026-10-01T10:00:00+00:00", "actor": "me", "type": "decision", "session_id": "s1", "scope": "translation/acme", "intent": "formal register", "situation": "client mail", "meta": {"kind_of_thing": "formal register"}}
+        {"id": "evt_20261002_100000_0002", "ts": "2026-10-02T10:00:00+00:00", "actor": "me", "type": "decision", "session_id": "s2", "scope": "translation/acme", "intent": "formal register", "situation": "client mail", "meta": {"kind_of_thing": "formal register"}}
+  steps:
+    - id: two_episodes
+      run: ${PY} -I ${ROOT}/scripts/patterns.py ladder --json --data-dir ${DATA} --today 2026-10-16 --no-seeds --principles P.md
+    - id: third_episode
+      write: data/log/2026-10.jsonl
+      append: true
+      content: |
+        {"id": "evt_20261003_100000_0003", "ts": "2026-10-03T10:00:00+00:00", "actor": "me", "type": "decision", "session_id": "s3", "scope": "translation/acme", "intent": "formal register", "situation": "client mail", "meta": {"kind_of_thing": "formal register"}}
+    - id: three_episodes
+      run: ${PY} -I ${ROOT}/scripts/patterns.py ladder --json --data-dir ${DATA} --today 2026-10-16 --no-seeds --principles P.md
+
+criteria:
+  - {id: checks_pass, dimension: correctness, weight: 0.9, description: "Every expected check passes (scored 0/1)."}
+  - {id: runtime, dimension: time, weight: 0.1, description: "Wall-clock ms of the steps; lower is better."}
+
+expected_checks:
+  - {id: two_ok, kind: exit_code, step: two_episodes, value: 0}
+  - {id: two_no_proposal, kind: json, step: two_episodes, path: "", none_match: {action: propose, id: pat_preference_formal}}
+  - {id: three_ok, kind: exit_code, step: three_episodes, value: 0}
+  - {id: three_proposes, kind: json, step: three_episodes, path: "", any_match: {action: propose, id: pat_preference_formal, from: candidate, to: proposed}}
+  - {id: needs_approval, kind: stdout_contains, step: three_episodes, values: ["\"approval\"", "\"support\": 3", "evt_20261003_100000_0003"]}
+  - {id: store_untouched, kind: file_not_contains, path: data/patterns/patterns.jsonl, values: ["proposed", "evt_20261003_100000_0003"]}
+
+human_scores: {}

@@ -1,0 +1,35 @@
+# Harness eval task. Only the user edits this file (evals/harness/README.md).
+id: harness-011
+area: harness
+title: "invoice make appends an issued ledger row, numbers the next invoice, and --wht-unit 1 gives 40,740"
+rubric: rubrics/code-change.yaml
+split: holdout
+status: draft
+lock_sha256: ""
+locked: true
+difficulty: hard
+components: [scripts/invoice.py]
+
+input:
+  files:
+    - path: spec.json
+      content: |
+        {"client": "Acme", "currency": "KRW", "withholding": true, "issued": "2026-10-16",
+         "items": [{"desc": "KO-EN", "unit": "flat", "rate": "1234567"}]}
+  steps:
+    - id: make
+      run: ${PY} -I ${ROOT}/scripts/invoice.py make spec.json --out inv1.md --wht-unit 1
+    - id: next_number
+      run: ${PY} -I ${ROOT}/scripts/invoice.py number --year 2026
+
+criteria:
+  - {id: checks_pass, dimension: correctness, weight: 0.9, description: "Every expected check passes (scored 0/1)."}
+  - {id: runtime, dimension: time, weight: 0.1, description: "Wall-clock ms of the steps; lower is better."}
+
+expected_checks:
+  - {id: make_ok, kind: exit_code, step: make, value: 0}
+  - {id: one_won_unit, kind: file_contains, path: inv1.md, values: ["INV-2026-001", "소득세 3%: ₩37,037", "지방소득세 0.3%: ₩3,703", "₩40,740"]}
+  - {id: ledger_row, kind: file_contains, path: data/finance/ledger.csv, values: ["INV-2026-001", "issued"]}
+  - {id: next_is_002, kind: stdout_contains, step: next_number, values: ["INV-2026-002"]}
+
+human_scores: {}

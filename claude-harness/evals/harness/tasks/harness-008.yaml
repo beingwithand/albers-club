@@ -1,0 +1,57 @@
+# Harness eval task. Only the user edits this file (evals/harness/README.md).
+id: harness-008
+area: harness
+title: "kb.py safe-to-delete says yes only when verified (PASS in log.md) AND archived"
+rubric: rubrics/code-change.yaml
+split: holdout
+status: draft
+lock_sha256: ""
+locked: true
+difficulty: known-failure
+components: [scripts/kb.py]
+
+input:
+  files:
+    - path: brief.pdf
+      content: "brief"
+  steps:
+    - id: register
+      run: ${PY} -I ${ROOT}/scripts/kb.py --kb knowledge register brief.pdf
+    - id: fresh
+      run: ${PY} -I ${ROOT}/scripts/kb.py --kb knowledge safe-to-delete 29a8825b
+    - id: archive
+      run: ${PY} -I ${ROOT}/scripts/kb.py --kb knowledge archive 29a8825b https://drive.google.com/file/d/x
+    - id: archived_only
+      run: ${PY} -I ${ROOT}/scripts/kb.py --kb knowledge safe-to-delete 29a8825b
+    - id: log_fail
+      write: knowledge/log.md
+      append: true
+      content: |
+        - 2026-10-16 29a8825b verify FAIL table 2 (PASS on retry pending)
+    - id: fail_logged
+      run: ${PY} -I ${ROOT}/scripts/kb.py --kb knowledge safe-to-delete 29a8825b
+    - id: log_pass
+      write: knowledge/log.md
+      append: true
+      content: |
+        - 2026-10-16 29a8825b verify PASS 3/3 passages, tables ok
+    - id: verified_and_archived
+      run: ${PY} -I ${ROOT}/scripts/kb.py --kb knowledge safe-to-delete 29a8825b
+    - id: unknown_id
+      run: ${PY} -I ${ROOT}/scripts/kb.py --kb knowledge archive 00000000 https://example.com/u
+
+criteria:
+  - {id: checks_pass, dimension: correctness, weight: 0.9, description: "Every expected check passes (scored 0/1)."}
+  - {id: runtime, dimension: time, weight: 0.1, description: "Wall-clock ms of the steps; lower is better."}
+
+expected_checks:
+  - {id: fresh_not_safe, kind: exit_code, step: fresh, value: 1}
+  - {id: fresh_says_no, kind: stdout_contains, step: fresh, values: ["no"]}
+  - {id: archived_only_not_safe, kind: exit_code, step: archived_only, value: 1}
+  - {id: fail_line_not_safe, kind: exit_code, step: fail_logged, value: 1}
+  - {id: safe_exit, kind: exit_code, step: verified_and_archived, value: 0}
+  - {id: safe_says_yes, kind: stdout_contains, step: verified_and_archived, values: ["yes"]}
+  - {id: archive_recorded, kind: json, source: "file:knowledge/manifest.json", path: "sources[0].archive", equals: "https://drive.google.com/file/d/x"}
+  - {id: unknown_id_usage_error, kind: exit_code, step: unknown_id, value: 2}
+
+human_scores: {}

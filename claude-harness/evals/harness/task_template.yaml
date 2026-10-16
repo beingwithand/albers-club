@@ -1,0 +1,43 @@
+# Eval task template: harness self-test (deterministic). Copy to tasks/harness-NNN.yaml. See evals/harness/README.md.
+# Only the user edits eval tasks. These run with scripts/run_evals.py; no model, no network, no user data.
+id: harness-000
+area: harness
+title: "<what behaviour this pins down>"
+rubric: rubrics/code-change.yaml
+split: train                 # train | holdout (holdout never shown to the optimizer)
+status: draft                # the user flips to `locked` and pastes `run_evals.py --lock-hash` below
+lock_sha256: ""              # set by the user only; the runner refuses to run if the file changed since
+locked: true                 # correctness may not drop on this task (eval_gate.py)
+difficulty: routine          # routine | hard | known-failure
+components: [scripts/textlen.py]   # files this task covers (component graph: eval-on-change)
+
+input:
+  files:                     # written under a fresh temp dir ($WORK) before the steps
+    - path: draft.txt
+      content: |
+        가족의 비밀
+  env: {}                    # extra env for every step; HOME/HARNESS_DATA/HARNESS_STATE already point into $WORK
+  steps:                     # argv strings, no shell; ${PY} ${ROOT} ${WORK} ${DATA} ${NOW} ${NOW_ISO+60} ${TODAY}
+    - id: run
+      run: ${PY} -I ${ROOT}/scripts/textlen.py --limit 6 draft.txt
+      # stdin: '{"cwd": "${WORK}"}'
+      # env: {HARNESS_STATE: "${WORK}/state/x.json"}
+      # timeout: 30
+    # - id: add_line           # a write step creates or appends to a file between runs
+    #   write: data/log/2026-10.jsonl
+    #   append: true
+    #   content: |
+    #     {"type": "verification"}
+
+criteria:
+  - {id: checks_pass, dimension: correctness, weight: 0.9, description: "Every expected check passes (scored 0/1)."}
+  - {id: runtime, dimension: time, weight: 0.1, description: "Wall-clock ms of the steps; lower is better."}
+
+expected_checks:             # deterministic and locked; `step` defaults to the last run step
+  - {id: exit_ok, kind: exit_code, value: 0}
+  - {id: counts, kind: stdout_contains, values: ["chars=6"]}
+  # - {id: j, kind: json, path: "findings", any_match: {check: numbers, "message~": "3"}}   # stdout JSON
+  # - {id: f, kind: json, source: "file:data/log/*.jsonl", format: jsonl, path: "[0].type", equals: prompt}
+  # - {id: g, kind: file_contains, path: "proj/log/handoffs/auto_*.md", values: ["trigger: `manual`"]}
+
+human_scores: {}

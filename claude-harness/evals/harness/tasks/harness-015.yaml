@@ -1,0 +1,53 @@
+# Harness eval task. Only the user edits this file (evals/harness/README.md).
+id: harness-015
+area: harness
+title: "verify_gate blocks a Stop while a done item has no verification event, then allows it after one"
+rubric: rubrics/code-change.yaml
+split: train
+status: draft
+lock_sha256: ""
+locked: true
+difficulty: routine
+components: [hooks/verify_gate.py]
+
+input:
+  files:
+    - path: proj/PROGRESS.md
+      content: |
+        # Progress
+        - [x] parse input
+        - [ ] write output
+    - path: data/log/2026-10.jsonl
+      content: |
+        {"id": "evt_other", "ts": "${NOW_ISO+5}", "type": "verification", "verdict": "pass", "scope_hint": "/somewhere/else"}
+        {"id": "evt_failed", "ts": "${NOW_ISO+5}", "type": "verification", "verdict": "fail", "scope_hint": "${WORK}/proj"}
+  steps:
+    - id: unverified
+      run: ${PY} -I ${ROOT}/hooks/verify_gate.py
+      stdin: '{"session_id": "s1", "cwd": "${WORK}/proj", "transcript_path": "/t.jsonl", "stop_hook_active": false, "hook_event_name": "Stop"}'
+    - id: loop_guard
+      run: ${PY} -I ${ROOT}/hooks/verify_gate.py
+      stdin: '{"session_id": "s1", "cwd": "${WORK}/proj", "transcript_path": "/t.jsonl", "stop_hook_active": true, "hook_event_name": "Stop"}'
+    - id: add_verification
+      write: data/log/2026-10.jsonl
+      append: true
+      content: |
+        {"id": "evt_v", "ts": "${NOW_ISO+5}", "type": "verification", "verdict": "pass", "scope_hint": "${WORK}/proj"}
+    - id: verified
+      run: ${PY} -I ${ROOT}/hooks/verify_gate.py
+      stdin: '{"session_id": "s1", "cwd": "${WORK}/proj", "transcript_path": "/t.jsonl", "stop_hook_active": false, "hook_event_name": "Stop"}'
+
+criteria:
+  - {id: checks_pass, dimension: correctness, weight: 0.9, description: "Every expected check passes (scored 0/1)."}
+  - {id: runtime, dimension: time, weight: 0.1, description: "Wall-clock ms of the steps; lower is better."}
+
+expected_checks:
+  - {id: unverified_exit0, kind: exit_code, step: unverified, value: 0}
+  - {id: blocks, kind: json, step: unverified, path: decision, equals: block}
+  - {id: names_done_item, kind: json, step: unverified, path: reason, contains: "parse input"}
+  - {id: open_item_not_named, kind: json, step: unverified, path: reason, not_contains: "write output"}
+  - {id: loop_guard_allows, kind: stdout_empty, step: loop_guard}
+  - {id: verified_exit0, kind: exit_code, step: verified, value: 0}
+  - {id: verified_allows, kind: stdout_empty, step: verified}
+
+human_scores: {}

@@ -1,0 +1,44 @@
+# Harness eval task. Only the user edits this file (evals/harness/README.md).
+id: harness-020
+area: harness
+title: "postcompact_reinject caps re-injected context at 8000 chars and points to the truncated file"
+rubric: rubrics/code-change.yaml
+split: holdout
+status: draft
+lock_sha256: ""
+locked: true
+difficulty: hard
+components: [hooks/postcompact_reinject.py]
+
+input:
+  files:
+    - path: proj/HANDOFF.md
+      header: |
+        # HANDOFF
+      content: |
+        decision line with detail
+      repeat: 2000
+    - path: proj/PROGRESS.md
+      header: |
+        ## Next
+      content: |
+        - step
+      repeat: 2000
+  steps:
+    - id: reinject
+      run: ${PY} -I ${ROOT}/hooks/postcompact_reinject.py
+      stdin: '{"session_id": "s", "cwd": "${WORK}/proj", "hook_event_name": "SessionStart", "source": "compact"}'
+
+criteria:
+  - {id: checks_pass, dimension: correctness, weight: 0.9, description: "Every expected check passes (scored 0/1)."}
+  - {id: runtime, dimension: time, weight: 0.1, description: "Wall-clock ms of the steps; lower is better."}
+
+expected_checks:
+  - {id: exit_ok, kind: exit_code, value: 0}
+  - {id: session_start_shape, kind: json, path: hookSpecificOutput.hookEventName, equals: SessionStart}
+  - {id: size_cap, kind: json, path: hookSpecificOutput.additionalContext, len_lte: 8000}
+  - {id: truncation_marked, kind: json, path: hookSpecificOutput.additionalContext, contains: "truncated"}
+  - {id: pointer_to_handoff, kind: json, path: hookSpecificOutput.additionalContext, contains: "${WORK}/proj/HANDOFF.md"}
+  - {id: still_has_next, kind: json, path: hookSpecificOutput.additionalContext, contains: "- step"}
+
+human_scores: {}

@@ -1,0 +1,56 @@
+# Harness eval task. Only the user edits this file (evals/harness/README.md).
+id: harness-005
+area: harness
+title: "translation_qa flags an approved glossary term behind a Korean particle (계약서를), not a longer word (계약서식)"
+rubric: rubrics/code-change.yaml
+split: train
+status: draft
+lock_sha256: ""
+locked: true
+difficulty: hard
+components: [scripts/translation_qa.py, scripts/glossary.py]
+
+input:
+  files:
+    - path: glossary.md
+      content: |
+        # Glossary
+
+        | Source | Target | Dir | Domain | Client | DNT | Status | Confidence | Sources | Notes |
+        |---|---|---|---|---|---|---|---|---|---|
+        | 계약서 | agreement | ko-en | legal | any | N | approved | high | user | |
+    - path: miss.src.txt
+      content: |
+        계약서를 검토했습니다.
+    - path: miss.tgt.txt
+      content: |
+        We reviewed the contract.
+    - path: hit.tgt.txt
+      content: |
+        We reviewed the agreement.
+    - path: compound.src.txt
+      content: |
+        계약서식을 보냈습니다.
+    - path: compound.tgt.txt
+      content: |
+        I sent the form.
+  steps:
+    - id: miss
+      run: ${PY} -I ${ROOT}/scripts/translation_qa.py --source miss.src.txt --target miss.tgt.txt --by-line --direction ko-en --glossary glossary.md --json miss.json --md miss.md
+    - id: hit
+      run: ${PY} -I ${ROOT}/scripts/translation_qa.py --source miss.src.txt --target hit.tgt.txt --by-line --direction ko-en --glossary glossary.md --json hit.json --md hit.md
+    - id: compound
+      run: ${PY} -I ${ROOT}/scripts/translation_qa.py --source compound.src.txt --target compound.tgt.txt --by-line --direction ko-en --glossary glossary.md --json compound.json --md compound.md
+
+criteria:
+  - {id: checks_pass, dimension: correctness, weight: 0.9, description: "Every expected check passes (scored 0/1)."}
+  - {id: runtime, dimension: time, weight: 0.1, description: "Wall-clock ms of the steps; lower is better."}
+
+expected_checks:
+  - {id: miss_blocks, kind: exit_code, step: miss, value: 1}
+  - {id: miss_names_term, kind: json, source: "file:miss.json", path: findings, any_match: {check: glossary, severity: error, "message~": "agreement"}}
+  - {id: hit_passes, kind: exit_code, step: hit, value: 0}
+  - {id: hit_no_findings, kind: json, source: "file:hit.json", path: findings, len_equals: 0}
+  - {id: compound_not_matched, kind: json, source: "file:compound.json", path: findings, none_match: {check: glossary}}
+
+human_scores: {}

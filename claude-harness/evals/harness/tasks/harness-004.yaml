@@ -1,0 +1,40 @@
+# Harness eval task. Only the user edits this file (evals/harness/README.md).
+id: harness-004
+area: harness
+title: "translation_qa blocks a broken placeholder and passes the intact one"
+rubric: rubrics/code-change.yaml
+split: holdout
+status: draft
+lock_sha256: ""
+locked: true
+difficulty: hard
+components: [scripts/translation_qa.py]
+
+input:
+  files:
+    - path: src.txt
+      content: |
+        <b>{0}</b>님, %s개의 파일이 {{count}}개 남았습니다.
+    - path: broken.txt
+      content: |
+        <b>{1}</b>, {{count}} of %d files remain.
+    - path: intact.txt
+      content: |
+        <b>{0}</b>, {{count}} of %s files remain.
+  steps:
+    - id: broken
+      run: ${PY} -I ${ROOT}/scripts/translation_qa.py --source src.txt --target broken.txt --by-line --direction ko-en --json broken.json --md broken.md
+    - id: intact
+      run: ${PY} -I ${ROOT}/scripts/translation_qa.py --source src.txt --target intact.txt --by-line --direction ko-en --json intact.json --md intact.md
+
+criteria:
+  - {id: checks_pass, dimension: correctness, weight: 0.9, description: "Every expected check passes (scored 0/1)."}
+  - {id: runtime, dimension: time, weight: 0.1, description: "Wall-clock ms of the steps; lower is better."}
+
+expected_checks:
+  - {id: broken_blocks, kind: exit_code, step: broken, value: 1}
+  - {id: names_lost_placeholder, kind: json, source: "file:broken.json", path: findings, any_match: {check: tags, severity: error, "message~": "{0}"}}
+  - {id: names_changed_printf, kind: json, source: "file:broken.json", path: findings, any_match: {check: tags, "message~": "%s"}}
+  - {id: intact_no_tags_finding, kind: json, source: "file:intact.json", path: findings, none_match: {check: tags}}
+
+human_scores: {}
