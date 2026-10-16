@@ -16,7 +16,7 @@ types:
   SessionNote: {fields: [id, goal, dead_ends, resolution, decisions, lessons, pointers]}
   Proof:       {fields: [id, kind, ref]}   # kind: output|test|quote|diff|screenshot|link
   Preference:  {fields: [id, statement, scope, source_event]}
-  StylePair:   {fields: [id, draft, final, language, direction, register, domain, audience]}
+  StylePair:   {fields: [id, ts, draft, final, language, direction, register, domain, audience, client, scope, reasoning, labels, edited, source, supersedes]}
   Application: {fields: [id, org, role, applied_on, channel, status, next_step]}
   Evaluation:  {fields: [id, target, rubric, scores, judge, judge_model]}
 
