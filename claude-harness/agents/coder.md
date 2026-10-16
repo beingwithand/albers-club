@@ -1,6 +1,6 @@
 ---
 name: coder
-description: Makes code changes in repos against a stated spec, with tests as proof. Use for implementation, bug fixes and refactors. Run with model opus for hard design or debugging work.
+description: Makes code changes in repos against a stated spec, with tests as proof. Use for implementation, bug fixes and refactors. Run with model opus for hard design or debugging work. Use proactively when the task matches.
 model: sonnet
 tools: Read, Write, Edit, Bash, Grep, Glob
 memory: project

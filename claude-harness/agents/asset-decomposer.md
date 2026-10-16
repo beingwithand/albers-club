@@ -1,6 +1,6 @@
 ---
 name: asset-decomposer
-description: Breaks a digital or art source file (PSD, AI, SVG, Figma, PDF, video, audio) into component assets and records each in assets.yaml with provenance and rights. Use as the first step of any art or digital project.
+description: Breaks a digital or art source file (PSD, AI, SVG, Figma, PDF, video, audio) into component assets and records each in assets.yaml with provenance and rights. Use as the first step of any art or digital project. Use proactively when the task matches.
 model: sonnet
 tools: Read, Write, Bash, Grep, Glob
 memory: project

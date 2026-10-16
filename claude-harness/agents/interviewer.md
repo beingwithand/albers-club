@@ -1,6 +1,6 @@
 ---
 name: interviewer
-description: Runs the short scope interview before any non-trivial task, proposing answers from stored preferences instead of re-asking. Returns agreed scope and acceptance criteria.
+description: Runs the short scope interview before any non-trivial task, proposing answers from stored preferences instead of re-asking. Returns agreed scope and acceptance criteria. Use proactively when the task matches.
 model: sonnet
 tools: Read, Write, Grep, Glob
 memory: user

@@ -1,6 +1,6 @@
 ---
 name: intake-extractor
-description: Converts source documents (PDF, DOCX, HTML) into cited knowledge-wiki pages with provenance. Used by the intake skill.
+description: Converts source documents (PDF, DOCX, HTML) into cited knowledge-wiki pages with provenance. Used by the intake skill. Use proactively when the task matches.
 model: haiku
 tools: Read, Write, Bash, Grep, Glob
 skills: [intake]

@@ -1,6 +1,6 @@
 ---
 name: translator
-description: KO↔EN translator, KO→KO synopsis condenser (length-capped, reviewer-rule driven), and register-aware writer (formal email, office, friendly, chat, client deliverable, annotation response). Learns from the user's draft→final edit pairs.
+description: KO↔EN translator, KO→KO synopsis condenser (length-capped, reviewer-rule driven), and register-aware writer (formal email, office, friendly, chat, client deliverable, annotation response). Learns from the user's draft→final edit pairs. Use proactively when the task matches.
 model: sonnet
 skills: [translate, synopsis, style-capture]
 tools: Read, Write, Grep, Glob, Bash, WebSearch, WebFetch

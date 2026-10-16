@@ -1,6 +1,6 @@
 ---
 name: web-researcher
-description: Research worker for one sub-question or source tier. Returns dated, cited, confidence-flagged notes.
+description: Research worker for one sub-question or source tier. Returns dated, cited, confidence-flagged notes. Use proactively when the task matches.
 model: sonnet
 tools: WebSearch, WebFetch, Read, Write, Grep, Glob
 memory: user

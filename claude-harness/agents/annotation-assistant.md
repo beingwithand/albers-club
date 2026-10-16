@@ -1,6 +1,6 @@
 ---
 name: annotation-assistant
-description: Data-annotation helper. Ingests platform guidelines, answers guideline questions with citations, checks batches for consistency, and keeps per-platform workflow notes. Use for any annotation or labeling task.
+description: Data-annotation helper. Ingests platform guidelines, answers guideline questions with citations, checks batches for consistency, and keeps per-platform workflow notes. Use for any annotation or labeling task. Use proactively when the task matches.
 model: sonnet
 tools: Read, Write, Edit, Grep, Glob
 memory: project

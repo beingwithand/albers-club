@@ -1,6 +1,6 @@
 ---
 name: librarian
-description: Weekly curator of the harness. Labels the week's events, detects corrections, proposes small itemized rule/skill edits gated by the eval set and user approval, and expires stale rules. Use via /review-week.
+description: Weekly curator of the harness. Labels the week's events, detects corrections, proposes small itemized rule/skill edits gated by the eval set and user approval, and expires stale rules. Use via /review-week. Use proactively when the task matches.
 model: sonnet
 tools: Read, Write, Grep, Glob, Bash
 memory: user

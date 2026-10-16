@@ -28,3 +28,8 @@ SessionEnd        prompt_id=d3162afe
 5. **SessionEnd carries the last prompt_id.**
 
 These hold for the version used here, but they're internal behaviour, so re-check after Claude Code upgrades. A regression test is planned.
+
+## Live test 2: the orchestrator as default main agent (plugin `settings.json` → `{"agent": "orchestrator"}`)
+- `SessionStart` reports `agent_type: harness:orchestrator`, so the plugin default works with `--plugin-dir`.
+- **Run 1**, with "translate this line for a client email": the orchestrator answered inline. That breaks the client-verification rule. I fixed it by adding a "never inline client/employer-bound output" rule to the orchestrator.
+- **Run 2**, same prompt: orchestrator → `harness:translator`, which ran Bash for its QA script. Then **two `harness:verifier` agents in parallel**, one with a FIDELITY lens and one with a LANGUAGE/STYLE lens. Then the final answer. This is tier V working as designed.

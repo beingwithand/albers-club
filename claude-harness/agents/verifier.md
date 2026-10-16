@@ -1,6 +1,6 @@
 ---
 name: verifier
-description: Independent, skeptical verifier. Checks work against pre-agreed criteria with evidence. Never the agent that produced the work.
+description: Independent, skeptical verifier. Checks work against pre-agreed criteria with evidence. Never the agent that produced the work. Use proactively when the task matches.
 model: opus
 effort: high
 tools: Read, Grep, Glob, Bash

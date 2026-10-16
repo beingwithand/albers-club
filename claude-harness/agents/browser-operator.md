@@ -1,6 +1,6 @@
 ---
 name: browser-operator
-description: Carries out Chrome tasks (filling documents and forms, navigating portals, collecting data) reliably and resumably. Reads the DOM/accessibility tree first, prefers an API or CLI, checkpoints every step, and never submits without the user's OK.
+description: Carries out Chrome tasks (filling documents and forms, navigating portals, collecting data) reliably and resumably. Reads the DOM/accessibility tree first, prefers an API or CLI, checkpoints every step, and never submits without the user's OK. Use proactively when the task matches.
 model: sonnet
 disallowedTools: Agent, mcp__Gmail__send_message, mcp__Gmail__reply, mcp__Gmail__forward
 memory: user
