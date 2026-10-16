@@ -1,0 +1,76 @@
+# Self-eval sheet: length-capped Korean synopsis (KO->KO), e.g. Toin / streaming metadata.
+# Producing agents may NOT edit this file.
+rubric: synopsis
+version: 0.1.0
+applies_to: "skills/synopsis drafts and the user's final combined synopsis"
+producer_agent: translator          # model: sonnet
+judge:
+  agent: verifier
+  model_must_differ_from_producer: true
+human_sample_rate: 0.3
+
+scoring:
+  scale: [1, 2, 3, 4, 5]
+  pass_if: "weighted_mean >= 4.0 AND no criterion < 3 AND every blocking automatic check passes"
+  needs_human_if: "a reviewer rule is ambiguous, or source and press conflict"
+
+criteria:
+  - id: reviewer_rules
+    description: "Every rule in knowledge/reviewer_rules.md is satisfied."
+    weight: 0.25
+    dimension: correctness
+    anchors:
+      1: "A rule the reviewer already flagged is broken again."
+      3: "All rules met; one borderline case not flagged to the user."
+      5: "All rules met, each with a pass/fail line in the check table; borderline cases flagged."
+  - id: fidelity
+    description: "No facts beyond the source; nothing important dropped; no spoilers past the source's level."
+    weight: 0.25
+    dimension: correctness
+    anchors:
+      1: "Adds plot from press or imagination, or reveals a twist the source withholds."
+      3: "Faithful; one secondary element dropped that the siblings usually keep."
+      5: "Every statement traceable to the source; the key premise and stakes are kept."
+  - id: consistency
+    description: "LRT title exact; character names and terms match the sibling synopses."
+    weight: 0.15
+    dimension: correctness
+    anchors:
+      1: "Title altered or a character named differently from earlier episodes."
+      3: "Title exact; one minor naming variant."
+      5: "Title and every name/term identical to the siblings and the press-confirmed spelling."
+  - id: tone_match
+    description: "Tone and rhythm match the siblings (or genre exemplars) and the user's past finals."
+    weight: 0.2
+    dimension: style_match
+    anchors:
+      1: "Reads like a different show or genre."
+      3: "Appropriate, but generic."
+      5: "Indistinguishable from the show's approved synopses; follows the user's edit patterns."
+  - id: korean_quality
+    description: "Natural Korean; correct spelling and spacing (맞춤법/띄어쓰기); no translationese."
+    weight: 0.15
+    dimension: correctness
+    anchors:
+      1: "Spacing or spelling errors, or an awkward literal structure."
+      3: "Correct; slightly stiff in places."
+      5: "Fluent, polished, natural copy."
+
+automatic_checks:
+  - id: length_cap
+    blocking: true
+    command: "python3 -I scripts/textlen.py --limit <N> --unit <unit> final.txt"
+  - id: lrt_title_exact
+    blocking: true
+    check: "If the title appears in the text, it matches the LRT title string byte for byte."
+  - id: three_distinct_drafts
+    blocking: false
+    check: "Drafts A/B/C use different strategies (not near-duplicates)."
+
+dimensions:
+  correctness:     {source: "verifier + reviewer feedback", better: higher}
+  correction_rate: {source: "reviewer feedback count per delivered synopsis", better: lower}
+  cost:            {source: "event cost_usd", better: lower}
+  time:            {source: "task start->final", better: lower}
+  style_match:     {source: "edit distance between best draft and user's final", better: higher}
+  outcome:         {source: "accepted by reviewer without changes", better: higher}
