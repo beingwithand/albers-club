@@ -278,3 +278,13 @@ The concrete design is a **persistent, minimal menu-bar or tray icon** whose sta
 The memory race between OpenAI, Meta, Google, Anthropic and Apple has made one thing clear: the technical recipe is no longer secret. A small synthesized profile, just-in-time retrieval, background consolidation and time-aware facts are documented, open-sourced and mostly permissively licensed. On consumer hardware the binding constraint is scheduling, not capability: Relic's "dreaming" simply has to happen while the user sleeps. What none of the cloud products can credibly offer is **lineage the user controls**. Their memory is a derivative the vendor keeps, with a lifecycle independent of its sources, so "forget" degrades into "as well as it can". Relic's differentiator is therefore not better recall. It is a measurable forgetting guarantee: a post-deletion leakage test it runs and shows to the user, which no cloud vendor publishes. Relic should treat that number as a headline product metric.
 
 The second implication is that "memory for any AI" through MCP cuts both ways. It makes Relic the user's portable context, worth more as assistants multiply and as vendors compete on memory import. But every result Relic sends to a cloud assistant can be absorbed into that vendor's memory. The egress ledger, default redaction and a review queue for writes are what keep Relic the source of truth rather than a feeder for someone else's profile of the user. The backfill agent follows the same logic over time: it is a bridge, meant to shrink as official feeds and capture at the moment of action take over, and the less it has to do, the less it puts the user's accounts at risk.
+
+---
+## Errata (added 2026-10-16, after code-level teardowns)
+These points are superseded by **Relic build guide.md**. See CORRECTIONS.md rows 15–20.
+- **Mem0:** current open-source Mem0 (2.x) is ADD-only. The ADD/UPDATE/DELETE/NOOP decision is 1.x and the paper.
+- **OpenMemory MCP:** it has been removed from Mem0's main branch. In v1.0.11 it had no authentication, likely a deny-all bypass bug, and a hard-coded OpenAI categorizer, so it was not fully local and is not a reference design.
+- **ChatGPT's injected blocks:** a newer leak shows 5 sections and about 50 recent conversations. Both versions are unverified snapshots.
+- **ChatGPT Dreaming date:** only press coverage could be reached in the later round, so the date is unconfirmed.
+- **Generative Agents recency:** it is rank-based (0.99^rank), weighted 0.5 recency, 3 relevance and 2 importance, and the code appears to invert it.
+- **Letta sleep-time:** it runs every 5 turns as a background task, not only when idle.

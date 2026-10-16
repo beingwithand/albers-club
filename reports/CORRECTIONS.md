@@ -12,6 +12,7 @@ Every time a fact in a report or chat answer turns out wrong, or a process step 
 1. Read this log and make sure no corrected fact reappears.
 2. Look for contradictions with earlier reports in reports/ and either fix the old report or add a row here.
 3. Mark anything not verified this session as unverified.
+4. Analogue scan: before launching research, and again before writing, list who else solves the same underlying problem, including big-company products launched in the last 6 months, adjacent fields, and the user's own projects. Ask: "how does the closest product actually do it, and what can we copy?"
 
 ## Later entries
 | # | Date | What was wrong | Correct version | Where fixed | Prevention rule |
@@ -27,3 +28,11 @@ Every time a fact in a report or chat answer turns out wrong, or a process step 
 | 12 | 2026-10-16 | Earlier report: Apple personal-context Siri status conflicting (mid-2026) | Siri AI shipped as a beta with iOS 27 around 14 Sep 2026 (timeline update) | AI memory and context engineering.md | Time-sensitive claims carry an "as of" date |
 | — | 2026-10-16 | Note: hardware table RAM figures are estimates from parameter counts at 4-bit, not sourced | Kept, labelled as estimates | AI memory and context engineering.md | Replace with measured benchmarks when the prototype exists |
 | 13 | 2026-10-16 | I reported the research was committed and pushed, but the first commit held only README.md: the local git ignore rule for reports/ and research_notes/ also applied to the research branch's worktree | Files force-added and pushed | research/personal-data-ownership branch | After every commit, run `git ls-files` (or `git show --stat`) to confirm the files are in it before reporting success |
+| 14 | 2026-10-16 | I didn't connect Relic to OpenAI dots, Meta Muse and AI-memory products; the user had to | AI memory products are the closest technical analogue (always-on agent, memory, context) | AI memory and context engineering.md | Standing check 4 (analogue scan) before every research round |
+| 15 | 2026-10-16 | AI memory report: Mem0 chooses ADD/UPDATE/DELETE/NOOP | True only of Mem0 1.x and the paper; current open-source Mem0 is ADD-only | Errata appended to AI memory and context engineering.md | Say which version of a library a claim covers (tag or commit) |
+| 16 | 2026-10-16 | AI memory report: OpenMemory MCP described as the reference local design | Removed from Mem0 main; no authentication; likely deny-all bypass; hard-coded OpenAI categorizer, so never fully local | Errata appended | Verify "reference design" claims against the code, not the docs |
+| 17 | 2026-10-16 | AI memory report: ChatGPT injects 4 blocks and ~40 recent chats | A newer leak (mid-2025, undated) shows 5 sections and ~50 recent conversations; both unverified | Errata appended | Date leaked or reverse-engineered material and treat it as a snapshot |
+| 18 | 2026-10-16 | AI memory report cited OpenAI's own page for the ChatGPT Dreaming date (4 Jun 2026) | Only press coverage could be reached this round, so it is unconfirmed | Errata appended | Note whether the primary source was actually opened |
+| 19 | 2026-10-16 | AI memory report: Generative Agents recency is exponential decay | In code it is rank-based (0.99^rank), weighted 0.5/3/2, and appears inverted | Errata appended | Prefer code over paper descriptions when they differ |
+| 20 | 2026-10-16 | AI memory report: Letta sleep-time runs while the agent is idle | It fires every 5 turns as a background task; letta-code reflects on compaction | Errata appended | Prefer code over paper descriptions when they differ |
+| 21 | 2026-10-16 | Reclamation report: Dayflow's storage and LLM use unverified | SQLite tables; cloud LLMs by default, Ollama optional | Errata appended to Personal data reclamation app.md | — |

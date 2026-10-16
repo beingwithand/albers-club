@@ -370,3 +370,7 @@ The MVP's success test is concrete: one person can search everything they saw an
 Building Relic is now mostly a security problem. The capture problem has largely been solved, and the agent problem has become a question of containment. The project that wins will not be the one with the best OCR. It will be the one that can show, with open code and a design that limits damage, that its archive is useless to an infostealer, its agents are harmless when hijacked, and nobody can quietly use it to watch someone else. Recall's experience shows that operating-system privileges don't settle these questions. Screenpipe's experience shows that commercial pressure pulls this category toward enterprise surveillance of work. That leaves room for a consumer tool that treats owning the data and constraining itself as the product.
 
 The deeper implication is that Relic's moat is a structural incentive, not a technology. Meta, Amazon, Microsoft and Apple all want the same personal context, and each has commercial reasons to keep a copy. A local-first product with no server copy is the only kind that can credibly promise not to. Until Apple opens iOS to this kind of agent, the desktop is where that promise can be kept. Relic should own that position before the platforms close it.
+
+---
+## Errata (added 2026-10-16)
+- **Dayflow:** it stores its data in SQLite tables and uses cloud LLMs by default, with Ollama optional (from a later code teardown; see Relic build guide.md and CORRECTIONS.md row 21).
