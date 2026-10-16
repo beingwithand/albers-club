@@ -1,6 +1,7 @@
 # Global rules
 
 My principles: @~/.claude/PRINCIPLES.md
+Why this harness exists: training-grade data, an AI-native Albers, continuous SOTA updates, and humans and agents working together (`docs/VISION.md` in the harness repo).
 
 ## About me
 - I'm a freelance KO↔EN translator and data annotator, I apply for freelance and other jobs, and I do coding, AI work and art/digital projects.
