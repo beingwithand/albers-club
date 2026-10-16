@@ -96,3 +96,5 @@ Copying data out can't be undone, and Relic can't make a company forget what it 
 
 ## Agent-friendly (added 2026-10-16)
 Relic is built to be used by AI agents as well as people. It offers an MCP server, a JSON CLI and a local API, with typed tools, documented open formats (Markdown and SQLite) and an AGENTS.md that explains it. Every agent goes through the gatekeeper: its own scoped and expiring grant, logged access, and captured content treated as untrusted data. Any assistant, from Claude to Muse to a local model, can use your history, but only on your terms.
+
+**Errata (2026-10-16):** The monthly macOS screen-recording re-consent can be pre-approved on MDM-managed Macs. Relic can't ship through the Mac App Store, and it needs a signed, notarized .app (CORRECTIONS row 26).

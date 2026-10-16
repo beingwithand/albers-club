@@ -288,3 +288,5 @@ These points are superseded by **Relic build guide.md**. See CORRECTIONS.md rows
 - **ChatGPT Dreaming date:** only press coverage could be reached in the later round, so the date is unconfirmed.
 - **Generative Agents recency:** it is rank-based (0.99^rank), weighted 0.5 recency, 3 relevance and 2 importance, and the code appears to invert it.
 - **Letta sleep-time:** it runs every 5 turns as a background task, not only when idle.
+- **Small-model agent gap:** superseded by the 2026 GUI models (CORRECTIONS row 22).
+- **MCP sessions:** MCP 2026-07-28 is stateless. Client approval is Relic's own pairing record, not an MCP session (CORRECTIONS row 23).

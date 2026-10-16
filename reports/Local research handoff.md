@@ -20,7 +20,16 @@ These hosts were rejected by the network proxy or failed to resolve, so findings
 - **Press and researchers:** techcrunch.com, infoq.com, selfh.st, simonwillison.net, embracethered.com, ioactive.com.
 - **GitHub REST API** (star counts, release dates). Plain `git clone` worked.
 
-The gap-research notes (in `research_notes/Relic gap research/`) each end with a "Blocked sources" list. Add those to this list.
+The gap-research notes (in `research_notes/Relic gap research/`) each end with a "Blocked sources" list. Deduplicated, they add:
+- **Papers:** all of arxiv.org, including the ABC paper (2507.02825), GKD (2306.13649), the Qwen3-VL tech report (2511.21631), GUI-Owl-1.5 (2602.16855), MAI-UI (2512.22047), UI-Venus-1.5 (2602.09082), UI-TARS-2 (2509.02544) and the Apple FM tech report (2507.13575).
+- **Hugging Face:** every model and dataset card (including Qwen3-VL-8B-Instruct, Holo1.5-7B, OpenCUA-7B, GUI-Owl-7B and the AgentNet dataset), plus the MTEB leaderboard and ViDoRe spaces.
+- **Leaderboards:** os-world.github.io (OSWorld-Verified), gui-agent.github.io/grounding-leaderboard (ScreenSpot-Pro), and xlang.ai/blog/osworld-verified.
+- **Apple:** machinelearning.apple.com/research/apple-foundation-models-2025-updates.
+- **Google:** the Play Console Help pages for the AccessibilityService policy (support.google.com/googleplay/android-developer/answer/10964491), the 30 Oct 2025 announcement (answer/16550159) and the policy deadlines table (table/12921780); the Android Developers Blog post on developer verification (2026/03); ai.google.dev/gemini-api/terms and ai.google.dev/gemma/terms.
+- **Microsoft:** support.microsoft.com, "Experimental agentic features" page.
+- **OpenAI:** openai.com/policies/terms-of-use and /policies/services-agreement; open.windriver.com (archived OpenAI ToU 2024-12-11); conductatlas.com (OpenAI EU terms provision).
+- **Others:** thinkingmachines.ai/blog/on-policy-distillation; mjtsai.com (Sequoia Screen Recording and the persistent-content-capture entitlement); dev.to (WWDC26 Foundation Models write-up); the github.com/a2aproject/A2A web page (the repo itself cloned fine).
+- **GitHub clones that failed** (auth prompt; possibly renamed or private): microsoft/GKD, jxzhangjhu/MiniLLM, GUI-World/GUI-World, Yiheng-Xu/AgentTrek, xlang-ai/os-world.github.io, gui-agent/gui-agent.github.io.
 
 ## 3. Verification checklist (highest value first)
 **Product claims that rest on search summaries:**
@@ -43,6 +52,10 @@ The gap-research notes (in `research_notes/Relic gap research/`) each end with a
 - [ ] Google's Data Portability API country list, and the Gmail restricted-scope / CASA cost.
 - [ ] Anthropic, OpenAI and Google terms on using outputs to train models (exact clauses).
 - [ ] Licenses of each candidate open teacher and student model, and of the GUI datasets (commercial use?).
+- [ ] Weight licences on the Hugging Face model cards for **GUI-Owl-1.5**, **UI-Venus-2** and **MAI-UI** (only the repo code licences were seen: MIT, an Apache-2.0 badge and Apache-2.0).
+- [ ] The 2026 GUI benchmark claims, checked independently on the official leaderboards (OSWorld-Verified at os-world.github.io, ScreenSpot-Pro at gui-agent.github.io): especially UI-Venus-2-9B's 70.8 on OSWorld-Verified, and GUI-Owl-1.5 and MAI-UI.
+- [ ] The exact current clauses on training with outputs in **OpenAI's** Terms of Use and Services Agreement, and **Google's** Gemini API Additional Terms, Cloud Service Specific Terms and current Gemma terms (does Gemma 4 under Apache-2.0 drop the "Model Derivatives" clause?).
+- [ ] Hugging Face dataset cards for **AITW, AndroidControl, AMEX, OS-Atlas, Aguvis, GUI-World, Rico and Multimodal-Mind2Web**: the licence, and whether commercial training is allowed.
 
 **Numbers to replace with real data:**
 - [ ] GitHub stars and release dates for the build guide's license table.

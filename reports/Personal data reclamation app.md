@@ -374,3 +374,4 @@ The deeper implication is that Relic's moat is a structural incentive, not a tec
 ---
 ## Errata (added 2026-10-16)
 - **Dayflow:** it stores its data in SQLite tables and uses cloud LLMs by default, with Ollama optional (from a later code teardown; see Relic build guide.md and CORRECTIONS.md row 21).
+- **Small-model agent gap (superseded):** the claim that open-weight agents are far behind (UI-TARS-2 at 47.5%) is outdated. 2026 models up to 9B report up to 70.8 on OSWorld-Verified (self-reported). See Relic build guide.md, "Update 2026-10-16: agent accuracy outlook", and CORRECTIONS row 22.
