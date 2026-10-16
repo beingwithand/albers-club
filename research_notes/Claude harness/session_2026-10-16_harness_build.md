@@ -36,6 +36,11 @@ Session: https://claude.ai/code/session_01TsbW2R32y5VMMxyaYoyyZh
 - **D8: Research and harness work live on the `research/agent-autonomy` branch of albers-club** until `claude-harness` gets its own repo. Creating a repo through the GitHub app returned 403.
 - **D9: The synopsis skill writes 3 drafts with different strategies, and reviewer feedback becomes numbered rules that can be checked.** This mirrors the user's existing Toin workflow.
 
+- **D10: Fan-out policy calibration (user-confirmed).**
+  - Search escalates from inline (tier 0) to a small fan-out (tier 2) when it needs more than about 3 sources or mixes source types (papers, GitHub, Reddit).
+  - Verification fan-out is **always** run on anything sent to clients or employers.
+  - Tier 3 (full fan-out) **asks before starting** when weekly usage is above 75%.
+
 ## Mishaps
 - **M1:** Research notes were saved inside an unrelated repo (albers-club) without asking first.
   - Root cause: the deep-research default location.
