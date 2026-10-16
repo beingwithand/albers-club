@@ -160,6 +160,40 @@ No handoff relies on context the receiver doesn't have.
 - **Output:** every claim carries a citation, a date and a confidence level. Conflicts between sources are shown, not hidden. Gaps are listed explicitly.
 - **Access fallbacks:** when a site can't be reached (as Reddit and YouTube weren't in this cloud session), say so plainly and ask for links or pasted text rather than guessing.
 
+### 4.11 Project intake (extract once, point forever)
+At the start of every new project, an intake agent processes everything you give it (PDFs, briefs, links, emails):
+1. **Extract** the content into `knowledge/` as clean Markdown, with tables kept and images saved.
+2. **Index it** in `knowledge/INDEX.md`: one line per fact cluster, with a pointer to the file, section and page of the original.
+3. **Record provenance** for each item:
+   - the original filename and a hash of the file
+   - the date it was received
+   - where the original is archived (a Drive link)
+   - the extraction tool used
+   - a confidence level
+4. **Verify** the extraction: a checker compares samples against the original, and checks page counts and tables.
+5. **Archive the original** to Drive. Only then can the local copy be deleted, and the pointer still resolves.
+
+Agents read `INDEX.md` first and open only what they need, which keeps context small.
+
+### 4.12 Back-catalog import (reverse-engineer past work)
+Once the new laptop is set up, run the intake pipeline in bulk over old projects, chats, files and emails. Then:
+1. **Classify** each item into an area and project, using the ontology.
+2. **Extract** decisions, corrections, style pairs and lessons from it.
+3. **Propose** a draft `CLAUDE.md` rule set for each area, which you review before anything is adopted.
+
+Import is read-only, and every item links back to its source.
+
+### 4.13 Multi-dimensional improvement loop (RL-style)
+- **Rewards along several dimensions:**
+  - correctness, from the verifier
+  - how often you correct the work
+  - cost
+  - time
+  - style match, for writing and translation
+  - outcome, such as an application reply or a client acceptance
+- **Policy = prompts, rules, skills and routing.** These are optimized against your logged tasks and benchmark sets.
+- **Methods:** to be filled from the state-of-the-art research now running, which covers GEPA/DSPy, ACE, Reflexion-style memory, rubric judges, best-of-N with verifiers, and fine-tuning open models on logged task histories.
+
 ## 5. Ontology v0 (`ontology.yaml`)
 
 **Types:**
