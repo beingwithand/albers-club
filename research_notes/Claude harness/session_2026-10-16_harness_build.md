@@ -43,6 +43,9 @@ Session: https://claude.ai/code/session_01TsbW2R32y5VMMxyaYoyyZh
 
 - **D11: Resonance privacy model (user-confirmed).** PDFs and page images *may* be sent to Gemini, Claude or the server for rendering and extraction; that is the app's design. The user's own data (annotations, highlights, notes, journal, voice notes, reading history) stays **local**. The OCR bench sends pages by default and never sends user data.
 
+- **D12: Organization (user-confirmed).** Projects use flat `~/projects/<slug>/` plus a project registry, with fields kept in metadata rather than folder paths. Clients, organizations, contacts and platforms merge into one **Party** registry.
+- **D13: Coder plus code-reviewer pair, and verification at every step (user requirement).** Both agents share one coding-rules skill (surgical, minimal fixes). The reviewer reviews each step as it happens and back-reviews earlier work, and may make surgical fixes. Verification between every step applies everywhere, not only to code.
+
 ## Mishaps
 - **M1:** Research notes were saved inside an unrelated repo (albers-club) without asking first.
   - Root cause: the deep-research default location.
