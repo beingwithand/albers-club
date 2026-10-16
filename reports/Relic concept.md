@@ -82,3 +82,14 @@ The first release is a macOS app with:
 - **Local model quality** limiting how good the memory is.
 - **Audio-consent laws.**
 - **Acquisition**, which is why the code is open and Relic pledges not to transfer it.
+
+## Core principle: Relic is the gatekeeper (added 2026-10-16)
+Relic is the first barrier between a person's life and the companies that want it. Cloud AI agents like OpenAI's dots, Meta's Muse and ChatGPT memory collect personal context on their own servers, under their own rules. With Relic, the full record stays with the person. Each AI only gets what the person decides to give it:
+- **Default deny.** No assistant gets anything until the person grants it.
+- **Scoped, minimal sharing.** A grant covers a topic, time range or task, such as "my running data for this coaching chat", not the whole vault. Where possible Relic shares summaries instead of raw captures.
+- **Preview before sending.** The person sees exactly what will leave the device.
+- **Revocable and expiring.** Grants time out by default, and revoking one stops future access.
+- **Logged.** A ledger records what went to which service, when and why, so the person can audit it later or file deletion requests.
+- **Works with anyone.** Relic can feed Muse, dots, ChatGPT, Claude or a local model, but never automatically. The decision stays with the person, not with an algorithm optimizing for someone else.
+
+Copying data out can't be undone, and Relic can't make a company forget what it was sent. The ledger and deletion-request helpers exist for that reason, and the preview step is the real protection.
