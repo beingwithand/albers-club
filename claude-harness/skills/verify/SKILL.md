@@ -16,4 +16,4 @@ Verify the most recent deliverable described in `PROGRESS.md` (or the path given
    - **verdict:** pass, fail or needs-human
    - **per-criterion results**, each with a proof pointer
    - **for each failure:** the smallest fix that would satisfy it
-5. Append a `verification` event to the log.
+5. Append a `verification` event to the log, with `verdict`, `scope_hint` (the project cwd) and `items` (the PROGRESS/tasks entries checked). The Stop-hook gate (`hooks/verify_gate.py`) matches on these.
