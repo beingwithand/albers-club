@@ -41,6 +41,8 @@ Session: https://claude.ai/code/session_01TsbW2R32y5VMMxyaYoyyZh
   - Verification fan-out is **always** run on anything sent to clients or employers.
   - Tier 3 (full fan-out) **asks before starting** when weekly usage is above 75%.
 
+- **D11: Resonance privacy model (user-confirmed).** PDFs and page images *may* be sent to Gemini, Claude or the server for rendering and extraction; that is the app's design. The user's own data (annotations, highlights, notes, journal, voice notes, reading history) stays **local**. The OCR bench sends pages by default and never sends user data.
+
 ## Mishaps
 - **M1:** Research notes were saved inside an unrelated repo (albers-club) without asking first.
   - Root cause: the deep-research default location.
