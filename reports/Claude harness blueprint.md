@@ -77,6 +77,20 @@ Methods by maturity:
 - Add vector search (via MCP) only for large or fuzzy collections, and a knowledge graph (LightRAG) only for questions that chain across many entities.
 - **Back-catalog import:** convert everything in bulk, cluster it by topic, draft candidate rules and skills, then curate them by hand.
 
+**Context management** (from community tips in YouTube comments, 2026-10, checked against the docs)
+- **Default to handoff, then clear, rather than compact.** `/handoff` writes the things Claude can't work out from the files: intent, decisions, dead ends, what to verify. Then run `/clear`, and the new session starts by reading `HANDOFF.md`. Commenters report this is better and faster than `/compact`.
+- Compact only when the thread holds decisions you'd otherwise have to re-explain, and say exactly what to keep.
+- After compaction, Claude Code reloads the system prompt, the root `CLAUDE.md`, auto memory and up to 5 recently modified files from disk. Everything else is summarized or dropped. So anything important must live in files, not only in chat.
+- Sessions left open for hours can use far more of your plan limit than the activity suggests. Clear or hand off instead of idling in a long session.
+- Keep separate memory files for deferred to-dos and for decisions. These are `PROGRESS.md` and `decisions.md`.
+
+**Intent and meta-layer on every record**
+- Every logged item carries three fields, labeled like data annotation:
+  - **intent:** why it was asked or done.
+  - **situation:** the context at the time.
+  - **meta:** what kind of thing it is, how to repeat or prevent it, and what it generalizes to.
+- See `claude-harness/schema/event.md`.
+
 **Model routing**
 - Haiku for logging, labeling and extraction workers.
 - Sonnet for most work.

@@ -1,0 +1,7 @@
+{
+  "name": "claude-harness",
+  "owner": { "name": "beingwithand" },
+  "plugins": [
+    { "name": "harness", "source": "./", "description": "Personal harness: agents, skills, hooks" }
+  ]
+}

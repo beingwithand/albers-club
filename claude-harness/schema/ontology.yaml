@@ -1,0 +1,38 @@
+# Ontology v0. Change only via a reviewed PR; keep a mapping when types are renamed or merged.
+version: 0.1.0
+
+areas: [translation, annotation, job-search, art, code, research, personal]
+
+types:
+  Project:     {fields: [id, area, client, status, started, drive_folder]}
+  Client:      {fields: [id, name, contact, preferences]}
+  Task:        {fields: [id, project, intent, status, agent, model, verifier]}
+  Document:    {fields: [id, source_path, sha256, archived_at, converter, confidence]}
+  Asset:       {fields: [id, type, source, provenance, rights, variants]}
+  Decision:    {fields: [id, claim, reasons, evidence, alternatives, expected_outcome, review_date]}
+  Correction:  {fields: [id, agent_did, my_correction, my_reasoning, scope]}
+  Mishap:      {fields: [id, what, noticed_how, fix, root_cause, prevention, repeat_pattern, proof]}
+  Lesson:      {fields: [id, statement, scope, learned_from, status]}   # status: proposed|approved|expired
+  SessionNote: {fields: [id, goal, dead_ends, resolution, decisions, lessons, pointers]}
+  Proof:       {fields: [id, kind, ref]}   # kind: output|test|quote|diff|screenshot|link
+  Preference:  {fields: [id, statement, scope, source_event]}
+  StylePair:   {fields: [id, draft, final, language, direction, register, domain, audience]}
+  Application: {fields: [id, org, role, applied_on, channel, status, next_step]}
+  Evaluation:  {fields: [id, target, rubric, scores, judge, judge_model]}
+
+relations:
+  - part_of
+  - for_client
+  - produced_by     # agent + model
+  - derived_from
+  - evidence_for
+  - proven_by
+  - supersedes
+  - corrects
+  - prevents        # Lesson/rule -> Mishap
+  - learned_from    # Lesson -> Mishap/Correction/SessionNote
+  - handed_off_to
+  - evaluated_by
+  - blocks
+
+registers: [formal-email, office, friendly, chat, client-deliverable, annotation-response]

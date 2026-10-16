@@ -1,0 +1,6 @@
+{
+  "name": "harness",
+  "description": "Personal harness: agents, skills, hooks for logging, verification, handoffs and self-improvement",
+  "version": "0.1.0",
+  "author": { "name": "beingwithand" }
+}
