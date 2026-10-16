@@ -32,6 +32,7 @@ a `label` event, a ledger `status` row, or a later Application line with the sam
 | Handoff | project | `HANDOFF.md` | md | no | repo | active | — | skills/handoff, hooks/precompact_snapshot.py (log/handoffs/auto_*.md) |
 | ProgressItem | project | `tasks.json` | json | no | repo | active | — | agents/orchestrator (workers may change only `passes`) |
 | Preference | harness-data | `preferences.jsonl` | jsonl | yes | harness-data | active | pref_ | skills/interview |
+| ResearchNote | harness-data | `research/ledger.jsonl` | jsonl | yes | harness-data | active | rn_ | skills/check, skills/web-research |
 | Principle | repo | `global/PRINCIPLES.md` | md | no | repo | active | — | skills/distill-principles (after approval) |
 | Evaluation | harness-data | `evals/results/<area>/*.json` | embedded | yes | harness-data | active | — | eval runner |
 | EvalRun | harness-data | `evals/results/<area>/*.json` | json | yes | harness-data | active | — | eval runner; read by scripts/eval_gate.py |
@@ -71,7 +72,7 @@ Untyped files in `harness-data` (not records; not validated):
 - `.autocommit.log`, `.gitattributes` (union merge for `*.jsonl`).
 
 ## Known gaps (v0.2.0)
-- **`finance/ledger.csv` is not union-merged.** `autocommit_data.sh` sets the `union` driver for `*.jsonl` only, so two machines appending ledger rows in the same hour conflict. Add `*.csv merge=union` for append-only CSVs, or move the ledger to JSONL. It also puts amounts and client names in the GitHub-synced repo, which is by design but worth knowing.
+- ~~`finance/ledger.csv` is not union-merged~~ **Fixed:** `autocommit_data.sh` now sets `finance/*.csv merge=union`. Note that the ledger puts amounts and client names in the GitHub-synced repo, which is by design but worth knowing.
 - **Session notes have two homes.** `skills/retro` writes `<project>/log/sessions/`, while the header of `autocommit_data.sh` lists `sessions/` as part of `$HARNESS_DATA`. Pick one (the ontology records the project path, which is what the skill does).
 - **Gmail backfill outputs are not yet placed.** If they are persisted: `applications.jsonl` and `platforms.json` go to `harness-data` *after* dropping message subjects/quotes (keep thread ids only); `style_samples.jsonl` (subjects and excerpts) and the `reviewer_feedback` quotes in `clients_projects.jsonl` go to `msg-vault`. `clients_projects.jsonl` mixes Client and Project records (`client-…` / `proj-…` ids) and should be split.
 - **Planned stores** (`status: planned`) have no writer yet: Client, JobLead, Platform, Organization, Contact, Account, Message, Thread, Attachment, SyncCursor, StyleSample.

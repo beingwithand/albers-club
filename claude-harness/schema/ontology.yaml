@@ -176,6 +176,16 @@ types:
     formats: {ts: datetime, scope: scope}
     coverage: {provenance: [source_event], intent: event, meta: [task_type]}
 
+  ResearchNote:
+    desc: one checked answer to a question (from /check or /web-research), with sources, verification and a pointer to the full notes; the research ledger
+    store: {root: harness-data, path: research/ledger.jsonl, format: jsonl, append_only: true, privacy: harness-data, status: active, writer: "skills/check, skills/web-research"}
+    id_prefix: rn_
+    unique_id: true
+    fields: [id, ts, question, intent, scope, answer, claims, sources, verification, confidence, fanout_tier, notes_path, supersedes, review_by, tags]
+    required: [id, ts, question, answer, sources, verification]
+    formats: {ts: datetime, scope: scope}
+    coverage: {provenance: [sources, verification, notes_path], intent: intent, meta: [tags, fanout_tier]}
+
   Principle:
     desc: cross-domain principle distilled from 2+ sources (skill `distill-principles`)
     store: {root: repo, path: global/PRINCIPLES.md, format: md, append_only: false, privacy: repo, status: active, writer: "skills/distill-principles (after approval)"}

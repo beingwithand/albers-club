@@ -25,3 +25,4 @@ These apply across everything I do: code, translation, annotation, job search, r
     - **Weekly usage:** above 75% of the 7-day limit, ask me before any full fan-out (5–10 agents).
 
     *(From: fan-out policy research and calibration, 2026-10-16)*
+19. **Check, verify, log.** Questions get checked online rather than answered from memory. Every check is verified against independent sources and logged with citations, so later work can point to it instead of re-researching. *(From: "I always ask to research online, with verification and logging")*
