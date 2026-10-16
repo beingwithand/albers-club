@@ -696,3 +696,41 @@ Relic should be easy for AI agents to use (Claude, ChatGPT/dots, Muse, local mod
 - Captured content is wrapped as untrusted data, never as instructions. This defends agents against prompt injection that came in with captured pages.
 - Rate limits for each agent, and an anomaly alert when an agent suddenly reads far more than usual.
 - Irreversible actions always need the person's approval, whichever agent asks.
+
+---
+## Addendum (2026-10-16): Automated distill, train, test and ship loop
+This design draws on background knowledge, not this round's research. Before starting, verify each tool, provider term and model license.
+
+### Ground rules
+- **Teachers are open-weight models only** (e.g., Qwen, DeepSeek, Llama or Gemma, each under its own license). Don't train on Claude, GPT or Gemini outputs unless their current terms clearly allow it. Frontier models can still help write code and run the pipeline.
+- **Global models never see real user data.** They're trained only on synthetic data, permissively licensed public data and test accounts. Personalization happens on the device, overnight, from the user's own corrections, and never leaves it.
+- **Every dataset and model has a version.** Every promotion is gated by tests. Every release can be rolled back.
+
+### The loop (one task family at a time: fact extraction, step repair, screen grounding, reranking)
+1. **Task registry.** A file per task that defines the input/output schema (JSON Schema), quality rules and test suites.
+2. **Generate.** Scripts make synthetic inputs: fake messages, posts and captures, and deliberately changed page layouts for step repair. Test-account runs of the scripted export flows produce real screenshots.
+3. **Label.** The open teacher, running on rented GPUs or a home box, labels each item.
+4. **Filter automatically.** Discard anything that fails schema validation, rule checks (dates parse, entities appear in the source), self-consistency (the teacher agrees with itself across 2–3 samples) or cross-teacher agreement. Send a small random sample to human review each cycle.
+5. **Version.** Store the datasets with DVC or git-lfs and keep a datasheet: sources, licenses, counts.
+6. **Train.** LoRA fine-tune the 3–8B student. Do it with MLX on a Mac for small runs, or on rented GPUs for bigger ones. Log runs in a local MLflow.
+7. **Evaluate.** Every candidate runs four suites:
+   - a golden set: hand-checked real tasks, never used for training;
+   - a regression set: every past failure;
+   - a safety set: prompt-injection pages, credential-field screens, irreversible-action traps (must refuse or escalate);
+   - a held-out public benchmark slice (e.g., a ScreenSpot-style grounding test, LoCoMo/LongMemEval-style memory questions), checked for contamination.
+   An open teacher acts as judge where exact match isn't possible.
+8. **Gate.** Promote only if the candidate beats the current model on the golden set, has no regression on the safety set and stays within latency and memory budgets on the target Macs.
+9. **Ship carefully.** Run the new model in shadow mode first (it runs alongside but its output isn't used), then on a small share of users who opted in, then everyone. Rollback is automatic if live success rates drop.
+10. **Learn from failures.** When a site changes and a flow breaks, the device records the failure locally. Users can opt in to share an anonymized failure signature (site, step, error type), never content. The pipeline then builds new repair examples from test accounts and the loop starts again.
+
+### Orchestration
+- **Scheduling:** a simple scheduler (cron or launchd, or Prefect/Dagster as it grows) runs generate → label → filter → train → evaluate nightly or weekly per task.
+- **CI on every code change:** GitHub Actions runs unit tests plus a small, fast evaluation. GPU jobs run on rented machines (e.g., Modal or RunPod) triggered by the pipeline.
+- **An AI coding agent such as Claude Code operates it:** it reads evaluation failures, groups them, proposes data or code fixes and opens pull requests. Humans approve promotions, licenses and anything touching privacy.
+- **Scorecard:** a dashboard per task showing accuracy, regressions, safety, latency and cost per run over time.
+
+### Human checkpoints (kept on purpose)
+- Approving each new data source and its license.
+- Approving model promotion to users.
+- Spot-checking labels each cycle.
+- Reviewing anything flagged as a privacy or safety risk.
