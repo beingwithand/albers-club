@@ -154,7 +154,12 @@
       "Write(~/.claude/settings.json)",
       "Read(~/.config/gh/**)",
       "Bash(git commit --no-verify *)",
-      "Bash(git push --no-verify *)"
+      "Bash(git push --no-verify *)",
+      "mcp__Gmail__send_message",
+      "mcp__Gmail__reply",
+      "mcp__Gmail__forward",
+      "mcp__Gmail__trash_message",
+      "mcp__Gmail__trash_thread"
     ]
   },
   "sandbox": {

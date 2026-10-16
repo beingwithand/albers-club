@@ -20,6 +20,8 @@ Use the Gmail connector's thread search with `after:<date>` and queries such as:
 
 Deduplicate by thread ID. Skip threads already logged (check `source_thread` in `$HARNESS_DATA/applications.jsonl`).
 
+Sent mail is out of scope here. The user's own outgoing mail is harvested for their voice by `voice-harvest`, which also records the outcome of each sent mail (reply, positive or negative, no reply) from the threads this scan finds. List the thread ids of replies to the user's mail under **Status changes**, so the next harvest can pick them up.
+
 ## 2. Classify
 For each thread: `confirmation | recruiter_reply | interview_invite | rejection | offer | request_for_info | other`, plus org, role, date, any deadline or interview time, and confidence (high/medium/low). Quote the sentence that justifies the class.
 

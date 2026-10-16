@@ -13,3 +13,5 @@ Before writing:
 3. Apply the project glossary (`knowledge/glossary.md`) if there is one.
 
 After the user edits your output, log the draft and final as a `StylePair` (see `schema/ontology.yaml`).
+
+An email the user writes themselves (not a translation of someone else's text) belongs to the `correspondent` agent and the `email-draft` skill, which use the user's approved VoiceRules and their own past sent mail. When you translate the user's own outgoing email (`formal-email`, `office`), you may still pull voice exemplars with `python3 -I ${CLAUDE_PLUGIN_ROOT}/scripts/voice.py nearest --language <target> --register <reg> -k 3 --text @<source>`. Approved VoiceRules for the target segment (`voice.py rules ... --status approved`) apply as well.

@@ -1,0 +1,42 @@
+# Eval task template: an email drafted in the user's voice. Copy to tasks/email-draft-NNN.yaml. See evals/README.md.
+# Freeze everything: the thread (vault export), the facts, and the voice state (rules.jsonl + the exemplar
+# samples' redacted text) as fixtures. Real mail and exemplars stay in the private stores
+# ($MSG_VAULT for text, $HARNESS_DATA/evals/email-draft/tasks/ for the task); never in this repo.
+# The reference_output is the email the user actually sent (their own words): the voice target.
+id: email-draft-000
+area: email-draft
+rubric: rubrics/email-draft.yaml
+split: train
+locked: true
+source_event: evt_...
+difficulty: routine            # hard: decline/negotiate, mixed KO/EN thread, new segment with no approved rules
+
+input:
+  context: {language: ko, register: formal-email, audience_kind: recruiter, relationship: ongoing, purpose: follow-up}
+  thread_file: tasks/fixtures/email-draft-000.thread.txt        # vault export, other parties' identifiers replaced
+  facts_file: tasks/fixtures/email-draft-000.facts.md
+  voice_rules: tasks/fixtures/email-draft-000.rules.jsonl         # approved VoiceRules at the time
+  exemplars_dir: tasks/fixtures/email-draft-000.exemplars/        # the k redacted own-text samples
+  fixtures_sha256: "<sha256 of the fixture files>"
+
+criteria: []
+
+reference_output: tasks/fixtures/email-draft-000.sent.txt          # what the user really sent
+
+expected_checks:
+  - id: voice_rules
+    kind: command
+    command: "python3 -I scripts/voice.py --data $FIXTURES/email-draft-000.data check --strict --profile none --text @$OUT/draft.txt --language ko --register formal-email --audience-kind recruiter --purpose follow-up"
+    expect: exit_0
+  - id: facts
+    kind: command
+    command: "python3 -I scripts/claim_check.py $OUT/draft.txt --facts $FIXTURES/email-draft-000.facts.md"
+    expect: exit_0
+  - id: no_send
+    kind: not_contains
+    values: ["mcp__Gmail__send_message", "mcp__Gmail__reply", "mcp__Gmail__forward"]   # checked against the transcript
+  - id: no_other_party_names
+    kind: not_contains
+    values: ["<names of other people in the thread that must not leak into the StylePair>"]
+
+human_scores: {}

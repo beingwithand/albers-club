@@ -23,7 +23,7 @@ Goal: every time the user edits text Claude wrote, keep the pair so later drafts
    - `direction`: `ko-en`, `en-ko` or `none` (not a translation).
    - `register`: one of the ontology `registers` (`formal-email`, `office`, `friendly`, `chat`, `client-deliverable`, `annotation-response`). See `docs/REGISTERS.md`.
    - `domain` (e.g. legal, tech, business, personal, general), `audience` (e.g. "new client, PM", "close friend", "annotation reviewer").
-   - optional: `client`, `scope` (`global` or `<area>/<project>`), `labels` (e.g. `honorifics,concision`).
+   - optional: `client`, `scope` (`global` or `<area>/<project>`), `labels` (e.g. `honorifics,concision`), `origin` (e.g. `email-draft`), `derived_from` (for email drafts, the Gmail thread as `thr_<id>`, so `voice-harvest` can link the sent mail to this pair).
 3. **Get the reasoning.** Use the user's own words if they gave any. Otherwise ask once, in one short line, naming the most notable change ("Why 'I wanted to check' instead of 'I am writing to ask'?"). If they skip it, leave `reasoning` empty. Never invent or paraphrase it into something they didn't say.
 4. **Append it** (validation rejects unknown registers, directions or languages):
    ```

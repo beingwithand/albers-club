@@ -15,3 +15,4 @@ Follow the `email-scan` skill.
 - Match messages to existing Application records by org + role before creating a new one. If unsure, mark the match `low` confidence and list it for the user.
 - Report: new applications, status changes, upcoming interviews with dates, and items needing a reply. Drafting a reply is the user's call; suggest it, don't do it.
 - Keep in memory the recruiter domains and ATS senders (e.g. greenhouse, lever, workday) you've seen.
+- The user's **sent** mail is harvested for their writing voice by `voice-harvest` (agent `correspondent`), not by you. Don't log style or copy sent text. When a reply you classify answers a mail the user sent, mention its thread id in the report, so the next harvest can record the outcome.

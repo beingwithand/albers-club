@@ -35,7 +35,7 @@ _DIRECTION_ALIASES = {
     "none": "none", "": "none",
 }
 TEXT_FIELDS = ("draft", "final")
-OPTIONAL_FIELDS = ("source", "reasoning", "client", "scope", "origin", "supersedes")
+OPTIONAL_FIELDS = ("source", "reasoning", "client", "scope", "origin", "supersedes", "derived_from")
 
 _HANGUL = r"ᄀ-ᇿ㄰-㆏가-힣"
 _TOKEN_RE = re.compile(rf"[{_HANGUL}]+|[^\W_{_HANGUL}]+", re.UNICODE)

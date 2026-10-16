@@ -1,0 +1,82 @@
+status: draft   # proposed with the email-voice system (skills/email-draft); the user reviews and removes this line to adopt it
+# Self-eval sheet: an email drafted in the user's own voice (skills/email-draft, agents/correspondent).
+# Producing agents may NOT edit this file (PreToolUse deny rule on rubrics/**). Never sends mail.
+rubric: email-draft
+version: 0.1.0
+applies_to: "One email draft (KO, EN or mixed) written in the user's voice for a known recipient, relationship and purpose"
+producer_agent: correspondent       # sonnet
+judge:
+  agent: verifier
+  model_must_differ_from_producer: true
+human_sample_rate: 0.2
+
+scoring:
+  scale: [1, 2, 3, 4, 5]
+  pass_if: "weighted_mean >= 4.0 AND facts_accurate >= 4 AND register >= 4 AND no criterion < 3 AND every blocking automatic check passes"
+  needs_human_if: "relationship or purpose was inferred rather than stated, the segment has no approved VoiceRules, or the draft keeps a rule deviation on purpose"
+
+criteria:
+  - id: voice_match
+    description: "Follows every approved VoiceRule for the segment (voice.py check) and reads like the user's own past mail for that segment (voice.py nearest exemplars)."
+    weight: 0.25
+    dimension: style_match
+    anchors:
+      1: "Ignores approved rules (e.g. 해요체 where 하십시오체 is approved; 'Sincerely' where the user always writes 'Best regards'); generic assistant voice."
+      3: "No approved rule violated; tone close to the exemplars, but the user would still change openers, length or how the ask is phrased."
+      5: "Zero rule violations, deviations only where justified in the note; the user would send it unchanged."
+  - id: register
+    description: "Register and honorific level fit the reader and relationship (docs/REGISTERS.md): speech level consistent, -시-/님 where due, greeting and sign-off right for the register."
+    weight: 0.20
+    dimension: style_match
+    anchors:
+      1: "반말 or casual chat tone to a recruiter/client, or stiff 하십시오체 to a close friend; mixed speech levels."
+      3: "Right register overall; one slip (a 해요체 line in a 하십시오체 mail, a contraction in a formal English mail)."
+      5: "Speech level, honorifics, greeting and closing exactly fit the reader and the relationship."
+  - id: facts_accurate
+    description: "Every date, amount, name, attachment, role and commitment matches the thread, the Party/Application record or the user's notes; inferred items are marked [check: ...]."
+    weight: 0.25
+    dimension: correctness
+    anchors:
+      1: "A wrong date, amount, name or a promise the user never made."
+      3: "All stated facts right; one inferred detail not marked for checking."
+      5: "Every fact traceable to a source; nothing invented; NDA or private details left out."
+  - id: purpose_achieved
+    description: "The mail does its one primary job (apply, follow-up, decline, negotiate, schedule, ...): the ask or decision is clear, in the first paragraph, with what the reader should do next."
+    weight: 0.20
+    dimension: correctness
+    anchors:
+      1: "The reader cannot tell what is being asked or decided."
+      3: "Purpose clear but buried, or the next step/deadline missing."
+      5: "Ask or decision up front, next step and any deadline explicit, nothing that works against the purpose."
+  - id: length
+    description: "Length fits the segment (the profile's usual length bucket and sentence length) and the purpose; no filler."
+    weight: 0.10
+    dimension: style_match
+    anchors:
+      1: "Twice the user's usual length for the segment, or so short it drops needed content."
+      3: "One bucket off the usual length, or a redundant paragraph."
+      5: "Within the segment's usual bucket; every sentence earns its place."
+
+automatic_checks:
+  - id: voice_check
+    description: "No approved VoiceRule violated unless the draft note justifies it."
+    command: "python3 -I scripts/voice.py check --strict --text @draft.txt --language <lang> --register <reg> --audience-kind <kind> --purpose <purpose>"
+    blocking: true
+  - id: no_send
+    description: "The transcript contains no Gmail send/reply/forward call; create_draft only after an explicit user request."
+    blocking: true
+  - id: no_raw_text_in_harness_data
+    description: "Captured StylePair has other people's names/addresses replaced (<name>, <org>, <contact>); no quoted thread text."
+    blocking: true
+  - id: claims
+    description: "Stated facts checked against the facts file / thread when one exists."
+    command: "python3 -I scripts/claim_check.py draft.txt --facts <facts file>"
+    blocking: false
+
+dimensions:
+  correctness: {from_criteria: [facts_accurate, purpose_achieved], aggregate: weighted_mean}
+  style_match: {from_criteria: [voice_match, register, length], aggregate: weighted_mean}
+  correction_rate: {source: "edit size between draft and the user's final (StylePair edited / char diff)", better: lower}
+  cost: {source: "event cost_usd", better: lower}
+  time: {source: "wall-clock minutes", better: lower}
+  outcome: {source: "VoiceSample.outcome of the sent mail (positive/replied vs no-reply/negative)", better: higher}
