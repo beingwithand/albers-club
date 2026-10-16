@@ -36,7 +36,8 @@ Why this harness exists: training-grade data, an AI-native Albers, continuous SO
 ## Model routing
 - Haiku: logging, labeling, extraction workers.
 - Sonnet: most work.
-- Opus or Fable: orchestration and hard judgment.
+- Opus: orchestration and hard judgment by default.
+- **Fable is available whenever it's needed.** Use it (`model: fable`, or `/model fable` for the main thread) for the hardest planning, architecture, research synthesis, ambiguous high-stakes decisions, and when Opus has failed twice. On Max, Fable is capped at 50% of the weekly limit and then bills to usage credits. The usage guard's budget levels still apply, so at ≥90% ask before using it.
 - Every subagent sets `model:` explicitly.
 
 ## Safety
