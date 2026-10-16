@@ -645,3 +645,29 @@ One practical constraint shapes the design. Affiliate programs generally credit 
 Reading the code rather than the papers turns Relic from a research project into an integration project. The hard parts of a personal memory are not where the papers put them. They are not in clever prompts or graph algorithms, which already exist under permissive licenses. They are in the plumbing the bug table exposes: cursors that advance before work commits, permission code that confuses "no rule" with "deny all", schedulers that never fire, and timestamps taken from the import rather than the event. A small team that gets those boring parts right, and tests them, will have a more trustworthy memory than products with far larger models.
 
 Two of Relic's needs are not solved by any code examined here, and both are worth building carefully and contributing upstream: out-of-order backfill (timeline recomputation over single-valued predicates) and cross-platform identity for people with handles, phone numbers and Korean or romanized names. Both are deterministic problems with a small model only at the margin, so they suit on-device work. They are also exactly what a lifelog has and a chat-memory product lacks. The private evaluation set is the critical path. Every tier assignment in this guide is a hypothesis until Relic measures a 3–4B model on its own extraction, judging and compaction prompts, over its own Korean and English data.
+
+---
+## Addendum (2026-10-16): Agent permissions per platform
+This addendum was written from the earlier research notes plus background knowledge. Verify each OS detail on a device before building on it.
+
+**Two layers of permission.** (1) The OS permissions that let Relic see the screen and act at all. (2) Relic's own permission layer, which decides what its agents may do once the OS allows it.
+
+### Layer 1: OS permissions
+| Platform | What Relic needs | Limits |
+|---|---|---|
+| macOS | Screen Recording (monthly re-approval on Sequoia+); Accessibility (to read UI text and click/type in other apps); Automation (Apple Events), prompted per target app; Full Disk Access only if importing local stores the user chooses (e.g., Messages) | Ship as a signed .app; prompts can't be pre-approved outside MDM |
+| Windows | UI Automation and Graphics Capture need no special grant; code signing avoids SmartScreen warnings | Windows apps can opt out of capture (WDA_EXCLUDEFROMCAPTURE) |
+| Browser (any desktop OS) | Relic's own isolated Chromium profile driven by Playwright/CDP, or a Relic extension with per-site permissions (the model Claude for Chrome uses) | Never the user's everyday profile for agent runs; no disguise as a human |
+| Android | MediaProjection (consent each session); AccessibilityService to read and act in apps; AppFunctions (Android 16+) for apps that expose actions | Google Play bans accessibility for autonomous AI agents, so either distribute outside Play for the agent feature or limit Play builds to capture plus AppFunctions |
+| iOS | No general control of other apps. Only App Intents/Shortcuts, the share sheet and a user-started ReplayKit broadcast | Phone automation runs from the Mac (via the browser or the phone's web versions), or through Shortcuts the user triggers |
+
+### Layer 2: Relic's own agent permissions (modelled on Claude's computer-use tiers)
+- **Read:** viewing pages and the screen. Allowed on allowlisted sites and apps.
+- **Navigate:** scrolling, opening links and export pages. Allowed within an approved task.
+- **Act:** clicking buttons that change something (requesting an export, saving). Needs task-level approval.
+- **Irreversible:** deleting, posting, purchasing or sending messages. Needs per-action approval every time, and agents can't do it in the backfill phase.
+- **Credentials:** never visible to the model. The user types logins and 2FA codes themselves.
+
+Every run gets a visible indicator, a stop button and an audit log entry. Grants are per-site or per-app, time-limited and revocable.
+
+**Timeline impact.** The macOS and browser agent permissions fit into months 3–6. Android adds about a month, and must account for Play policy. On iOS, plan for "drive the phone's data from the Mac", not on-device automation.
