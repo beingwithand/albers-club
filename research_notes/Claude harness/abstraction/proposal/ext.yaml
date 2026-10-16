@@ -1,0 +1,145 @@
+enums:
+  # ---- v0.3 additions -------------------------------------------------------------
+  # Distance from raw observation. Orthogonal to record type and to scope (scope = where it applies).
+  abstraction_level: [raw, episode, pattern, rule, principle, meta]
+  #   raw        bytes/text as received: Message, Attachment, Document, transcript
+  #   episode    one occurrence, one time: Event, Task, Correction, Mishap, StylePair, Application line
+  #   pattern    a regularity over >=2 episodes, descriptive ("this keeps happening"): Abstraction (cluster summary), Mishap.repeat_pattern
+  #   rule       prescriptive, scoped guidance: Lesson, Preference, StyleGuide rule, ReviewerRule, Decision
+  #   principle  cross-scope rule distilled from >=2 rules/scopes: Principle
+  #   meta       about the representation itself: Concept, ConceptScheme, Rubric, the ontology
+  concept_status: [pending, stable, deprecated]          # schema.org-style lifecycle (pending -> core | dropped)
+  mapping_kind: [exact, close, broad, narrow, related]   # SKOS mapping properties, for links to external vocabularies
+  abstraction_method: [manual, llm-cluster, fca, leiden, raptor-gmm, rollup]
+  issue_status: [open, resolved, dropped, reopened]
+  decision_status: [proposed, accepted, rejected, deprecated, superseded]   # MADR 4.0 status values
+  assessment_polarity: [supports, opposes, neutral, n/a]  # QOC assessment (solid / dashed line); MADR good / bad / neutral
+  argument_role: [pro, con, question]                     # IBIS argument kinds; `question` = an objection that opens a sub-issue
+  strength: [strong, moderate, weak]
+
+types:
+  # ------------------------------------------------------------------ concepts (SKOS) and abstractions
+  ConceptScheme:
+    desc: a controlled vocabulary (skos:ConceptScheme), e.g. failure modes, decision criteria, topics; says which record fields draw from it
+    store: {root: harness-data, path: concepts/schemes.jsonl, format: jsonl, append_only: true, privacy: harness-data, status: planned, writer: "skills/distill-principles, skills/review-week (proposals); the user approves"}
+    id_prefix: cs-
+    id_pattern: '^cs-[a-z0-9-]+$'
+    unique_id: false
+    fields: [id, ts, title, definition, top_concepts, used_by, status, superseded_by, valid_from, valid_to, attributed_to]
+    required: [id, ts, title, used_by]
+    refs: {top_concepts: Concept, superseded_by: ConceptScheme}
+    enums: {status: concept_status}
+    formats: {ts: datetime, valid_from: date, valid_to: date}
+    abstraction: {default: meta}
+    coverage: {provenance: [attributed_to], intent: definition, meta: [used_by]}
+
+  Concept:
+    desc: one SKOS concept (a meaning, not a record type); records point at concepts through `about`; newest line per id wins
+    store: {root: harness-data, path: concepts/concepts.jsonl, format: jsonl, append_only: true, privacy: harness-data, status: planned, writer: "skills/review-week, skills/distill-principles (status pending); the user promotes to stable"}
+    id_prefix: cpt-
+    id_pattern: '^cpt-[a-z0-9-]+$'
+    unique_id: false
+    fields: [id, ts, pref_label, alt_labels, hidden_labels, definition, scope_note, example, in_scheme, broader, related, mappings, status, superseded_by, valid_from, valid_to, attributed_to, evidence, level_hint]
+    required: [id, ts, pref_label, in_scheme, status]
+    refs: {in_scheme: ConceptScheme, broader: Concept, related: Concept, superseded_by: Concept}
+    enums: {status: concept_status, level_hint: abstraction_level}
+    formats: {ts: datetime, valid_from: date, valid_to: date}
+    abstraction: {default: meta}
+    constraints:
+      - {rule: acyclic, field: broader}                          # no concept is its own ancestor
+      - {rule: disjoint_closure, field: related, with: broader}  # SKOS: related is disjoint with broaderTransitive
+      - {rule: unique_label, field: pref_label, per: in_scheme}  # SKOS: at most one prefLabel per language; here unique per scheme
+      - {rule: requires_if, field: superseded_by, when: {status: deprecated}}
+    coverage: {provenance: [attributed_to, evidence], intent: definition, meta: [in_scheme, broader]}
+
+  Mapping:      # embedded in Concept.mappings
+    desc: a link from a Concept to a term in another vocabulary (skos:exactMatch | closeMatch | broadMatch | narrowMatch | relatedMatch)
+    store: {root: harness-data, path: concepts/concepts.jsonl, format: embedded, append_only: true, privacy: harness-data, status: planned, writer: "as Concept"}
+    fields: [kind, target, note]
+    required: [kind, target]
+    enums: {kind: mapping_kind}
+
+  Abstraction:
+    desc: a generated summary node over a set of records (RAPTOR tree node / GraphRAG community report / FCA formal concept); derived, regenerable, never hand-edited
+    store: {root: harness-data, path: "abstractions/<area>/YYYY-MM.jsonl", format: jsonl, append_only: true, privacy: harness-data, status: planned, writer: "scripts/abstract.py (planned), skills/review-week"}
+    id_prefix: abs_
+    id_pattern: '^abs_\d{8}_[0-9a-f]{6}$'
+    unique_id: true
+    fields: [id, ts, level, tier, method, scope, members, member_types, parent, children, intent_concepts, title, summary, findings, rank, model, generated_by, input_hash, as_of, valid_from, valid_to, superseded_by, promoted_to, status]
+    required: [id, ts, level, method, members, summary, input_hash]
+    refs: {parent: Abstraction, children: Abstraction, intent_concepts: Concept, superseded_by: Abstraction, generated_by: Event}
+    enums: {level: abstraction_level, method: abstraction_method, status: concept_status}
+    formats: {ts: datetime, as_of: datetime, valid_from: date, valid_to: date, scope: scope, input_hash: sha256}
+    abstraction: {default: pattern, allowed: [pattern, rule]}
+    constraints:
+      - {rule: min_items, field: members, n: 2}
+      - {rule: acyclic, field: parent}
+      - {rule: level_monotone, field: members}                   # every member is at a lower level, or a lower tier of Abstraction
+    coverage: {provenance: [members, method, model, generated_by, input_hash], intent: null, meta: [intent_concepts, level]}
+
+  # ------------------------------------------------------------------ decision rationale (IBIS + QOC + Toulmin + MADR)
+  Issue:
+    desc: an open question (IBIS issue / QOC question); one issue can get several Decisions over time
+    store: {root: project, path: rationale/issues.jsonl, format: jsonl, append_only: true, privacy: repo, status: planned, writer: "skills/why, skills/retro"}
+    id_prefix: iss-
+    id_pattern: '^iss-\d{8}-\d+$'
+    unique_id: false
+    fields: [id, ts, question, context, scope, status, parent_issue, raised_by, about, drivers, source_event, valid_from, valid_to]
+    required: [id, ts, question, status]
+    refs: {parent_issue: Issue, about: Concept, source_event: Event}
+    enums: {status: issue_status}
+    formats: {ts: datetime, scope: scope, valid_from: date, valid_to: date}
+    abstraction: {default: episode}
+    coverage: {provenance: [raised_by, source_event], intent: question, meta: [about, drivers]}
+
+  Decision:
+    desc: a choice on an Issue among >=2 Options, judged on Criteria, with rationale and a checkable prediction (skill `why`); a status change appends a new line with the same id
+    store: {root: project, path: rationale/decisions.jsonl, format: jsonl, append_only: true, privacy: repo, status: planned, writer: "skills/why (decisions.md becomes a rendered view)"}
+    id_prefix: D-
+    id_pattern: '^D-\d{8}-\d+$'
+    unique_id: false
+    fields: [id, ts, issue, claim, status, options, criteria, assessments, arguments, chosen, rationale, qualifier, rebuttals, consequences, confirmation, expected_outcome, review_date, decided_on, decision_makers, consulted, scope, about, evidence, supersedes, superseded_by, valid_from, valid_to, event, intent, situation, meta, forced, reasons, alternatives]
+    required: [id, ts, claim, status, options, chosen, rationale]
+    refs: {issue: Issue, about: Concept, supersedes: Decision, superseded_by: Decision, event: Event}
+    enums: {status: decision_status}
+    aliases: {reasons: rationale}
+    formats: {ts: datetime, review_date: date, decided_on: date, valid_from: date, valid_to: date, scope: scope}
+    abstraction: {default: rule}
+    constraints:
+      - {rule: ref_in, field: chosen, in: "options[].id"}
+      - {rule: min_items, field: options, n: 2, unless: forced}
+      - {rule: ref_in, field: "assessments[].option", in: "options[].id"}
+      - {rule: ref_in, field: "assessments[].criterion", in: "criteria[].id"}
+      - {rule: covered, field: criteria, by: "assessments[].criterion"}   # every criterion is used by some assessment
+      - {rule: cites, field: rationale, any_of: ["criteria[].id", "arguments[].id"]}   # no "seemed best"
+      - {rule: requires_if, field: superseded_by, when: {status: superseded}}
+      - {rule: date_order, fields: [decided_on, review_date]}
+      - {rule: interval, from: valid_from, to: valid_to}
+    coverage: {provenance: [evidence, event, decision_makers], intent: intent, meta: meta}
+
+  Option:       # embedded in Decision.options
+    desc: one considered option (IBIS position / QOC option / MADR considered option)
+    store: {root: project, path: rationale/decisions.jsonl, format: embedded, append_only: true, privacy: repo, status: planned, writer: "as Decision"}
+    fields: [id, title, description, pointer]
+    required: [id, title]
+
+  Criterion:    # embedded in Decision.criteria
+    desc: a basis for choosing (QOC criterion / MADR decision driver); `concept` makes it reusable across decisions
+    store: {root: project, path: rationale/decisions.jsonl, format: embedded, append_only: true, privacy: repo, status: planned, writer: "as Decision"}
+    fields: [id, statement, concept, weight, must]
+    required: [id, statement]
+    refs: {concept: Concept}
+
+  Assessment:   # embedded in Decision.assessments; a Toulmin argument about one option x criterion
+    desc: how one option fares on one criterion, with grounds and warrant
+    store: {root: project, path: rationale/decisions.jsonl, format: embedded, append_only: true, privacy: repo, status: planned, writer: "as Decision"}
+    fields: [option, criterion, polarity, strength, grounds, warrant, backing, qualifier, rebuttal]
+    required: [option, criterion, polarity]
+    enums: {polarity: assessment_polarity, strength: strength}
+
+  Argument:     # embedded in Decision.arguments; IBIS pro/con not tied to a single criterion
+    desc: an IBIS argument for or against an option
+    store: {root: project, path: rationale/decisions.jsonl, format: embedded, append_only: true, privacy: repo, status: planned, writer: "as Decision"}
+    fields: [id, option, role, claim, grounds, warrant, source, raises_issue]
+    required: [id, option, role, claim]
+    enums: {role: argument_role}

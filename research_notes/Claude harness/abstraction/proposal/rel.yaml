@@ -1,0 +1,15 @@
+# New key per relation: `prov` = the PROV-O / SKOS term it specializes (documentation + export), `level` = expected direction on the abstraction axis.
+relations:
+  - {name: about,          domain: [Event, Mishap, Lesson, Principle, Decision, Issue, ResearchNote, StylePair, WikiPage, Abstraction], range: [Concept], via: "<type>.about (cpt- ids)", prov: "dcterms:subject / iao:is_about"}
+  - {name: broader,        domain: [Concept], range: [Concept], via: "Concept.broader", prov: "skos:broader", constraint: acyclic}
+  - {name: related,        domain: [Concept], range: [Concept], via: "Concept.related", prov: "skos:related", constraint: "disjoint with broader closure"}
+  - {name: in_scheme,      domain: [Concept], range: [ConceptScheme], via: "Concept.in_scheme", prov: "skos:inScheme"}
+  - {name: summarizes,     domain: [Abstraction], range: [Event, Mishap, Correction, StylePair, Lesson, ResearchNote, Abstraction], via: "Abstraction.members", prov: "prov:wasDerivedFrom", level: up}
+  - {name: promoted_to,    domain: [Abstraction], range: [Lesson, Principle, Concept], via: "Abstraction.promoted_to", prov: "prov:wasInfluencedBy", level: up}
+  - {name: generalizes,    domain: [Lesson, Principle, StyleGuide], range: [Mishap, Correction, SessionNote, Lesson, StylePair, Abstraction], via: "Lesson.learned_from, Principle.evidence, StyleGuide.evidence", prov: "prov:wasDerivedFrom", level: up}
+  - {name: decides,        domain: [Decision], range: [Issue], via: "Decision.issue", prov: "prov:wasGeneratedBy (of the decision activity)"}
+  - {name: sub_issue_of,   domain: [Issue], range: [Issue], via: "Issue.parent_issue", prov: null, constraint: acyclic}
+  - {name: generated_by,   domain: [Abstraction, Decision, Lesson, Concept], range: [Event], via: "Abstraction.generated_by, Decision.event, Lesson (via the announcing Event)", prov: "prov:wasGeneratedBy"}
+  - {name: attributed_to,  domain: [Event, Concept, ConceptScheme, Decision], range: [agent+model], via: "Event.actor+model, Concept.attributed_to, Decision.decision_makers", prov: "prov:wasAttributedTo"}
+  - {name: on_behalf_of,   domain: [Event], range: [agent+model], via: "actor agent:<name> acting for `me` (implicit)", prov: "prov:actedOnBehalfOf"}
+  - {name: quoted_from,    domain: [StylePair, ReviewerRule, StyleSample], range: [Message, Document], via: "StylePair.source, ReviewerRule.quote+source, StyleSample.message_id", prov: "prov:wasQuotedFrom"}
