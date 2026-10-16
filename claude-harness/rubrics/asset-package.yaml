@@ -1,0 +1,83 @@
+# Self-eval sheet: asset package (asset-decomposer output). BLUEPRINT.md §10, §7, §4.13.
+# Producing agents may NOT edit this file (PreToolUse deny rule on rubrics/**).
+rubric: asset-package
+version: 0.1.0
+applies_to: "Decomposition of a digital/art source into component assets plus assets/assets.yaml"
+producer_agent: asset-decomposer    # sonnet
+judge:
+  agent: verifier
+  model_must_differ_from_producer: true
+human_sample_rate: 0.3
+
+scoring:
+  scale: [1, 2, 3, 4, 5]
+  pass_if: "weighted_mean >= 4.0 AND manifest_integrity == 5 AND every blocking automatic check passes"
+  needs_human_if: "rights/provenance unknown for any asset"
+
+criteria:
+  - id: completeness
+    description: "All meaningful parts extracted (layers, text, images, palettes, fonts, audio)."
+    weight: 0.25
+    dimension: correctness
+    anchors:
+      1: "Major layers or embedded images missing."
+      3: "All main parts; minor elements (e.g. secondary palette, hidden layer) missed."
+      5: "Every part present, including hidden layers and embedded fonts, or explicitly listed as not extractable."
+  - id: fidelity
+    description: "Extracted parts are lossless/at native resolution and recompose to the original."
+    weight: 0.20
+    dimension: correctness
+    anchors:
+      1: "Downscaled or recompressed assets; colour profile lost."
+      3: "Native resolution; minor colour/profile drift."
+      5: "Lossless, native resolution, colour profile preserved; recomposition matches."
+  - id: manifest_integrity
+    description: "assets.yaml has id, type, source, provenance, rights, variants for every file; paths resolve; hashes match."
+    weight: 0.25
+    dimension: correctness
+    anchors:
+      1: "Manifest missing entries or pointing at nonexistent files."
+      3: "All files listed; some fields (rights/variants) empty."
+      5: "Every field filled; every path resolves; sha256 recorded and correct."
+  - id: rights_provenance
+    description: "Usage rights and provenance stated per asset; third-party material flagged."
+    weight: 0.15
+    dimension: correctness
+    anchors:
+      1: "Stock or third-party fonts/images unflagged."
+      3: "Provenance stated; rights 'unknown' for some without a flag."
+      5: "Each asset has source and rights; unknowns raised as needs-human."
+  - id: naming_structure
+    description: "Folder layout and names are predictable and reusable by later tasks (IDs, not ad-hoc names)."
+    weight: 0.15
+    dimension: style_match
+    anchors:
+      1: "Files named 'Layer 1 copy 2.png'."
+      3: "Consistent names; IDs not used in filenames."
+      5: "ID-based names grouped by type; variants follow one convention."
+
+automatic_checks:
+  - id: manifest_paths_exist
+    description: "Every path in assets.yaml exists; no orphan files in assets/ that are not in the manifest."
+    blocking: true
+  - id: manifest_required_fields
+    description: "Each entry has id, type, source, provenance, rights, variants."
+    blocking: true
+  - id: hashes
+    description: "sha256 of each file equals the manifest value."
+    command: "sha256sum assets/<files> and compare to assets.yaml"
+    blocking: true
+  - id: unique_ids
+    description: "Asset ids are unique."
+    blocking: true
+  - id: resolution_check
+    description: "Image assets have the same pixel dimensions as the source layer bounds."
+    blocking: false
+
+dimensions:
+  correctness: {from_criteria: [completeness, fidelity, manifest_integrity, rights_provenance], aggregate: weighted_mean}
+  style_match: {from_criteria: [naming_structure], aggregate: weighted_mean}
+  correction_rate: {source: "user re-extractions or manifest edits after delivery", better: lower}
+  cost: {source: "sum(cost_usd)", better: lower}
+  time: {source: "minutes per source file", better: lower}
+  outcome: {source: "assets reused by later tasks by id without re-extraction (count of references / assets)", better: higher}

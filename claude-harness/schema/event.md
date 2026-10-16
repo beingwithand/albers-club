@@ -9,7 +9,7 @@ Append-only: never edit a past event. Correct it with a new event that has `corr
   "actor": "me | agent:<name>",
   "model": "haiku|sonnet|opus|fable|null",
   "scope": "global | <area>/<project>",
-  "type": "prompt|decision|correction|mishap|handoff|session_note|verification|intake|task",
+  "type": "prompt|session_end|decision|correction|mishap|handoff|session_note|verification|intake|task|label",
 
   "intent": "why this was done or asked: the goal behind it",
   "situation": "the context at the time (what was happening, constraints, deadline)",
@@ -33,3 +33,8 @@ Append-only: never edit a past event. Correct it with a new event that has `corr
 ```
 
 `intent`, `situation` and `meta` are **mandatory** for decision, correction, mishap and session_note events. They are the labels the improvement loop learns from.
+
+## Conventions used by the scripts
+- **`label` events** (written by `scripts/label_events.py --apply`) carry `labels_for: <event id>` plus `intent`, `situation`, `meta`, `labels` and `is_correction`. Past lines are never edited.
+- **`verification` events** carry `verdict: pass|fail|needs-human` and per-criterion results with proof pointers.
+- **Corrections** are either explicit `correction` events or `label` events with `is_correction: true`.

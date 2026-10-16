@@ -1,0 +1,30 @@
+# Eval task template: asset package (art and digital work). Copy to tasks/art-NNN.yaml. See evals/README.md.
+id: art-000
+area: art
+rubric: rubrics/asset-package.yaml
+split: train
+locked: true
+source_event: evt_...
+difficulty: routine
+
+input:
+  source_file: tasks/fixtures/art-000.psd
+  source_sha256: "<sha256>"
+  tool: "<Photoshop | Procreate | Figma | Illustrator>"
+  instructions: "Decompose into assets/ with assets.yaml."
+
+criteria: []
+
+expected_checks:
+  - id: expected_asset_count
+    kind: manifest_count
+    min: 12
+  - id: expected_ids          # parts you know must exist
+    kind: manifest_types_include
+    values: [layer, text, palette, font]
+  - id: manifest_paths_exist
+    kind: manifest_paths_resolve
+  - id: hashes_match
+    kind: manifest_sha256_match
+
+human_scores: {}

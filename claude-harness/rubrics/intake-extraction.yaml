@@ -1,0 +1,95 @@
+# Self-eval sheet: project intake extraction (intake-extractor). BLUEPRINT.md §0.5 knowledge, §4.11, §7.
+# Producing agents may NOT edit this file (PreToolUse deny rule on rubrics/**).
+# Originals may be deleted ONLY after this rubric passes AND the original is archived.
+rubric: intake-extraction
+version: 0.1.0
+applies_to: "Extraction of PDFs/briefs/emails/links into knowledge/raw, knowledge/wiki, index.md, manifest.json"
+producer_agent: intake-extractor    # haiku + converter tool
+judge:
+  agent: verifier
+  model_must_differ_from_producer: true
+human_sample_rate: 0.1
+
+scoring:
+  scale: [1, 2, 3, 4, 5]
+  pass_if: "weighted_mean >= 4.0 AND text_fidelity >= 4 AND provenance == 5 AND every blocking automatic check passes"
+  needs_human_if: "converter confidence low (scanned/handwritten pages) or page count mismatch"
+
+criteria:
+  - id: text_fidelity
+    description: "Sampled passages match the original verbatim (incl. Korean text, numbers)."
+    weight: 0.25
+    dimension: correctness
+    anchors:
+      1: "OCR garbage or missing pages in samples."
+      3: "Text correct; reading order wrong in multi-column pages."
+      5: "All samples verbatim, reading order correct, hyphenation/linebreaks cleaned."
+  - id: tables_images
+    description: "Tables kept as tables with correct cells; images saved and referenced."
+    weight: 0.20
+    dimension: correctness
+    anchors:
+      1: "Tables flattened into run-on text; images dropped."
+      3: "Tables preserved; merged cells or headers mangled."
+      5: "Tables cell-accurate; images saved with captions and page anchors."
+  - id: provenance
+    description: "manifest.json has filename, sha256, received date, archive location, converter + version, confidence."
+    weight: 0.20
+    dimension: correctness
+    anchors:
+      1: "No manifest entry or hash."
+      3: "Entry present; archive link or converter version missing."
+      5: "Every field present and the archive link resolves."
+  - id: citations_resolve
+    description: "Each wiki page's frontmatter cites source id, page anchors and hash; every citation resolves."
+    weight: 0.15
+    dimension: correctness
+    anchors:
+      1: "Wiki claims without source pointers."
+      3: "Pointers present; some anchors wrong."
+      5: "Lint pass clean: every citation resolves to the right page."
+  - id: index_quality
+    description: "knowledge/index.md has one line per fact cluster pointing to file, section and page."
+    weight: 0.10
+    dimension: correctness
+    anchors:
+      1: "No index entry, or a single line for a 50-page document."
+      3: "Index present but coarse (one line per file)."
+      5: "Fine-grained, scannable index an agent can use to open only what it needs."
+  - id: markdown_cleanliness
+    description: "Clean Markdown: headings, lists, no headers/footers/page numbers repeated in body."
+    weight: 0.10
+    dimension: style_match
+    anchors:
+      1: "Page headers repeated every page; broken headings."
+      3: "Mostly clean; some artifacts."
+      5: "Reads like a hand-written Markdown version."
+
+automatic_checks:
+  - id: page_count
+    description: "Number of page anchors in the extraction equals the PDF page count."
+    blocking: true
+  - id: sha256_matches
+    description: "sha256 of the raw file equals manifest.json."
+    command: "sha256sum knowledge/raw/<file>  # compare with manifest.json"
+    blocking: true
+  - id: manifest_fields
+    description: "manifest.json entry has all required fields."
+    blocking: true
+  - id: citation_lint
+    description: "Every wiki citation (source id + anchor) points at an existing raw file/anchor."
+    blocking: true
+  - id: table_count
+    description: "Number of tables extracted equals number detected in the source (converter report)."
+    blocking: false
+  - id: archive_before_delete
+    description: "No original deleted unless archive link exists and this rubric passed."
+    blocking: true
+
+dimensions:
+  correctness: {from_criteria: [text_fidelity, tables_images, provenance, citations_resolve, index_quality], aggregate: weighted_mean}
+  style_match: {from_criteria: [markdown_cleanliness], aggregate: weighted_mean}
+  correction_rate: {source: "later corrections citing this document (wrong fact traced to extraction)", better: lower}
+  cost: {source: "sum(cost_usd) per page", better: lower}
+  time: {source: "minutes per 10 pages", better: lower}
+  outcome: {source: "fraction of later questions answered from the wiki without reopening the original", better: higher}

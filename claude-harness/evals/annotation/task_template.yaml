@@ -1,0 +1,35 @@
+# Eval task template: annotation batch. Copy to tasks/annotation-NNN.yaml. See evals/README.md.
+id: annotation-000
+area: annotation
+rubric: rubrics/annotation-batch.yaml
+split: train
+locked: true
+source_event: evt_...
+difficulty: hard
+
+input:
+  platform: "<platform name>"
+  guideline_file: tasks/fixtures/annotation-000.guideline.md
+  guideline_version: "v3.2"
+  items_file: tasks/fixtures/annotation-000.items.json
+  items_sha256: "<sha256>"
+  instructions: "Label each item and write a one-sentence rationale."
+
+criteria: []                 # rubric criteria apply
+
+expected_checks:
+  - id: item_count
+    kind: json_len_equal
+    a: $IN
+    b: $OUT
+  - id: gold_labels          # gold labels you verified by hand; locked
+    kind: field_equals
+    file: tasks/fixtures/annotation-000.gold.json   # {item_id: label}
+    field: label
+    min_agreement: 1.0
+  - id: label_vocabulary
+    kind: allowed_values
+    field: label
+    values: [A, B, C, skip]
+
+human_scores: {}

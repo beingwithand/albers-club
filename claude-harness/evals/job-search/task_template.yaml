@@ -1,0 +1,33 @@
+# Eval task template: job application materials. Copy to tasks/job-search-NNN.yaml. See evals/README.md.
+id: job-search-000
+area: job-search
+rubric: rubrics/job-application.yaml
+split: train
+locked: true
+source_event: evt_...
+difficulty: routine
+
+input:
+  posting_file: tasks/fixtures/job-search-000.posting.md     # frozen copy of the posting
+  posting_sha256: "<sha256>"
+  master_cv: tasks/fixtures/master_cv.md                     # frozen snapshot used for fact checks
+  language: ko
+  deliverable: cover_letter    # cover_letter | form_answers | cv_tailoring | follow_up_email
+  limits: {chars_with_spaces: 1000}
+
+criteria: []
+
+expected_checks:
+  - id: char_limit
+    kind: max_chars
+    value: 1000
+    count_spaces: true
+  - id: no_other_org
+    kind: not_contains
+    values: ["<names of other orgs you applied to>"]
+  - id: claims_traceable
+    kind: numbers_subset_of
+    reference: $MASTER_CV      # every number in OUT must appear in the master CV
+
+human_scores: {}
+outcome_known: null            # fill later: reply | interview | offer | rejected

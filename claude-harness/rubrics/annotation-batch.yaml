@@ -1,0 +1,80 @@
+# Self-eval sheet: annotation batch (data-labeling work on an external platform). BLUEPRINT.md §7, §4.13.
+# Producing agents may NOT edit this file (PreToolUse deny rule on rubrics/**).
+rubric: annotation-batch
+version: 0.1.0
+applies_to: "A batch of annotation items/responses prepared or checked with annotation-assistant"
+producer_agent: annotation-assistant   # model: haiku/sonnet
+judge:
+  agent: verifier
+  model_must_differ_from_producer: true
+human_sample_rate: 0.1
+
+scoring:
+  scale: [1, 2, 3, 4, 5]
+  pass_if: "weighted_mean >= 4.0 AND guideline_compliance >= 4 AND every blocking automatic check passes"
+  needs_human_if: "guideline is silent or contradictory on an item; flag the item ids"
+
+criteria:
+  - id: guideline_compliance
+    description: "Each label/response follows the current platform guideline version (cite section)."
+    weight: 0.35
+    dimension: correctness
+    anchors:
+      1: "Labels contradict an explicit guideline rule on several items."
+      3: "Compliant on clear cases; edge cases decided without citing the guideline."
+      5: "Every item compliant; edge cases cite the exact guideline section and version."
+  - id: consistency
+    description: "Same input pattern gets the same label across the batch and versus past batches."
+    weight: 0.20
+    dimension: correctness
+    anchors:
+      1: "Near-duplicate items labeled differently with no stated reason."
+      3: "Mostly consistent; one or two unexplained divergences."
+      5: "Fully consistent; deliberate divergences are justified in a note."
+  - id: rationale_quality
+    description: "Written rationales/responses are specific, factual and in the requested register (annotation-response)."
+    weight: 0.20
+    dimension: style_match
+    anchors:
+      1: "Boilerplate rationales ('looks fine') or wrong register."
+      3: "Specific but verbose or slightly off-register."
+      5: "Concise, specific, evidence-based, platform-appropriate tone."
+  - id: completeness
+    description: "Every item in the batch is handled; skips are explicit with reasons."
+    weight: 0.15
+    dimension: correctness
+    anchors:
+      1: "Items silently missing."
+      3: "All items present; skips not explained."
+      5: "All items present; each skip/flag has a reason and guideline pointer."
+  - id: workflow_notes
+    description: "Platform workflow notes and new edge cases are captured for reuse."
+    weight: 0.10
+    dimension: outcome
+    anchors:
+      1: "Nothing recorded; same question will be re-researched next batch."
+      3: "Notes exist but are not linked to guideline sections."
+      5: "New edge cases appended to knowledge/ with guideline pointer and example item id."
+
+automatic_checks:
+  - id: item_count
+    description: "Output item count equals input item count (no drops/dupes)."
+    command: "python3 -I -c \"import json,sys;a=json.load(open(sys.argv[1]));b=json.load(open(sys.argv[2]));assert len(a)==len(b)\" IN.json OUT.json"
+    blocking: true
+  - id: label_vocabulary
+    description: "Every label belongs to the allowed label set of the guideline version."
+    blocking: true
+  - id: required_fields
+    description: "Each item has id, label, rationale (when required) and guideline_version."
+    blocking: true
+  - id: duplicate_consistency
+    description: "Group items by normalised input hash; flag groups with more than one distinct label."
+    blocking: false
+
+dimensions:
+  correctness: {from_criteria: [guideline_compliance, consistency, completeness], aggregate: weighted_mean}
+  style_match: {from_criteria: [rationale_quality], aggregate: weighted_mean}
+  correction_rate: {source: "items the user or platform reviewer changed / total items", better: lower}
+  cost: {source: "sum(cost_usd) for the batch", better: lower}
+  time: {source: "minutes per item", better: lower}
+  outcome: {source: "platform QA score or acceptance rate for the batch, normalised 0-1; workflow_notes criterion as proxy until known", better: higher}

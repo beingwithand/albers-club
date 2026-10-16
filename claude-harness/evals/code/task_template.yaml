@@ -1,0 +1,32 @@
+# Eval task template: code change. Copy to tasks/code-NNN.yaml. See evals/README.md.
+id: code-000
+area: code
+rubric: rubrics/code-change.yaml
+split: train
+locked: true
+source_event: evt_...
+difficulty: hard
+
+input:
+  repo: "<owner/repo or path to a bundled fixture repo>"
+  base_commit: "<sha>"         # agent starts from this commit in a fresh worktree
+  spec_file: tasks/fixtures/code-000.SPEC.md
+  spec_sha256: "<sha256>"
+
+criteria: []
+
+expected_checks:
+  - id: hidden_tests           # tests the producer never sees; copied in AFTER the agent finishes
+    kind: command
+    setup: "cp -r $FIXTURES/code-000.hidden_tests/ tests/hidden/"
+    command: "python3 -I -m unittest discover -s tests"
+    expect: exit_0
+  - id: tests_not_weakened
+    kind: command
+    command: "git diff $BASE -- tests | grep -E '^-.*assert' ; test $? -eq 1"
+    expect: exit_0
+  - id: diff_budget
+    kind: max_lines_changed
+    value: 200
+
+human_scores: {}

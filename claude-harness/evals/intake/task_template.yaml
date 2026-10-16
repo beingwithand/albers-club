@@ -1,0 +1,36 @@
+# Eval task template: intake extraction (cross-area; any project's first step). Copy to tasks/intake-NNN.yaml.
+id: intake-000
+area: intake
+rubric: rubrics/intake-extraction.yaml
+split: train
+locked: true
+source_event: evt_...
+difficulty: hard               # e.g. scanned Korean PDF with merged-cell tables
+
+input:
+  source_file: tasks/fixtures/intake-000.pdf
+  source_sha256: "<sha256>"
+  page_count: 14
+  converter_under_test: "docling@<version>"   # or markitdown, MinerU, Marker
+
+criteria: []
+
+expected_checks:
+  - id: page_count
+    kind: anchor_count_equals
+    value: 14
+  - id: verbatim_samples       # hand-verified passages; locked
+    kind: contains
+    values:
+      - "<exact sentence from p.3>"
+      - "<exact table cell value from p.7>"
+  - id: table_count
+    kind: regex_count_min
+    pattern: "^\\|.*\\|$"
+    min: 4
+  - id: manifest_fields
+    kind: json_has_keys
+    file: $OUT/manifest.json
+    keys: [filename, sha256, received, archive, converter, confidence]
+
+human_scores: {}

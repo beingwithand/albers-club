@@ -1,0 +1,85 @@
+# Self-eval sheet: job application (cover letter, CV tailoring, form answers). BLUEPRINT.md §7, §4.13.
+# Producing agents may NOT edit this file (PreToolUse deny rule on rubrics/**).
+# Hard rule (BLUEPRINT §11): never submit without the user's explicit confirmation.
+rubric: job-application
+version: 0.1.0
+applies_to: "Materials for one Application (org, role): cover letter, tailored CV, form answers, follow-up email"
+producer_agent: job-tracker / translator / main session   # sonnet
+judge:
+  agent: verifier
+  model_must_differ_from_producer: true
+human_sample_rate: 1.0               # every application is seen by the user before submit
+
+scoring:
+  scale: [1, 2, 3, 4, 5]
+  pass_if: "weighted_mean >= 4.0 AND factual_accuracy == 5 AND every blocking automatic check passes"
+  needs_human_if: "always before submission (verdict 'pass' means ready for user review, not ready to send)"
+
+criteria:
+  - id: factual_accuracy
+    description: "Every claim about the user (dates, titles, skills, numbers) is supported by the master CV / knowledge base."
+    weight: 0.30
+    dimension: correctness
+    anchors:
+      1: "Invents a degree, employer, metric or language level."
+      3: "All claims true; one is phrased more strongly than the evidence supports."
+      5: "Every claim traceable to a source line in the master CV or a logged fact."
+  - id: role_fit
+    description: "Addresses the posting's stated requirements explicitly, with evidence for each."
+    weight: 0.25
+    dimension: correctness
+    anchors:
+      1: "Generic letter; could be sent to any company."
+      3: "Mentions the main requirements; evidence for some is thin."
+      5: "Each key requirement mapped to a concrete, verifiable example."
+  - id: register_tone
+    description: "Register fits the org and language (formal-email; KO 존댓말 conventions or EN business norms)."
+    weight: 0.15
+    dimension: style_match
+    anchors:
+      1: "Wrong register or culturally off (e.g. overly casual to a Korean public institution)."
+      3: "Appropriate but stiff or template-sounding."
+      5: "Natural, confident and matched to the org's own published tone."
+  - id: requirements_met
+    description: "Posting constraints satisfied: word/char limits, required sections, file format, naming, deadline."
+    weight: 0.20
+    dimension: correctness
+    anchors:
+      1: "Over the character limit or missing a required document."
+      3: "All required pieces present; one formatting instruction missed."
+      5: "Every stated constraint satisfied and checked off in PROGRESS.md."
+  - id: tracking
+    description: "Application record created/updated (org, role, applied_on, channel, status, next_step)."
+    weight: 0.10
+    dimension: outcome
+    anchors:
+      1: "No record; follow-up date unknown."
+      3: "Record exists; next_step or date missing."
+      5: "Complete Application record with follow-up date and links to submitted files."
+
+automatic_checks:
+  - id: char_limits
+    description: "Each answer within its stated character/word limit (count with the platform's rule: KO often counts spaces)."
+    command: "python3 -I -c \"import sys;t=open(sys.argv[1],encoding='utf-8').read();print(len(t), len(t.replace(' ','')), len(t.split()))\" ANSWER.txt"
+    blocking: true
+  - id: org_name_consistency
+    description: "Only the target org's name appears (no leftover name from another application)."
+    command: "grep -niE 'OTHER_ORG_NAMES_REGEX' OUT; expect no output"
+    blocking: true
+  - id: claims_traceable
+    description: "Each numeric claim (years, %, counts) appears in the master CV."
+    blocking: true
+  - id: deadline
+    description: "Today's date (system) is before the posting deadline; warn if < 48 h."
+    blocking: false
+  - id: file_naming
+    description: "Files follow YYYY-MM-DD_<project>_<what>_v<N>.<ext> or the posting's required name."
+    blocking: false
+
+dimensions:
+  correctness: {from_criteria: [factual_accuracy, role_fit, requirements_met], aggregate: weighted_mean}
+  style_match: {from_criteria: [register_tone], aggregate: weighted_mean}
+  correction_rate: {source: "user edits before submit (edit distance draft->submitted, 0-1)", better: lower}
+  cost: {source: "sum(cost_usd)", better: lower}
+  time: {source: "minutes from intake to ready-for-review", better: lower}
+  outcome: {source: "Application.status progression: rejected=0, no reply after 30d=0.1, reply=0.5, interview=0.8, offer=1", better: higher}

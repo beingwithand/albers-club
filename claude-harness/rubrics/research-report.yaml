@@ -1,0 +1,89 @@
+# Self-eval sheet: research report (web-researcher output). BLUEPRINT.md §4.10, §7, §4.13.
+# Producing agents may NOT edit this file (PreToolUse deny rule on rubrics/**).
+rubric: research-report
+version: 0.1.0
+applies_to: "Any cited research report or literature/market/tool comparison"
+producer_agent: web-researcher      # sonnet lead, haiku/sonnet workers
+judge:
+  agent: verifier
+  model_must_differ_from_producer: true
+human_sample_rate: 0.2
+
+scoring:
+  scale: [1, 2, 3, 4, 5]
+  pass_if: "weighted_mean >= 4.0 AND citation_validity >= 4 AND every blocking automatic check passes"
+  needs_human_if: "key sources unreachable (e.g. Reddit/YouTube blocked) and no pasted text supplied"
+
+criteria:
+  - id: citation_validity
+    description: "Every claim has a citation that resolves and actually supports it (spot-check quotes)."
+    weight: 0.30
+    dimension: correctness
+    anchors:
+      1: "Uncited claims, dead links, or a citation that says something different."
+      3: "All claims cited; one or two citations only loosely support the claim."
+      5: "Every claim cited with date; spot-checked quotes match the source verbatim."
+  - id: recency
+    description: "State of the art as of the real current date; publication date per claim; stale items (>6 months on fast topics) flagged."
+    weight: 0.15
+    dimension: correctness
+    anchors:
+      1: "Relies on outdated sources without noting it; no dates."
+      3: "Mostly current; dates present for most claims."
+      5: "Current sources ranked by recency; every claim dated; staleness flagged."
+  - id: source_tiering
+    description: "Sources weighted by the agreed tiers (primary > code > practitioner > press/vendor); vendor bias flagged."
+    weight: 0.15
+    dimension: correctness
+    anchors:
+      1: "Vendor blogs presented as fact; no primary sources."
+      3: "Primary sources used for key claims; tiers not explicit."
+      5: "Each claim labelled with tier; conflicts between tiers shown."
+  - id: answers_question
+    description: "Answers the scoped question at the agreed depth; recommendations follow from evidence."
+    weight: 0.20
+    dimension: correctness
+    anchors:
+      1: "Off-topic or a link dump without synthesis."
+      3: "Answers the question; synthesis thin or recommendation weakly justified."
+      5: "Direct answer up front, evidence-backed recommendation, alternatives considered."
+  - id: gaps_conflicts
+    description: "Conflicts between sources shown, not hidden; gaps and confidence levels listed explicitly."
+    weight: 0.10
+    dimension: correctness
+    anchors:
+      1: "Presents a single narrative; contradictory evidence omitted."
+      3: "Mentions uncertainty generically."
+      5: "Per-claim confidence; explicit 'gaps' and 'conflicts' sections."
+  - id: readability
+    description: "Clear structure, skimmable, appropriate length for the audience."
+    weight: 0.10
+    dimension: style_match
+    anchors:
+      1: "Wall of text; key finding buried."
+      3: "Organised but verbose."
+      5: "Summary first, headings, tables where useful, no padding."
+
+automatic_checks:
+  - id: links_resolve
+    description: "Every URL returns HTTP < 400 (via the proxy); report dead ones."
+    command: "grep -oE 'https?://[^ )>\\]]+' REPORT.md | sort -u | xargs -n1 -I{} curl -s -o /dev/null -w '%{http_code} {}\\n' {}"
+    blocking: true
+  - id: claims_have_citations
+    description: "Every bullet/sentence in the findings section ends with a citation marker ([n] or link)."
+    blocking: true
+  - id: dates_present
+    description: "Each cited source has a publication date in the references list."
+    blocking: false
+  - id: current_date_injected
+    description: "Report header states the real run date (matches system date), not a hard-coded one."
+    command: "grep -q \"$(date +%Y-%m-%d)\" REPORT.md"
+    blocking: false
+
+dimensions:
+  correctness: {from_criteria: [citation_validity, recency, source_tiering, answers_question, gaps_conflicts], aggregate: weighted_mean}
+  style_match: {from_criteria: [readability], aggregate: weighted_mean}
+  correction_rate: {source: "follow-up corrections/redirects by the user on this report", better: lower}
+  cost: {source: "sum(cost_usd) across lead + workers", better: lower}
+  time: {source: "wall-clock minutes", better: lower}
+  outcome: {source: "decision taken based on report and later marked worked (1) / failed (0)", better: higher}

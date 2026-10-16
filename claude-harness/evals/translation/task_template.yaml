@@ -1,0 +1,40 @@
+# Eval task template: translation. Copy to tasks/translation-NNN.yaml. See evals/README.md.
+# Only the user edits eval tasks (deny rules). Producer and judge models must differ.
+id: translation-000
+area: translation
+rubric: rubrics/translation.yaml
+split: train                 # train | holdout (holdout never shown to the optimizer)
+locked: true                 # true: correctness may not drop on this task
+source_event: evt_...        # the logged task this came from (traceability)
+difficulty: routine          # routine | hard | known-failure
+
+input:
+  direction: ko->en          # ko->en | en->ko
+  register: client-deliverable   # formal-email | office | friendly | chat | client-deliverable | annotation-response
+  domain: legal
+  audience: "client's in-house counsel"
+  source_file: tasks/fixtures/translation-000.src.md
+  source_sha256: "<sha256>"
+  glossary: tasks/fixtures/translation-000.glossary.md   # optional
+  instructions: "Translate for a client deliverable. Keep the table layout."
+
+criteria:                    # rubric criteria apply; add task-specific ones here
+  - id: term_contract_termination
+    description: "계약 해지 is rendered as 'contract termination' (client glossary)."
+    weight: 0.05
+    dimension: correctness
+
+expected_checks:             # deterministic, locked; run by the harness, not by the judge
+  - id: numbers_match
+    kind: command
+    command: "diff <(grep -oE '[0-9][0-9.,:/-]*' $SRC | sort) <(grep -oE '[0-9][0-9.,:/-]*' $OUT | sort)"
+    expect: exit_0
+  - id: must_contain
+    kind: contains
+    values: ["contract termination"]
+  - id: must_not_contain
+    kind: not_contains
+    values: ["{name}"]       # placeholder must be preserved, not translated
+
+reference_output: tasks/fixtures/translation-000.final.md   # your final version (style reference, not exact match)
+human_scores: {}             # e.g. {fidelity: 5, register: 4} for judge calibration

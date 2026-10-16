@@ -1,0 +1,93 @@
+# Self-eval sheet: code change (coder agent). BLUEPRINT.md §0.5 verification, §7, §4.13.
+# Producing agents may NOT edit this file, tests/, or evals/ (PreToolUse deny rules).
+rubric: code-change
+version: 0.1.0
+applies_to: "Any change to a repository: feature, fix, refactor, script"
+producer_agent: coder               # sonnet (opus for hard work)
+judge:
+  agent: verifier
+  model_must_differ_from_producer: true
+human_sample_rate: 0.2
+
+scoring:
+  scale: [1, 2, 3, 4, 5]
+  pass_if: "weighted_mean >= 4.0 AND correctness >= 4 AND every blocking automatic check passes"
+  needs_human_if: "SPEC.md missing or the change touches secrets, CI, or deny-listed paths"
+
+criteria:
+  - id: correctness
+    description: "Does what SPEC.md / the task asks; verified by tests or a reproduced run."
+    weight: 0.35
+    dimension: correctness
+    anchors:
+      1: "Does not run, or the reported bug still reproduces."
+      3: "Main path works; an edge case named in the spec fails."
+      5: "All spec cases pass with evidence (test output, repro before/after)."
+  - id: tests
+    description: "New or changed behaviour has tests; existing tests were not weakened or deleted."
+    weight: 0.20
+    dimension: correctness
+    anchors:
+      1: "Tests edited to pass, skipped, or assertions removed."
+      3: "Happy-path test added; edge cases untested."
+      5: "Tests cover the spec cases including failure modes; no test was loosened."
+  - id: scope
+    description: "Change is minimal and on-task; no unrelated refactors or over-engineering."
+    weight: 0.15
+    dimension: correctness
+    anchors:
+      1: "Large unrelated rewrites mixed into the diff."
+      3: "Mostly focused; a few drive-by edits."
+      5: "Diff contains only what the task needs."
+  - id: code_quality
+    description: "Readable, follows repo conventions, no dead code, errors handled at boundaries."
+    weight: 0.15
+    dimension: style_match
+    anchors:
+      1: "Inconsistent style, copy-paste, swallowed exceptions."
+      3: "Acceptable; a reviewer would request small cleanups."
+      5: "Idiomatic for the repo; a reviewer would approve as-is."
+  - id: safety
+    description: "No secrets committed, no destructive commands, dependencies vetted."
+    weight: 0.10
+    dimension: correctness
+    anchors:
+      1: "Token or credential in the diff; unvetted dependency added."
+      3: "Safe; a new dependency added without justification."
+      5: "Safe; any new dependency justified in decisions.md."
+  - id: docs_progress
+    description: "PROGRESS.md / commit message state what changed, why, and how it was verified."
+    weight: 0.05
+    dimension: outcome
+    anchors:
+      1: "No record of what changed or why."
+      3: "Commit message present but lacks verification evidence."
+      5: "Commit + PROGRESS.md include justification and proof pointer."
+
+automatic_checks:
+  - id: test_suite
+    description: "Project test command exits 0 (from CLAUDE.md or SPEC.md, e.g. `python3 -I -m unittest discover -s tests`, `npm test`)."
+    blocking: true
+  - id: tests_not_weakened
+    description: "No deleted test files, removed asserts, or added skip markers in the diff."
+    command: "git diff --stat -- 'test*' 'tests/**'; git diff -U0 | grep -E '^-.*assert|^\\+.*(skip|xfail|only\\()'   # expect no output"
+    blocking: true
+  - id: lint
+    description: "Repo linter/formatter passes if configured."
+    blocking: false
+  - id: secrets_scan
+    description: "No high-entropy tokens or known key prefixes in the diff."
+    command: "git diff | grep -nE '(sk-[A-Za-z0-9]{20,}|ghp_[A-Za-z0-9]{20,}|AKIA[0-9A-Z]{16}|-----BEGIN [A-Z ]*PRIVATE KEY)'   # expect no output"
+    blocking: true
+  - id: diff_size
+    description: "Report lines changed; warn if > 3x the estimate in SPEC.md."
+    command: "git diff --shortstat"
+    blocking: false
+
+dimensions:
+  correctness: {from_criteria: [correctness, tests, scope, safety], aggregate: weighted_mean}
+  style_match: {from_criteria: [code_quality], aggregate: weighted_mean}
+  correction_rate: {source: "follow-up fix commits or user redirects within 7 days touching the same lines", better: lower}
+  cost: {source: "sum(cost_usd)", better: lower}
+  time: {source: "minutes from SPEC.md to verified commit", better: lower}
+  outcome: {source: "merged and not reverted within 30 days (1) / reverted (0)", better: higher}

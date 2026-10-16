@@ -1,0 +1,94 @@
+# Self-eval sheet: translation (KO<->EN, register-aware). See BLUEPRINT.md §7, §8, §4.13.
+# Producing agents may NOT edit this file (PreToolUse deny rule on rubrics/**).
+rubric: translation
+version: 0.1.0
+applies_to: "Any KO->EN or EN->KO translation or register-aware rewrite (agent: translator)"
+producer_agent: translator          # model: sonnet
+judge:
+  agent: verifier
+  model_must_differ_from_producer: true   # e.g. producer sonnet -> judge opus
+human_sample_rate: 0.2              # you score 1 in 5 of the same items to calibrate the judge
+
+scoring:
+  scale: [1, 2, 3, 4, 5]            # 2 and 4 are "between the anchors"
+  pass_if: "weighted_mean >= 4.0 AND no criterion < 3 AND every blocking automatic check passes"
+  needs_human_if: "source ambiguous, register unspecified, or judge confidence low"
+
+criteria:
+  - id: fidelity
+    description: "Meaning of the source is preserved: no omissions, additions or mistranslations."
+    weight: 0.30
+    dimension: correctness
+    anchors:
+      1: "A sentence or figure is dropped or reversed (e.g. '마감 연장 불가' rendered as 'deadline can be extended')."
+      3: "All content present; one or two nuances softened or slightly shifted, no factual change."
+      5: "Every proposition, number, name, date and hedge maps 1:1 to the source; nothing added."
+  - id: terminology
+    description: "Project glossary and client-preferred terms are used consistently."
+    weight: 0.15
+    dimension: correctness
+    anchors:
+      1: "Glossary terms ignored; same source term translated three different ways."
+      3: "Glossary followed for key terms; one inconsistent secondary term."
+      5: "Every glossary term used exactly; unlisted terms consistent throughout and flagged for the glossary."
+  - id: register
+    description: "Register matches the requested one (formal-email, office, friendly, chat, client-deliverable, annotation-response)."
+    weight: 0.20
+    dimension: style_match
+    anchors:
+      1: "Formal client email written in 반말/casual chat tone, or vice versa."
+      3: "Correct register overall; a few phrases too stiff or too casual."
+      5: "Honorifics, sentence endings, greetings and sign-offs exactly fit the register and audience."
+  - id: style_match
+    description: "Reads like the user's own past finals (closest StylePairs from $HARNESS_DATA/style/pairs.jsonl)."
+    weight: 0.15
+    dimension: style_match
+    anchors:
+      1: "Generic MT voice; ignores the user's known preferences (e.g. sentence length, connectors)."
+      3: "Broadly similar tone; user would make several small stylistic edits."
+      5: "User would send it unchanged; mirrors phrasing patterns from the retrieved pairs."
+  - id: fluency
+    description: "Natural, grammatical target language; no calques or source-language word order."
+    weight: 0.15
+    dimension: correctness
+    anchors:
+      1: "Obvious translationese; grammatical errors in most paragraphs."
+      3: "Fluent with occasional awkward calques."
+      5: "Indistinguishable from text written natively by a skilled writer in the target language."
+  - id: format
+    description: "Layout, lists, tables, placeholders, links and markup preserved."
+    weight: 0.05
+    dimension: correctness
+    anchors:
+      1: "Tables flattened, placeholders like {name} translated or lost."
+      3: "Structure kept; minor spacing or bullet differences."
+      5: "Byte-for-byte identical structure; all placeholders, URLs and code untouched."
+
+automatic_checks:
+  - id: numbers_match
+    description: "Every number, date and currency amount in the source appears in the target."
+    command: "diff <(grep -oE '[0-9][0-9.,:/-]*' SRC | sort) <(grep -oE '[0-9][0-9.,:/-]*' OUT | sort)"
+    blocking: true
+  - id: placeholders_intact
+    description: "Placeholders ({x}, %s, {{x}}), URLs and email addresses are identical in source and target."
+    command: "diff <(grep -oE '\\{\\{?[^}]+\\}\\}?|%[sd]|https?://[^ )]+|[^ ]+@[^ ]+' SRC | sort) <(grep -oE '\\{\\{?[^}]+\\}\\}?|%[sd]|https?://[^ )]+|[^ ]+@[^ ]+' OUT | sort)"
+    blocking: true
+  - id: glossary_terms
+    description: "For each glossary row whose source term appears in SRC, the target term appears in OUT."
+    command: "check by script over knowledge/glossary.md (one 'src | tgt' pair per line)"
+    blocking: false
+  - id: length_ratio
+    description: "Target/source character ratio within the expected band (KO->EN 1.2-2.5, EN->KO 0.4-0.9); outside means possible omission."
+    blocking: false
+  - id: no_untranslated_spans
+    description: "No Hangul left in an EN target (or long Latin runs in a KO target) except names, code and glossary exceptions."
+    command: "grep -nP '[\\x{AC00}-\\x{D7A3}]' OUT   # for KO->EN; expect no output"
+    blocking: false
+
+dimensions:
+  correctness: {from_criteria: [fidelity, terminology, fluency, format], aggregate: weighted_mean}
+  style_match: {from_criteria: [register, style_match], aggregate: weighted_mean}
+  correction_rate: {source: "correction events + StylePair edit distance (draft->final, normalised 0-1) for this task", better: lower}
+  cost: {source: "sum(cost_usd) of events with parent_event = task id", better: lower}
+  time: {source: "task end ts - task start ts, minutes", better: lower}
+  outcome: {source: "client accepted without revision (1) / revision requested (0); logged as outcome on the task event", better: higher}

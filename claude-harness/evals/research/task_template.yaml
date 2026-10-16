@@ -1,0 +1,35 @@
+# Eval task template: research report. Copy to tasks/research-NNN.yaml. See evals/README.md.
+# Web content changes, so freeze sources: store fetched pages under fixtures/ and point the agent at them,
+# or score only what is stable (citations resolve, quotes match the frozen copies).
+id: research-000
+area: research
+rubric: rubrics/research-report.yaml
+split: train
+locked: false                 # set true only when expected findings are stable facts
+source_event: evt_...
+difficulty: standard          # quick | standard | exhaustive (fan-out depth)
+
+input:
+  question: "Which PDF-to-Markdown converter keeps Korean tables best as of <date>?"
+  depth: standard
+  as_of_date: "2026-10-16"     # injected; never hard-code in prompts
+  source_tiers: [primary, code, practitioner]
+  banned_sources: []
+  frozen_sources_dir: tasks/fixtures/research-000/
+
+criteria: []
+
+expected_checks:
+  - id: must_mention
+    kind: contains_any
+    values: ["Docling", "MinerU", "Marker"]
+  - id: citations_present
+    kind: regex_count_min
+    pattern: "\\[[0-9]+\\]|https?://"
+    min: 5
+  - id: dates_present
+    kind: regex_count_min
+    pattern: "20[0-9]{2}-[0-9]{2}"
+    min: 5
+
+human_scores: {}
