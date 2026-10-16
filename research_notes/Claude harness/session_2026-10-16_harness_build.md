@@ -54,7 +54,7 @@ See `claude-harness/global/PRINCIPLES.md` (16 principles, v0).
 1. Create the empty private repo `claude-harness` and give Claude access, so the harness can move there.
 2. Rotate passwords and revoke tokens from the old laptop (`claude-harness/docs/SECURITY.md`).
 3. Send the YouTube video titles or transcripts.
-4. Confirm the synopsis length unit (characters with spaces, characters without spaces, or words).
+4. ~~Confirm the synopsis length unit~~ **Resolved:** characters including spaces (the user confirmed this on 2026-10-16; the synopsis skill is updated).
 5. Fill in `docs/REGISTERS.md` and the per-project `reviewer_rules.md`.
 6. Claim the monthly $200 API credit (Max 20x) under Settings → Billing.
 

@@ -6,7 +6,7 @@ argument-hint: "<source synopsis file> [limit] [unit]"
 
 # Synopsis condense (KO→KO, length-capped)
 
-Inputs: $ARGUMENTS. Expect a source synopsis, the **limit and unit** (characters with spaces by default; confirm once per project if unclear), and the **LRT title** as given by the platform.
+Inputs: $ARGUMENTS. Expect a source synopsis, the **limit and unit**. The unit is **characters including spaces** (`--unit chars`), confirmed by the user on 2026-10-16, and the **LRT title** as given by the platform.
 
 **Confidentiality:** treat the source synopsis and any unreleased details as confidential. Never paste them into web searches or third-party tools. Search only with the public title, cast and network.
 
