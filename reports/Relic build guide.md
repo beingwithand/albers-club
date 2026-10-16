@@ -671,3 +671,28 @@ This addendum was written from the earlier research notes plus background knowle
 Every run gets a visible indicator, a stop button and an audit log entry. Grants are per-site or per-app, time-limited and revocable.
 
 **Timeline impact.** The macOS and browser agent permissions fit into months 3–6. Android adds about a month, and must account for Play policy. On iOS, plan for "drive the phone's data from the Mac", not on-device automation.
+
+---
+## Addendum (2026-10-16): Agent-friendly by design
+Relic should be easy for AI agents to use (Claude, ChatGPT/dots, Muse, local models, coding agents), always through the gatekeeper. Parts of this draw on background knowledge, so verify protocol details before building.
+
+**Interfaces (all local-first):**
+- **MCP server as the main door.** Typed tools: `search`, `timeline(range)`, `get_item(id)`, `get_person(id)`, `profile_summary`, `recent_activity`, `propose_memory` (lands in the review queue), `request_export(platform)` (needs approval). Plus resources for memory files and prompts for common tasks.
+- **CLI with JSON output** (`relic search … --json`), so coding agents and scripts can use it directly.
+- **Local HTTP API with an OpenAPI spec**, bound to localhost by default.
+- **Plain, documented storage:** Markdown memory files with frontmatter, a SQLite schema with documentation, and JSONL export. Agents can read them without special code, and the user can leave Relic without losing anything.
+- **Self-description for agents:** an `AGENTS.md` / `llms.txt` that explains the tools, scopes and limits in plain language.
+
+**Behaviour that makes agents reliable:**
+- Stable IDs, consistent schemas and machine-readable error codes, with a suggested next step in each error.
+- Pagination and token-budget parameters (`max_tokens`, `fields`), so responses fit in an agent's context.
+- Every result carries its provenance (source, platform, time, confidence), and results are cited back to the user.
+- `dry_run` and preview modes for anything that changes state. Write actions are idempotent, using idempotency keys.
+- Events or subscriptions ("new activity matching X"), so agents don't have to poll.
+
+**Safety, through the gatekeeper:**
+- Each agent gets its own identity and scoped grant: what it can see, which time range, read or propose, and an expiry. Default deny.
+- Every response is logged to the sharing ledger: which agent saw what, and when.
+- Captured content is wrapped as untrusted data, never as instructions. This defends agents against prompt injection that came in with captured pages.
+- Rate limits for each agent, and an anomaly alert when an agent suddenly reads far more than usual.
+- Irreversible actions always need the person's approval, whichever agent asks.

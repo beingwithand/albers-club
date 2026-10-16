@@ -93,3 +93,6 @@ Relic is the first barrier between a person's life and the companies that want i
 - **Works with anyone.** Relic can feed Muse, dots, ChatGPT, Claude or a local model, but never automatically. The decision stays with the person, not with an algorithm optimizing for someone else.
 
 Copying data out can't be undone, and Relic can't make a company forget what it was sent. The ledger and deletion-request helpers exist for that reason, and the preview step is the real protection.
+
+## Agent-friendly (added 2026-10-16)
+Relic is built to be used by AI agents as well as people. It offers an MCP server, a JSON CLI and a local API, with typed tools, documented open formats (Markdown and SQLite) and an AGENTS.md that explains it. Every agent goes through the gatekeeper: its own scoped and expiring grant, logged access, and captured content treated as untrusted data. Any assistant, from Claude to Muse to a local model, can use your history, but only on your terms.
