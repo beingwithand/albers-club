@@ -153,7 +153,7 @@ def summarize(events, start, end, areas):
             mishaps.append((scope, ev.get("id"), ev.get("content") or ev.get("intent") or ""))
         if t == "decision":
             s["decisions"] += 1
-        if t == "verification":
+        if t == "verification" and "step_check" not in (ev.get("labels") or []):  # skip hook syntax checks
             s["verifications"] += 1
             v = verdict_of(ev)
             s["unknown_verdict" if v == "unknown" else v] += 1

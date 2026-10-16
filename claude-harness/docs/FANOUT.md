@@ -68,7 +68,7 @@ Notes:
 | **Refuters (adversarial verify)** | 3 independent refuters per finding; majority kills it; uncertain counts as refuted | high-stakes or uncertain claims, bug findings, citations | low stakes; "find anything" reviewers | [H] workflow skill |
 | **Lens-diverse verifiers** | 2–3 verifiers, each owning one distinct lens | **every client or employer deliverable** | — | [M] BoN-MAV; [H] workflow skill |
 | **Competing hypotheses** | 3–5 investigators, each with one theory, trying to disprove the others | debugging when the cause is unclear (anchoring risk) | cause already localized | [H] agent-teams doc |
-| **Writer + reviewer** | 1 writer plus 1 fresh-context reviewer or a stronger advisor | coupled code edits, any non-trivial write | — (the cheap default "second agent") | [M] Cognition 2026; [H] claude.com blog |
+| **Writer + reviewer** | 1 writer plus 1 fresh-context reviewer or a stronger advisor. For code: `coder` (sonnet) → `code-reviewer` (opus) in `step` mode after each step, `back-review` at the end; both preload `coding-standards` (`agents/orchestrator.md` §4a) | coupled code edits, any non-trivial write | — (the cheap default "second agent") | [M] Cognition 2026; [H] claude.com blog |
 
 **Verification lenses for client and employer output** (tier V). Each verifier owns one lens and checks only that lens:
 1. **Fidelity:** meaning, facts, numbers, names and dates against the source or facts file. Uses `claim_check.py`, back-translation, and recounted invoice quantities.

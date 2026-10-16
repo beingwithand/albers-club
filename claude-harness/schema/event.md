@@ -51,7 +51,7 @@ The machine-readable definition is type `Event` in `schema/ontology.yaml` (v0.2.
 | `prompt` | `hooks/log_event.py prompt` | `content` (the prompt), `scope_hint`, `session_id`, `transcript_path`, `correction_candidate` (bool), `correction_confidence` (0..1), `correction_patterns` (list) |
 | `session_end` | `hooks/log_event.py session_end` | `end_reason` |
 | `label` | `scripts/label_events.py --apply` | `labels_for: <event id>`, `parent_event` (same id), `intent`, `situation`, `meta`, `labels`, `is_correction`, `scope`, `source_batch` (path of the model output) |
-| `verification` | skill `verify` | `verdict: pass\|fail\|needs-human`, `items` (PROGRESS/tasks entries covered; matched by `hooks/verify_gate.py`), `scope_hint`, per-criterion results with `proof` |
+| `verification` | skill `verify`; `hooks/step_check.py` (labeled `step_check`) | `verdict: pass\|fail\|needs-human`, `items` (PROGRESS/tasks entries covered; matched by `hooks/verify_gate.py`), `scope_hint`, per-criterion results with `proof`. Events labeled `step_check` are per-edit syntax checks (`items: [path]`); the Stop gate and `weekly_report.py` ignore them |
 | `handoff` | skill `handoff` | `pointers` to HANDOFF.md, `cold_read: {score: "6/6", rounds: N, model: "haiku"}` |
 | `precompact` | `hooks/precompact_snapshot.py` | `trigger`, `custom_instructions`, `pointers` to `log/handoffs/auto_<ts>.md` |
 | `postcompact` | `hooks/precompact_snapshot.py post` | `trigger`, `content` (compact summary, truncated), `pointers` |

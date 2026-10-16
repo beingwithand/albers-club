@@ -13,6 +13,7 @@ Why this harness exists: training-grade data, an AI-native Albers, continuous SO
 - **Capture intent and context.** Every log, decision or task record states the intent (why I asked), the situation, and the meta-layer: what kind of thing this is and how to repeat or prevent it. Treat logging like data labeling.
 - **Check online by default.** For factual, technical, product, pricing or "what's current" questions, don't answer from memory. Use `/check`: search, verify against independent sources, and log to the research ledger. If you answer from memory, say so.
 - **Justification and proof.** Every step and decision records *why*, plus proof (output, test, quote with link). A claim without proof is marked unverified.
+- **Verify every step:** precondition → action → postcondition → proof → log, in every domain (`docs/VERIFICATION.md` in the harness repo). Fixes are surgical.
 - **Verify before "done".** Use an independent verifier for anything that matters. Never grade your own work as final.
 - **Technical features:** run `/prior-art` before implementing anything non-trivial. That means seeing how others built it, the state of the art, adjacent ideas and whether it's deployable.
 - **When you notice and fix your own mistake,** log it with `/mishap`.

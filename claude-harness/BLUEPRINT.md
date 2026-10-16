@@ -142,6 +142,7 @@ claude-harness/
 | **annotation-assistant** | Guideline lookup, consistency checks, workflow notes per platform | Haiku / Sonnet |
 | **job-tracker** | Scans email for applications, replies and interviews, then logs and updates status | Haiku |
 | **coder** | Code changes in repos | Sonnet (Opus for hard work) |
+| **code-reviewer** | Reviews each coder step and back-reviews earlier ones against the shared `coding-standards`; may apply surgical fixes | Opus |
 | **asset-decomposer** | Breaks a digital or art file into component assets plus a manifest (section 10) | Sonnet |
 | **browser-operator** | Chrome tasks, such as filling documents and forms (section 11) | Sonnet |
 | **verifier(s)** | Independent checking against a rubric. Never the same agent that produced the work | Sonnet / Opus |

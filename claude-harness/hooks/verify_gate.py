@@ -16,6 +16,7 @@ If `PROGRESS.md` or `tasks.json` in cwd marks items done after the last non-fail
 Item timestamps: tasks.json items may carry done_at / completed_at / updated_at; otherwise
 the file's mtime is used. A verification event may list `items` it covered; done items
 whose text matches one of those are treated as verified regardless of time.
+Events labeled `step_check` (hooks/step_check.py syntax checks) never count as verification.
 """
 import datetime as dt
 import json
@@ -29,6 +30,7 @@ ITEM_TS_KEYS = ("done_at", "completed_at", "updated_at", "ts")
 NAME_KEYS = ("id", "name", "title", "task", "description", "content")
 MAX_LOG_FILES = 3
 MAX_LISTED = 8
+STEP_CHECK_LABEL = "step_check"
 
 
 def parse_ts(value):
@@ -175,6 +177,8 @@ def last_verification(log_dir, cwd):
                     continue
                 if str(ev.get("verdict", "")).lower() == "fail" or not scope_matches(ev, cwd):
                     continue
+                if STEP_CHECK_LABEL in (ev.get("labels") or []):
+                    continue  # hooks/step_check.py syntax checks are not verification of the work
                 ts = parse_ts(ev.get("ts"))
                 if ts is None:
                     continue
