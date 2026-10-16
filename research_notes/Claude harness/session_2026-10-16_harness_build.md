@@ -50,7 +50,7 @@ Session: https://claude.ai/code/session_01TsbW2R32y5VMMxyaYoyyZh
   - Q5: local embeddings over vault text are OK.
   - Q6: tax and finance records are kept 7 years at minimum; the default is set to 10 ("7 or more").
   - Q4: the number of Macs is undecided. Design for one writer Mac now, with per-host log files so a second machine is a no-op later. The vault is single-machine for now, with encrypted (age/restic) offsite backup; a second-machine vault is optional later.
-  - Q3: the answer was ambiguous ("client text can't go into the vault"), so it needs confirmation.
+  - Q3 (confirmed): prompts containing client text may be stored in **both** the vault and the private GitHub harness-data log.
 
 ## Mishaps
 - **M1:** Research notes were saved inside an unrelated repo (albers-club) without asking first.
