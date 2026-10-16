@@ -1,50 +1,514 @@
-# Ontology v0. Change only via a reviewed PR; keep a mapping when types are renamed or merged.
-version: 0.1.0
+# Ontology v0.2. Change only via a reviewed PR; keep a mapping (`renamed:`) when types are renamed or merged.
+#
+# Parsed by: scripts/schema_check.py (whole file, YAML subset: block maps/lists, one-line flow
+# [..] / {..}, quoted scalars, comments), scripts/style_pairs.py (`registers:` line) and
+# scripts/weekly_report.py (`areas:` line). Keep `areas:` and `registers:` as ONE-LINE flow lists.
+#
+# Per type:
+#   desc        one line
+#   store       root: harness-data | project | msg-vault | repo | home   (where `path` is relative to)
+#               path (glob-ish: YYYY-MM, <area>, <project>, * are wildcards), format: jsonl|json|csv|yaml|md
+#               container: key holding the records inside a json file (absent: whole file is one record)
+#               append_only: true -> never edit/delete a line; fix with a new record (supersedes/corrects)
+#               privacy: vault (never synced, never git) | harness-data (private git repo, auto-pushed)
+#                        | repo (a git repo: the harness itself, or the project's own repo/Drive folder)
+#                        | local (per-machine runtime state, not synced)
+#               status: active (code writes it today) | planned (declared, nothing writes it yet)
+#               writer: "who writes it
+#   id_prefix / id_pattern   how ids look; unique_id: false when the file is event-sourced (latest wins)
+#   id_field    record key holding the id when it is not `id`
+#   fields      every field allowed at top level (others -> warning in schema_check)
+#   required    must be present and non-empty
+#   enums       field -> list, or the name of a top-level enum (`registers`, `areas`, `enums.<name>`)
+#   value_aliases  field -> {raw: canonical"}; accepted by schema_check, but write canonical values
+#   aliases     field-name aliases: {name used in code/data: ontology field}
+#   refs        field -> type; the value (or each list item) must carry that type's id_prefix
+#   formats     field -> date | datetime | scope | sha256 | url
+#   coverage    provenance (where it came from), intent (why), meta (what kind / generalizes to);
+#               `event` means "carried by the Event that records it"
+#   expected_when  Event only: {type value: [fields]}; missing -> warning unless a later `label` event fills it
+version: 0.2.0
 
 areas: [translation, annotation, job-search, art, code, research, personal]
 
-types:
-  Project:     {fields: [id, area, client, status, started, drive_folder]}
-  Client:      {fields: [id, name, contact, preferences]}
-  Task:        {fields: [id, project, intent, status, agent, model, verifier]}
-  Document:    {fields: [id, source_path, sha256, archived_at, converter, confidence]}
-  Asset:       {fields: [id, type, source, provenance, rights, variants]}
-  Decision:    {fields: [id, claim, reasons, evidence, alternatives, expected_outcome, review_date]}
-  Correction:  {fields: [id, agent_did, my_correction, my_reasoning, scope]}
-  Mishap:      {fields: [id, what, noticed_how, fix, root_cause, prevention, repeat_pattern, proof]}
-  Lesson:      {fields: [id, statement, scope, learned_from, status]}   # status: proposed|approved|expired
-  SessionNote: {fields: [id, goal, dead_ends, resolution, decisions, lessons, pointers]}
-  Proof:       {fields: [id, kind, ref]}   # kind: output|test|quote|diff|screenshot|link
-  Preference:  {fields: [id, statement, scope, source_event]}
-  StylePair:   {fields: [id, ts, draft, final, language, direction, register, domain, audience, client, scope, reasoning, labels, edited, source, supersedes]}
-  Application: {fields: [id, org, role, applied_on, channel, status, next_step, joblead, source_thread, last_contact, fit_score]}
-  # Application status pipeline: lead -> applied -> screening -> test_task -> interview -> offer -> accepted | rejected | withdrawn | ghosted
-  Evaluation:  {fields: [id, target, rubric, scores, judge, judge_model]}
-  Invoice:     {fields: [id, client, project, items, currency, subtotal, withholding, total, issued, due, status]}
-
-  # Communications and job search (added 2026-10-16)
-  Message:      {fields: [id, source, thread, sender, recipients, ts, text_ref, language, attachments, labels]}   # source: gmail|viber|lark|slack|...
-  Thread:       {fields: [id, source, subject, participants, first_ts, last_ts, project, application]}
-  Contact:      {fields: [id, name, handles, organization, role, relationship, notes]}
-  Organization: {fields: [id, name, kind, website, platforms]}   # kind: client|employer|agency|platform
-  Platform:     {fields: [id, name, url, kind, account_status, first_seen, last_seen, evidence]}   # kind: job-board|freelance-marketplace|annotation|messaging
-  JobLead:      {fields: [id, source, platform, org, role, url, posted, seen, deadline, fit_score, status, dedupe_key]}
-  SyncCursor:   {fields: [id, source, account, last_ts, last_id, updated]}   # incremental sync position per source
-  Attachment:   {fields: [id, message, filename, mime, sha256, kind, archived_at]}   # kind: resume|cover-letter|source-doc|deliverable|invoice|other
-
-relations:
-  - part_of
-  - for_client
-  - produced_by     # agent + model
-  - derived_from
-  - evidence_for
-  - proven_by
-  - supersedes
-  - corrects
-  - prevents        # Lesson/rule -> Mishap
-  - learned_from    # Lesson -> Mishap/Correction/SessionNote
-  - handed_off_to
-  - evaluated_by
-  - blocks
-
 registers: [formal-email, office, friendly, chat, client-deliverable, annotation-response]
+
+# Scope grammar (Event.scope, Preference.scope, Lesson.scope, Correction.scope, StylePair.scope, label output):
+#   global | <area> | <area>/<project>      e.g. "job-search", "annotation/<platform>", "translation/acme"
+# Preference.scope may also be a task type ("task:<type>", e.g. "task:translation-email").
+scope_grammar: '^(global|task:[a-z0-9-]+|<area>(/[^/\s]+)?)$'
+
+enums:
+  event_type: [prompt, session_end, decision, correction, mishap, handoff, session_note, verification, intake, task, label, precompact, postcompact, drill, unknown]
+  actor_kind: [me, harness, agent]            # actor = me | harness | agent:<name>
+  outcome: [pending, worked, failed, reverted]
+  verdict: [pass, fail, needs-human]
+  proof_kind: [output, test, quote, diff, screenshot, link]
+  confidence: [high, medium, low]
+  model: [haiku, sonnet, opus, fable]
+  language: [ko, en, mixed]
+  # Direction has three spellings in code. Canonical for new data is ASCII `ko-en`; each store keeps its own:
+  direction: [ko-en, en-ko, ko-ko, en-en, both, none]
+  direction_aliases: {"ko→en": ko-en, "en→ko": en-ko, "ko->en": ko-en, "en->ko": en-ko, "ko>en": ko-en, "en>ko": en-ko}
+  lesson_status: [proposed, approved, expired]
+  application_status: [lead, drafted, applied, screening, test_task, interview, offer, accepted, rejected, withdrawn, ghosted, stale]
+  # Pipeline: lead -> drafted -> applied -> screening -> test_task -> interview -> offer -> accepted
+  #           any -> rejected | withdrawn | ghosted (no reply after follow-up window) | stale (we stopped chasing)
+  message_class: [confirmation, recruiter_reply, interview_invite, rejection, offer, request_for_info, other]
+  invoice_status: [issued, sent, partial, paid, disputed, void]
+  glossary_status: [approved, preferred, proposed, forbidden]
+  asset_type: [layer, text, image, vector, palette, font, audio, video, other]
+  platform_kind: [job-board, freelance-marketplace, annotation, ai-training-marketplace, ai-data-vendor, expert-network, lsp-portal, translator-directory, community, ats, payments, messaging]
+  org_kind: [client, employer, agency, platform]
+  message_source: [gmail, viber, lark, slack, proz, linkedin, glassdoor, imessage, telegram, other]
+  account_provider: [gmail, workspace, viber, lark, slack, other]
+  account_connection: [claude-connector, takeout, imap, api, forwarding]
+  privacy: [vault, harness-data, repo, local]
+  attachment_kind: [resume, cover-letter, source-doc, deliverable, invoice, other]
+  project_status: [active, paused, pending, completed, cancelled, archived]
+  eval_split: [train, holdout]
+  eval_difficulty: [routine, hard, known-failure]
+
+renamed:          # BLUEPRINT §5 names -> v0.2 names
+  Person: Contact
+  Source: Document
+  Area: areas
+
+types:
+  # ------------------------------------------------------------------ log / improvement loop
+  Event:
+    desc: one line of the append-only work log (schema/event.md); most other records are also announced here
+    store: {root: harness-data, path: log/YYYY-MM.jsonl, format: jsonl, append_only: true, privacy: harness-data, status: active, writer: "hooks/log_event.py, hooks/_common.py, scripts/label_events.py, skills"}
+    id_prefix: evt_
+    id_pattern: '^evt_\d{8}_\d{4,6}_[0-9a-f]{4}$'
+    unique_id: true
+    fields: [id, ts, actor, model, agent, scope, scope_hint, session_id, transcript_path, type, intent, situation, content, meta, justification, proof, labels, parent_event, pointers, outcome, cost_usd, corrects, end_reason, correction_candidate, correction_confidence, correction_patterns, labels_for, is_correction, source_batch, verdict, items, cold_read, trigger, custom_instructions, claim, summary, result, project_dir, cwd, fanout_tier, fanout_n, est_tokens]
+    required: [id, ts, type, actor]
+    enums: {type: event_type, outcome: outcome, verdict: verdict, model: model}
+    value_aliases: {verdict: {passed: pass, ok: pass, failed: fail, needs_human: needs-human}}
+    formats: {ts: datetime, scope: scope}
+    expected_when:
+      decision: [intent, situation, meta]
+      correction: [intent, situation, meta]
+      mishap: [intent, situation, meta]
+      session_note: [intent, situation, meta]
+      verification: [verdict]
+      label: [labels_for]
+      handoff: [pointers]
+    coverage: {provenance: [actor, model, session_id, transcript_path, source_batch, parent_event], intent: intent, meta: meta}
+
+  Proof:       # embedded in Event.proof / Mishap.proof, not stored on its own
+    desc: pointer that proves a step or decision
+    store: {root: harness-data, path: log/YYYY-MM.jsonl, format: embedded, append_only: true, privacy: harness-data, status: active, writer: "skills"}
+    fields: [id, kind, ref]
+    required: [kind, ref]
+    enums: {kind: proof_kind}
+    coverage: {provenance: [ref], intent: null, meta: [kind]}
+
+  Decision:
+    desc: a notable choice with reasons, evidence and a checkable prediction (skill `why`)
+    store: {root: project, path: decisions.md, format: md, append_only: true, privacy: repo, status: active, writer: "skills/why"}
+    id_prefix: D-
+    id_pattern: '^D-\d{8}-\d+$'
+    fields: [id, claim, reasons, evidence, alternatives, expected_outcome, review_date, intent, situation, meta, scope, event]
+    required: [id, claim, reasons]
+    formats: {review_date: date, scope: scope}
+    coverage: {provenance: [evidence, event], intent: intent, meta: meta}
+
+  Correction:
+    desc: what the agent did vs what the user changed it to, and why
+    store: {root: harness-data, path: log/YYYY-MM.jsonl, format: event, append_only: true, privacy: harness-data, status: active, writer: "skills/review-week (type correction), scripts/label_events.py (label is_correction)"}
+    id_prefix: evt_
+    fields: [id, agent_did, my_correction, my_reasoning, scope, corrects, source_event, intent, situation, meta]
+    required: [agent_did, my_correction]
+    formats: {scope: scope}
+    coverage: {provenance: [source_event, corrects], intent: intent, meta: meta}
+
+  Mishap:
+    desc: a mistake noticed and fixed, with root cause and prevention (skill `mishap`)
+    store: {root: project, path: log/mishaps.md, format: md, append_only: true, privacy: repo, status: active, writer: "skills/mishap"}
+    fields: [id, ts, title, intent, what, noticed_how, fix, root_cause, prevention, repeat_pattern, generalizes_to, proof, status, event]
+    required: [what, root_cause, prevention]
+    enums: {noticed_how: [self-check, verifier, user, test], status: lesson_status}
+    coverage: {provenance: [noticed_how, proof, event], intent: intent, meta: [repeat_pattern, generalizes_to]}
+
+  Lesson:
+    desc: a reusable statement learned from mishaps/corrections/sessions; proposed until approved
+    store: {root: project, path: "knowledge/wiki/<area>/<project>-lesson.md", format: md, append_only: false, privacy: repo, status: active, writer: "skills/backcatalog, skills/retro"}
+    id_prefix: L-
+    fields: [id, statement, scope, learned_from, prevents, status, supersedes, approved_on, intent, situation, meta]
+    required: [statement, scope, status]
+    enums: {status: lesson_status}
+    formats: {scope: scope}
+    coverage: {provenance: [learned_from], intent: intent, meta: meta}
+
+  SessionNote:
+    desc: end-of-session retro (skill `retro`)
+    store: {root: project, path: "log/sessions/YYYY-MM-DD_<topic>.md", format: md, append_only: true, privacy: repo, status: active, writer: "skills/retro"}
+    fields: [id, goal, dead_ends, resolution, decisions, mishaps, lessons, reuse, avoid, pointers, event]
+    required: [goal, resolution]
+    coverage: {provenance: [pointers, event], intent: goal, meta: [reuse, avoid]}
+
+  Handoff:
+    desc: HANDOFF.md cold-read-tested resume note; old ones archived under log/handoffs/
+    store: {root: project, path: HANDOFF.md, format: md, append_only: false, privacy: repo, status: active, writer: "skills/handoff, hooks/precompact_snapshot.py (log/handoffs/auto_*.md)"}
+    fields: [git_commit, goal, state, next_actions, pointers, cold_read]
+    required: [git_commit]
+    coverage: {provenance: [git_commit], intent: goal, meta: [cold_read]}
+
+  ProgressItem:
+    desc: a task line in PROGRESS.md or an item of tasks.json; verify_gate blocks Stop when done items lack a verification event
+    store: {root: project, path: tasks.json, format: json, container: tasks, append_only: false, privacy: repo, status: active, writer: "agents/orchestrator (workers may change only `passes`)"}
+    fields: [id, name, title, task, description, content, status, state, passes, done, completed, done_at, completed_at, updated_at, ts]
+    required: []
+    formats: {done_at: datetime, completed_at: datetime, updated_at: datetime}
+    coverage: {provenance: [], intent: description, meta: null}
+
+  Preference:
+    desc: a stored answer to a scope question; newest per (statement topic, scope) wins
+    store: {root: harness-data, path: preferences.jsonl, format: jsonl, append_only: true, privacy: harness-data, status: active, writer: "skills/interview"}
+    id_prefix: pref_
+    unique_id: true
+    fields: [id, ts, statement, scope, task_type, source_event, supersedes]
+    required: [id, statement, scope]
+    formats: {ts: datetime, scope: scope}
+    coverage: {provenance: [source_event], intent: event, meta: [task_type]}
+
+  Principle:
+    desc: cross-domain principle distilled from 2+ sources (skill `distill-principles`)
+    store: {root: repo, path: global/PRINCIPLES.md, format: md, append_only: false, privacy: repo, status: active, writer: "skills/distill-principles (after approval)"}
+    fields: [id, statement, evidence, approved_on]
+    required: [statement, evidence]
+    coverage: {provenance: [evidence], intent: null, meta: null}
+
+  # ------------------------------------------------------------------ evaluation
+  Evaluation:
+    desc: one task's scores inside an EvalRun (or a one-off rubric judgement)
+    store: {root: harness-data, path: "evals/results/<area>/*.json", format: embedded, append_only: true, privacy: harness-data, status: active, writer: "eval runner"}
+    fields: [id, target, rubric, scores, checks, locked, split, judge, judge_model, producer_model]
+    required: [scores]
+    enums: {split: eval_split}
+    coverage: {provenance: [judge, judge_model, producer_model], intent: null, meta: [rubric]}
+
+  EvalRun:
+    desc: result file compared by scripts/eval_gate.py (evals/README.md "Result file format")
+    store: {root: harness-data, path: "evals/results/<area>/*.json", format: json, append_only: true, privacy: harness-data, status: active, writer: "eval runner; read by scripts/eval_gate.py"}
+    fields: [eval_set, eval_set_sha256, policy, producer_model, judge_model, run_at, tasks]
+    required: [tasks]
+    formats: {run_at: datetime}
+    coverage: {provenance: [policy, producer_model, judge_model, eval_set_sha256], intent: null, meta: [eval_set]}
+
+  EvalTask:
+    desc: one locked eval task (only the user edits these)
+    store: {root: harness-data, path: "evals/<area>/tasks/*.yaml", format: yaml, append_only: false, privacy: harness-data, status: active, writer: "the user (templates in evals/<area>/task_template.yaml)"}
+    id_pattern: '^[a-z-]+-\d{3}$'
+    fields: [id, area, rubric, split, locked, source_event, difficulty, input, criteria, expected_checks, reference_output, human_scores]
+    required: [id, area, rubric, split, locked]
+    enums: {area: areas, split: eval_split, difficulty: eval_difficulty}
+    coverage: {provenance: [source_event], intent: input, meta: [difficulty]}
+
+  Rubric:
+    desc: self-eval sheet per task type
+    store: {root: repo, path: rubrics/*.yaml, format: yaml, append_only: false, privacy: repo, status: active, writer: "the user only"}
+    fields: [rubric, version, applies_to, producer_agent, judge, human_sample_rate, scoring, dimensions, criteria, automatic_checks, cold_reader, notes]
+    required: [rubric, criteria]
+    coverage: {provenance: [version], intent: applies_to, meta: null}
+
+  # ------------------------------------------------------------------ projects, work, knowledge
+  Project:
+    desc: one unit of work under <area>/<project>/ (templates/project)
+    store: {root: project, path: CLAUDE.md, format: md, append_only: false, privacy: repo, status: active, writer: "skills/new-project"}
+    fields: [id, name, area, client, status, started, ended, drive_folder, platform, contacts, rates, evidence, intent]
+    required: [id, area]
+    enums: {area: areas, status: project_status}
+    aliases: {project: name, rates_payments: rates}
+    formats: {started: date, ended: date, drive_folder: url}
+    coverage: {provenance: [evidence], intent: intent, meta: null}
+
+  Client:
+    desc: who a project is for (an Organization of kind client, or a person)
+    store: {root: harness-data, path: clients.jsonl, format: jsonl, append_only: true, privacy: harness-data, status: planned, writer: "none yet (project CLAUDE.md 'Client / owner')"}
+    id_prefix: client-
+    unique_id: false
+    fields: [id, name, organization, contact, preferences, style_notes]
+    required: [id, name]
+    coverage: {provenance: [], intent: null, meta: [preferences]}
+
+  Task:
+    desc: a unit of delegated work; recorded as a `task` Event
+    store: {root: harness-data, path: log/YYYY-MM.jsonl, format: event, append_only: true, privacy: harness-data, status: active, writer: "agents/orchestrator, skills"}
+    fields: [id, project, intent, situation, meta, status, agent, model, verifier, cost_usd, outcome]
+    required: [intent]
+    enums: {outcome: outcome}
+    coverage: {provenance: [agent, model], intent: intent, meta: meta}
+
+  Document:
+    desc: a registered source file in knowledge/manifest.json (`sources[]`)
+    store: {root: project, path: knowledge/manifest.json, format: json, container: sources, append_only: false, privacy: repo, status: active, writer: "scripts/kb.py"}
+    id_prefix: ""
+    id_pattern: '^[0-9a-f]{8}$'
+    unique_id: true
+    fields: [id, sha256, original_name, raw_path, received, converter, converter_options, converted_on, work_md, archive, archived_on, pages_produced, backcatalog_source, source_path, archived_at, confidence]
+    required: [id, sha256, original_name, raw_path]
+    aliases: {archived_at: archived_on, source_path: backcatalog_source}
+    formats: {sha256: sha256, received: date, converted_on: date, archived_on: date}
+    coverage: {provenance: [sha256, original_name, received, converter, backcatalog_source], intent: null, meta: null}
+
+  WikiPage:
+    desc: a cleaned knowledge page with intake frontmatter (knowledge/wiki/*.md)
+    store: {root: project, path: knowledge/wiki/*.md, format: md, append_only: false, privacy: repo, status: active, writer: "skills/intake, skills/backcatalog; linted by scripts/kb.py"}
+    fields: [source_id, source_name, pages, converter, confidence, intake_intent, topic, summary, derived_from]
+    required: [source_id, source_name, pages, converter, confidence, intake_intent]
+    enums: {confidence: confidence}
+    coverage: {provenance: [source_id, converter, derived_from], intent: intake_intent, meta: [confidence]}
+
+  IntakeLogEntry:
+    desc: "verifier line in knowledge/log.md: `- <date> <sha8> verify PASS|FAIL <notes>`"
+    store: {root: project, path: knowledge/log.md, format: md, append_only: true, privacy: repo, status: active, writer: "agents/verifier; read by scripts/kb.py safe-to-delete"}
+    fields: [date, source_id, verdict, notes]
+    required: [date, source_id, verdict]
+    coverage: {provenance: [source_id], intent: null, meta: null}
+
+  BackcatalogRow:
+    desc: one file found by `kb.py backcatalog` (report csv)
+    store: {root: harness-data, path: backcatalog/knowledge/backcatalog*.csv, format: csv, append_only: false, privacy: harness-data, status: active, writer: "scripts/kb.py"}
+    fields: [source_path, relative_path, sha8, status, size, ext, modified, top_folder, area, project, notes]
+    required: [source_path, status]
+    coverage: {provenance: [source_path, sha8], intent: null, meta: [area, project]}
+
+  Asset:
+    desc: a component extracted from an art/media source (assets/assets.yaml)
+    store: {root: project, path: assets/assets.yaml, format: yaml, append_only: true, privacy: repo, status: active, writer: "scripts/psd_layers.py, scripts/palette.py, skills/asset-decompose"}
+    id_prefix: A-
+    id_pattern: '^A-[0-9a-f]{8}-\d+$'
+    unique_id: true
+    fields: [id, type, name, source, path, provenance, rights, variants, tags]
+    required: [id, type, source, provenance, rights]
+    enums: {type: asset_type}
+    coverage: {provenance: [source, provenance], intent: null, meta: [tags]}
+
+  Palette:
+    desc: colour palette extracted from an image (assets/palette/<asset id>.json)
+    store: {root: project, path: assets/palette/*.json, format: json, append_only: false, privacy: repo, status: active, writer: "scripts/palette.py"}
+    id_prefix: A-
+    fields: [id, method, k, sampled_pixels, sample_size, colors]
+    required: [id, colors]
+    coverage: {provenance: [method], intent: null, meta: null}
+
+  GlossaryTerm:
+    desc: one row of a project glossary table (templates/glossary.md)
+    store: {root: project, path: knowledge/glossary.md, format: md, append_only: false, privacy: repo, status: active, writer: "scripts/glossary.py, the user approves rows"}
+    fields: [source, target, dir, domain, client, dnt, status, confidence, sources, notes]
+    required: [source, dir, status]
+    enums: {dir: [ko-en, en-ko, both], status: glossary_status, confidence: confidence}
+    coverage: {provenance: [sources], intent: notes, meta: [confidence]}
+
+  ReviewerRule:
+    desc: "a client/platform reviewer rule (knowledge/reviewer_rules.md), one per line: R-NNN, source, check method"
+    store: {root: project, path: knowledge/reviewer_rules.md, format: md, append_only: false, privacy: repo, status: active, writer: "skills/synopsis"}
+    id_prefix: R-
+    id_pattern: '^R-\d{3,}$'
+    fields: [id, rule, quote, source, date, check_method]
+    required: [id, rule, source, check_method]
+    coverage: {provenance: [source, quote, date], intent: null, meta: [check_method]}
+
+  # ------------------------------------------------------------------ style memory
+  StylePair:
+    desc: draft -> final pair the user edited; few-shot references (scripts/style_pairs.py)
+    store: {root: harness-data, path: style/pairs.jsonl, format: jsonl, append_only: true, privacy: harness-data, status: active, writer: "scripts/style_pairs.py"}
+    id_prefix: sp_
+    id_pattern: '^sp_\d{8}_\d{6}_[0-9a-f]{4}$'
+    unique_id: true
+    fields: [id, ts, draft, final, language, direction, register, domain, audience, client, scope, reasoning, labels, edited, source, origin, supersedes, derived_from]
+    required: [id, ts, draft, final, language, direction, register]
+    enums: {language: language, direction: ["ko→en", "en→ko", none], register: registers}
+    value_aliases: {direction: {ko-en: "ko→en", en-ko: "en→ko", "ko->en": "ko→en", "en->ko": "en→ko"}}
+    formats: {ts: datetime, scope: scope}
+    coverage: {provenance: [origin, source, client, derived_from], intent: reasoning, meta: [labels, edited]}
+
+  StyleSample:
+    desc: a single text the user wrote (no draft), with register; raw excerpts belong in the vault
+    store: {root: msg-vault, path: style/samples.jsonl, format: jsonl, append_only: true, privacy: vault, status: planned, writer: "Gmail backfill (style_samples.jsonl shape)"}
+    id_prefix: ss_
+    fields: [id, message_id, thread_id, date, to_domain, subject, register, language, context, excerpt, excerpt_source]
+    required: [message_id, register, language, excerpt]
+    enums: {register: registers, language: language, excerpt_source: [body, snippet]}
+    formats: {date: date}
+    coverage: {provenance: [message_id, thread_id, excerpt_source], intent: context, meta: [register]}
+
+  StyleGuide:
+    desc: approved per-register style rules learned from StylePairs (skill `style-guide`)
+    store: {root: harness-data, path: style/guide.md, format: md, append_only: false, privacy: harness-data, status: active, writer: "skills/style-guide (after approval)"}
+    fields: [register, rule, evidence, approved_on]
+    required: [register, rule, evidence]
+    enums: {register: registers}
+    coverage: {provenance: [evidence], intent: null, meta: [approved_on]}
+
+  # ------------------------------------------------------------------ job search
+  Application:
+    desc: a job/contract application; each status change appends a new line with the same id (latest wins)
+    store: {root: harness-data, path: applications.jsonl, format: jsonl, append_only: true, privacy: harness-data, status: active, writer: "skills/job-application, skills/email-scan (agents/job-tracker)"}
+    id_prefix: app-
+    unique_id: false
+    fields: [id, ts, org, role, platform, area, applied_on, channel, status, status_detail, pipeline, next_step, joblead, source_thread, evidence, last_contact, fit_score, fit_rationale, posting_url, deadline, open_checked_on, claim_check, confidence, notes, account]
+    required: [id, org, role, status]
+    refs: {account: Account}
+    enums: {status: application_status, area: areas, confidence: confidence, claim_check: [pass, fail, pending]}
+    value_aliases:
+      status: {applied-no-response: applied, no-response: ghosted, under-review: screening, rejected-likely: rejected, rejected-keep-in-touch: rejected, stalled: stale, incomplete: drafted, pending: applied, open-invite: lead, active: accepted, active-client: accepted, active-contract: accepted, onboarded-awaiting-work: accepted, completed: accepted, approved: accepted, active-at-risk: accepted, active-low-volume: accepted, active-community: accepted, pending-assignment: accepted, offboarded: accepted, blocked-verification: screening}
+    # keep the raw backfill wording in status_detail; `unclear` / `mixed-*` have no alias on purpose: classify by hand
+    formats: {applied_on: date, last_contact: date, deadline: date, open_checked_on: date, posting_url: url}
+    coverage: {provenance: [source_thread, evidence, channel, platform], intent: fit_rationale, meta: [confidence, fit_score]}
+
+  JobLead:
+    desc: a posting seen in an alert/board; dedupe on platform:external_id plus a fingerprint
+    store: {root: harness-data, path: jobleads.jsonl, format: jsonl, append_only: true, privacy: harness-data, status: planned, writer: "email-scan / alert parsing (docs/MESSAGING.md)"}
+    id_prefix: jl-
+    unique_id: false
+    fields: [id, source, platform, external_id, fingerprint, org, role, url, posted, seen, deadline, fit_score, status, dedupe_key, source_message, account]
+    required: [id, platform, role, seen, dedupe_key]
+    refs: {account: Account}
+    enums: {status: application_status}
+    formats: {url: url, posted: date, seen: date, deadline: date}
+    coverage: {provenance: [source, source_message, platform], intent: null, meta: [fit_score]}
+
+  Platform:
+    desc: a job board / marketplace / annotation platform the user has an account on
+    store: {root: harness-data, path: platforms.jsonl, format: jsonl, append_only: true, privacy: harness-data, status: planned, writer: "Gmail backfill (platforms.json shape: {generated, scope, note, platforms: [...]})"}
+    id_prefix: plat-
+    unique_id: false
+    fields: [id, name, url, kind, account_status, first_seen, last_seen, evidence, notes]
+    required: [name, kind]
+    enums: {kind: platform_kind}
+    aliases: {status: account_status}
+    formats: {first_seen: date, last_seen: date, url: url}
+    coverage: {provenance: [evidence, first_seen], intent: null, meta: [notes]}
+
+  Organization:
+    desc: a company/agency/platform operator
+    store: {root: harness-data, path: organizations.jsonl, format: jsonl, append_only: true, privacy: harness-data, status: planned, writer: "none yet"}
+    id_prefix: org-
+    fields: [id, name, kind, website, platforms]
+    required: [id, name, kind]
+    enums: {kind: org_kind}
+    coverage: {provenance: [], intent: null, meta: null}
+
+  Contact:
+    desc: a person (BLUEPRINT "Person"); only derived facts, never message copies
+    store: {root: harness-data, path: contacts.jsonl, format: jsonl, append_only: true, privacy: harness-data, status: planned, writer: "none yet"}
+    id_prefix: ct-
+    fields: [id, name, handles, organization, role, relationship, notes, source_message]
+    required: [id, name]
+    coverage: {provenance: [source_message], intent: null, meta: [relationship]}
+
+  Account:
+    desc: one mailbox/messaging account the user owns (several Gmail accounts, the Workspace mailbox, work mailboxes, Viber, Lark, Slack)
+    store: {root: harness-data, path: accounts.jsonl, format: jsonl, append_only: true, privacy: harness-data, status: planned, writer: "the user / ingest setup (addresses only, no message content)"}
+    id_prefix: acct_
+    id_pattern: '^acct_[a-z0-9_-]+$'
+    unique_id: false
+    fields: [id, provider, address, handle, label, purpose, is_hub, forwards_to, connected_via, privacy, notes]
+    required: [id, provider, connected_via, privacy]
+    refs: {forwards_to: Account}
+    enums: {provider: account_provider, connected_via: account_connection, privacy: privacy}
+    aliases: {email: address}
+    coverage: {provenance: [connected_via], intent: purpose, meta: [label, is_hub]}
+
+  # ------------------------------------------------------------------ messaging (raw lives in the vault)
+  Message:
+    desc: one message from any channel; raw body/attachments stay in ~/msg-vault
+    store: {root: msg-vault, path: "<source>/messages.jsonl", format: jsonl, append_only: true, privacy: vault, status: planned, writer: "ingest (docs/MESSAGING.md)"}
+    id_prefix: msg_
+    fields: [id, source, thread, sender, recipients, ts, text_ref, language, attachments, labels, class, account]
+    required: [id, source, account, thread, ts]
+    refs: {account: Account}
+    enums: {source: message_source, language: language, class: message_class}
+    formats: {ts: datetime}
+    coverage: {provenance: [source, sender], intent: null, meta: [class, labels]}
+
+  Thread:
+    desc: a conversation; links messages to a project or application
+    store: {root: msg-vault, path: "<source>/threads.jsonl", format: jsonl, append_only: true, privacy: vault, status: planned, writer: "ingest"}
+    id_prefix: thr_
+    fields: [id, source, subject, participants, first_ts, last_ts, project, application, account]
+    required: [id, source]
+    refs: {account: Account}
+    enums: {source: message_source}
+    formats: {first_ts: datetime, last_ts: datetime}
+    coverage: {provenance: [source], intent: null, meta: null}
+
+  Attachment:
+    desc: a file attached to a message; bytes stay in the vault
+    store: {root: msg-vault, path: "<source>/attachments.jsonl", format: jsonl, append_only: true, privacy: vault, status: planned, writer: "ingest"}
+    id_prefix: att_
+    fields: [id, message, filename, mime, sha256, kind, archived_at, account]
+    required: [id, message, sha256]
+    refs: {account: Account}
+    enums: {kind: attachment_kind}
+    formats: {sha256: sha256}
+    coverage: {provenance: [message, sha256], intent: null, meta: [kind]}
+
+  SyncCursor:
+    desc: incremental sync position per source/account
+    store: {root: msg-vault, path: cursors.json, format: json, container: cursors, append_only: false, privacy: vault, status: planned, writer: "ingest"}
+    id_prefix: cur_
+    fields: [id, source, account, last_ts, last_id, updated]
+    required: [source, account, last_ts]
+    refs: {account: Account}
+    enums: {source: message_source}
+    formats: {last_ts: datetime, updated: datetime}
+    coverage: {provenance: [source, account], intent: null, meta: null}
+
+  # ------------------------------------------------------------------ money
+  Invoice:
+    desc: a rendered invoice (Markdown deliverable); its state is the ledger folded by id
+    store: {root: project, path: "deliverables/*_invoice_*.md", format: md, append_only: false, privacy: repo, status: active, writer: "scripts/invoice.py make"}
+    id_prefix: INV-
+    id_pattern: '^INV-\d{4}-\d{3,}$'
+    fields: [id, client, project, items, currency, rate_currency, fx, subtotal, withholding, total, issued, due, status]
+    required: [id, client, currency, total, issued, status]
+    enums: {status: invoice_status}
+    aliases: {invoice_id: id, number: id}
+    formats: {issued: date, due: date}
+    coverage: {provenance: [fx], intent: event, meta: null}
+
+  LedgerEntry:
+    desc: one row of finance/ledger.csv (event issued|status); never edit, add a status row
+    store: {root: harness-data, path: finance/ledger.csv, format: csv, append_only: true, privacy: harness-data, status: active, writer: "scripts/invoice.py"}
+    id_field: invoice_id
+    id_prefix: INV-
+    id_pattern: '^INV-\d{4}-\d{3,}$'
+    unique_id: false
+    fields: [ts, event, invoice_id, client, project, currency, subtotal, withholding, total, issued, due, status, amount, "on", fx, note]
+    required: [ts, event, invoice_id, currency, status]
+    enums: {event: [issued, status], status: invoice_status}
+    formats: {ts: datetime, issued: date, due: date, "on": date}
+    coverage: {provenance: [fx, note], intent: null, meta: null}
+
+  # ------------------------------------------------------------------ runtime (not data)
+  HarnessState:
+    desc: status-line / usage-guard cache (context tokens, 5h/7d usage); per machine
+    store: {root: home, path: .claude/harness-state.json, format: json, append_only: false, privacy: local, status: active, writer: "scripts/statusline.py; read by hooks/usage_guard.py"}
+    fields: [ts, session_id, ctx_tokens, five_hour, seven_day, sessions, ctx_warn, ctx_stop, ctx_budget, cwd]
+    required: []
+    coverage: {provenance: [], intent: null, meta: null}
+
+# Relations: domain -> range, and the field that implements each. `via: null` means no field yet.
+relations:
+  - {name: part_of,       domain: [Task, Thread, Message, Document, Asset, Evaluation, ProgressItem], range: [Project, Thread, EvalRun], via: "Task.project, Thread.project, Message.thread, Evaluation in EvalRun.tasks (Document/Asset: by folder)"}
+  - {name: for_client,    domain: [Project, Invoice, LedgerEntry, StylePair, GlossaryTerm], range: [Client], via: "Project.client, Invoice.client, LedgerEntry.client, StylePair.client, GlossaryTerm.client"}
+  - {name: produced_by,   domain: [Event, Task, Asset, Evaluation, Document], range: [agent+model], via: "Event.actor+model, Task.agent+model, Asset.provenance.extracted_by, Evaluation.judge_model, Document.converter"}
+  - {name: derived_from,  domain: [WikiPage, StylePair, Lesson, Asset, Application, JobLead], range: [Document, Message, Thread], via: "WikiPage.source_id/derived_from, StylePair.derived_from, Asset.provenance.from_sha256, Application.source_thread, JobLead.source_message"}
+  - {name: evidence_for,  domain: [Proof, Event, StylePair], range: [Decision, Lesson, StyleGuide, Principle], via: "Decision.evidence, StyleGuide.evidence, Principle.evidence (ids)"}
+  - {name: proven_by,     domain: [Event, Mishap, Decision], range: [Proof], via: "Event.proof, Mishap.proof, Decision.evidence"}
+  - {name: supersedes,    domain: [StylePair, Preference, Lesson], range: [StylePair, Preference, Lesson], via: "StylePair.supersedes, Preference.supersedes, Lesson.supersedes"}
+  - {name: corrects,      domain: [Event, Correction], range: [Event], via: "Event.corrects, Correction.corrects; label events use labels_for/parent_event"}
+  - {name: prevents,      domain: [Lesson, Principle], range: [Mishap], via: "Lesson.prevents"}
+  - {name: learned_from,  domain: [Lesson], range: [Mishap, Correction, SessionNote], via: "Lesson.learned_from"}
+  - {name: handed_off_to, domain: [Event], range: [Handoff], via: "handoff Event.pointers (HANDOFF.md); no agent-to-agent field yet"}
+  - {name: evaluated_by,  domain: [Task, Event], range: [Evaluation, Event], via: "Task.verifier, verification Event.items, Evaluation.target"}
+  - {name: blocks,        domain: [Task, ProgressItem], range: [Task, ProgressItem], via: null}
+  - {name: labels,        domain: [Event], range: [Event], via: "label Event.labels_for"}
+  - {name: applies_to,    domain: [Application], range: [JobLead, Organization], via: "Application.joblead, Application.org (name, not id)"}
+  - {name: received_via,  domain: [Message, Thread, Attachment, SyncCursor, Application, JobLead], range: [Account], via: "<type>.account (Account.id, acct_...)"}
+  - {name: forwards_to,   domain: [Account], range: [Account], via: "Account.forwards_to"}

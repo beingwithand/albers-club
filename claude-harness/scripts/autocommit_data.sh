@@ -63,6 +63,9 @@ GA="$DATA/.gitattributes"
 if ! grep -qs '^\*\.jsonl merge=union' "$GA"; then
   echo '*.jsonl merge=union' >>"$GA"
 fi
+if ! grep -qs '^finance/\*\.csv merge=union' "$GA"; then
+  echo 'finance/*.csv merge=union' >>"$GA"
+fi
 # Keep local runtime files out of the repo.
 GI="$DATA/.gitignore"
 grep -qsx '.autocommit.log' "$GI" || echo '.autocommit.log' >>"$GI"
