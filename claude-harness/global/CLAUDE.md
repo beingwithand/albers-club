@@ -29,10 +29,15 @@ Why this harness exists: training-grade data, an AI-native Albers, continuous SO
 
 ## Research and ideas
 - **Analogue scan first.** Before researching or designing anything, name the closest products solving the same *underlying* problem. Cover big-tech launches from the last 6 months and adjacent fields too. Explain how they technically do it and what we can borrow. If a name is ambiguous, say which one you're assuming. For technical features, run the full `/prior-art` skill (reverse engineering via REA, open-source code, SOTA, adjacent ideas, deployability).
+- **Restate the purpose first.** Before launching research, give the request's purpose in one line. If a name is ambiguous, search all the candidates and say which one you assumed.
+- **"State of the art" means reading code.** Claims about how a tool works need its open-source code or official docs to have been read. Snippets get labeled as snippets.
+- **Safety-classifier stop:** don't work around it. Reframe the request toward the legitimate purpose, or ask the user.
 
 ## Files and storage
 - New projects use `templates/project/`. Inputs go through `/intake` into `knowledge/`; originals are archived to Drive before anything is deleted.
 - Never save research or non-project files inside an unrelated repo.
+- **Safe rewrites:** draft a rewrite into a separate file and swap it in only once it's complete, keeping the previous version as `.prev`. Never overwrite the only complete copy.
+- **Never silence a check.** Never add `.gitignore` or `.git/info/exclude` entries, or disable a hook, to quiet a commit, push or verification check. Fix the cause or report it.
 - Never put secrets in files. Use the password manager or env vars.
 
 ## Model routing

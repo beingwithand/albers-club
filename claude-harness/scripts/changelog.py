@@ -72,7 +72,8 @@ def scope_events(scope, since):
     out = []
     for f in sorted((data_dir() / "log").glob("*.jsonl")):
         try:
-            for line in f.open(encoding="utf-8"):
+            with f.open(encoding="utf-8") as fh:
+              for line in fh:
                 try:
                     ev = json.loads(line)
                 except ValueError:

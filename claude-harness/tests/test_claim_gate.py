@@ -93,6 +93,17 @@ class TestClaimGate(unittest.TestCase):
         r = subprocess.run([sys.executable, "-I", str(HOOK), "stop"], input="nope", capture_output=True, text=True)
         self.assertEqual(r.returncode, 0)
 
+    def test_named_file_ignored_is_caught(self):
+        (self.repo / "reports").mkdir()
+        (self.repo / "reports" / "r.md").write_text("x")
+        (self.repo / ".git" / "info" / "exclude").write_text("reports/\n")
+        d = json.loads(self.stop("Committed and pushed `reports/r.md`.")[1])
+        self.assertIn("git-ignored", d["reason"])
+        self.assertIn("exclude", d["reason"])
+
+    def test_named_file_in_commit_passes(self):
+        self.assertEqual(self.stop("Pushed `a.txt` to GitHub."), (0, ""))
+
 
 if __name__ == "__main__":
     unittest.main()

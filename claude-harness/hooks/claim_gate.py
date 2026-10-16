@@ -62,6 +62,37 @@ def repo_state(cwd, check_remote=True):
     return {"top": top, "branch": branch, "dirty": dirty, "problems": problems}
 
 
+PATH_RX = re.compile(r"`([\w./-]+\.[A-Za-z0-9]{1,6}|[\w.-]+/(?:[\w.-]+/?)*)`")
+
+
+def unpushed_named_paths(top, text):
+    """Paths named in the claim (in backticks) that are ignored, untracked, or not in HEAD's tree."""
+    bad = []
+    for m in PATH_RX.finditer(text or ""):
+        rel = m.group(1).rstrip("/")
+        if rel.startswith(("http", "/")) or ".." in rel:
+            continue
+        full = os.path.join(top, rel)
+        if not os.path.exists(full):
+            continue  # not a file in this repo; ignore prose that just looks like a path
+        code, _ = git(top, "check-ignore", "-q", rel)
+        if code == 0:
+            bad.append(f"{rel} is git-ignored (so it was NOT committed)")
+            continue
+        code, out = git(top, "ls-tree", "-r", "--name-only", "HEAD", "--", rel)
+        if not out.strip():
+            bad.append(f"{rel} is not in the pushed commit")
+    return bad
+
+
+def exclude_entries(top):
+    try:
+        with open(os.path.join(top, ".git", "info", "exclude"), encoding="utf-8") as f:
+            return [l.strip() for l in f if l.strip() and not l.startswith("#")]
+    except OSError:
+        return []
+
+
 def claims(text):
     if not text or NEGATED.search(text):
         return set()
@@ -110,6 +141,10 @@ def main():
     issues = list(st["problems"]) if "push" in said else []
     if "commit" in said and st["dirty"]:
         issues.append(f"{len(st['dirty'])} uncommitted/untracked path(s) in {st['top']}")
+    issues += unpushed_named_paths(st["top"], str(payload.get("last_assistant_message") or ""))
+    ex = exclude_entries(st["top"])
+    if ex:
+        issues.append(".git/info/exclude hides " + ", ".join(ex[:5]) + " — never silence a commit check with local ignores")
     if issues:
         print(json.dumps({"decision": "block", "reason":
               "Your message claims " + "/".join(sorted(said)) + " succeeded, but git disagrees: "

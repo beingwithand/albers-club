@@ -23,7 +23,7 @@ Session: https://claude.ai/code/session_01TsbW2R32y5VMMxyaYoyyZh
    - official setup for remote control and permissions
    - community best settings
    - Anthropic updates from Aug to Oct 2026
-5. Built `claude-harness/` (plugin): 12 agents, 27 skills, hooks, schema, scripts, tests, Mac bootstrap, settings and docs.
+5. Built `claude-harness/` (plugin). By the end of the session, in the working copy: 14 agents, 33 skills, about 13 hooks, 22 principles, 370+ tests, and the first real eval area (harness, 20 tasks). Plus the Mac bootstrap, settings and docs.
 
 ## Decisions (with justification)
 - **D1: Ship the harness as a Claude Code plugin in a private GitHub marketplace.** This is the officially supported route and makes reinstalling one command. Rejected: a loose dotfiles repo (no packaging), and claude.ai sync alone (doesn't cover hooks).
@@ -33,7 +33,7 @@ Session: https://claude.ai/code/session_01TsbW2R32y5VMMxyaYoyyZh
 - **D5: Use auto mode, a mandatory sandbox and deny rules, not bypass mode.** The official docs reserve bypass for containers and VMs, and deny rules on Read don't stop Bash.
 - **D6: Logs are append-only JSONL in a separate private `harness-data` repo, auto-committed hourly.** This gives durability across machines and keeps the history immutable.
 - **D7: Every record carries intent, situation and meta.** This is the user's explicit requirement, and it is the labeling signal for the improvement loop.
-- **D8: Research and harness work live on the `research/agent-autonomy` branch of albers-club** until `claude-harness` gets its own repo. Creating a repo through the GitHub app returned 403.
+- **D8: Research and harness work lived on the public `research/agent-autonomy` branch of albers-club** until `claude-harness` got its own repo (creating it through the GitHub app returned 403). **Superseded:** the user created the private `beingwithand/claude-harness`, and the harness history plus the research notes were copied there (not moved; the public copies are still to be deleted with the user's confirmation).
 - **D9: The synopsis skill writes 3 drafts with different strategies, and reviewer feedback becomes numbered rules that can be checked.** This mirrors the user's existing Toin workflow.
 
 - **D10: Fan-out policy calibration (user-confirmed).**
@@ -68,10 +68,10 @@ Session: https://claude.ai/code/session_01TsbW2R32y5VMMxyaYoyyZh
   - Prevention: the `hooks/claim_gate.py` Stop and PostToolUse gates (they check the ahead count, the dirty tree, and `ls-remote` against HEAD, in EN and KO), plus a global invariant 4 addendum. In this session the remote was verified by `ls-remote` to equal HEAD (c72a74d).
 
 ## Principles distilled
-See `claude-harness/global/PRINCIPLES.md` (16 principles, v0).
+See `claude-harness/global/PRINCIPLES.md` (22 principles by the end of the session).
 
 ## Open items (user)
-1. Create the empty private repo `claude-harness` and give Claude access, so the harness can move there.
+1. ~~Create the private repo `claude-harness`~~ **Done** by the user. The final sync and deleting the public branches are still pending.
 2. Rotate passwords and revoke tokens from the old laptop (`claude-harness/docs/SECURITY.md`).
 3. Send the YouTube video titles or transcripts.
 4. ~~Confirm the synopsis length unit~~ **Resolved:** characters including spaces (the user confirmed this on 2026-10-16; the synopsis skill is updated).
