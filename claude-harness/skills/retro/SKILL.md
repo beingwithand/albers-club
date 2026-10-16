@@ -27,6 +27,7 @@ description: End-of-session retrospective. Summarize goal, dead ends, resolution
    `python3 -I ${CLAUDE_PLUGIN_ROOT}/scripts/patterns.py mine` first so you don't duplicate a known pattern;
    add evidence to the known pattern instead. After approval, append them with
    `patterns.py record --file <file>`.
+4a. **Changelog.** Run `python3 -I ${CLAUDE_PLUGIN_ROOT}/scripts/changelog.py draft --scope <project>`, edit the result into clear entries (Added, Changed, Fixed, Removed, Decisions, Lessons), and after the user approves run `changelog.py update --scope <project> --file <entries>`. Then `changelog.py check` must pass.
 4. Show the proposals as a numbered list. Apply **only** the ones the user approves, and commit each with its justification in the message.
 5. Mark applied mishaps `approved` and rejected ones `rejected`, with the reason.
 6. Append a `session_note` event to the log.
