@@ -19,6 +19,16 @@ types:
   StylePair:   {fields: [id, ts, draft, final, language, direction, register, domain, audience, client, scope, reasoning, labels, edited, source, supersedes]}
   Application: {fields: [id, org, role, applied_on, channel, status, next_step]}
   Evaluation:  {fields: [id, target, rubric, scores, judge, judge_model]}
+  Invoice:     {fields: [id, client, project, items, currency, subtotal, withholding, total, issued, due, status]}
+
+  # Communications and job search (added 2026-10-16)
+  Message:      {fields: [id, source, thread, sender, recipients, ts, text_ref, language, attachments, labels]}   # source: gmail|viber|lark|slack|...
+  Thread:       {fields: [id, source, subject, participants, first_ts, last_ts, project, application]}
+  Contact:      {fields: [id, name, handles, organization, role, relationship, notes]}
+  Organization: {fields: [id, name, kind, website, platforms]}   # kind: client|employer|agency|platform
+  Platform:     {fields: [id, name, url, kind, account_status, first_seen, last_seen, evidence]}   # kind: job-board|freelance-marketplace|annotation|messaging
+  JobLead:      {fields: [id, source, platform, org, role, url, posted, seen, deadline, fit_score, status, dedupe_key]}
+  Attachment:   {fields: [id, message, filename, mime, sha256, kind, archived_at]}   # kind: resume|cover-letter|source-doc|deliverable|invoice|other
 
 relations:
   - part_of

@@ -15,10 +15,18 @@ sha256 each source; record name, format, dimensions/duration, color profile, and
 
 ## 2. Extract
 Pick the tool by format and record `tool@version`:
-- PSD/PSB: psd-tools (layers, groups, masks, text layers)
+- PSD/PSB: psd-tools via the layer script (layers, groups, text layers, blend/opacity/bbox as tags):
+  ```
+  python3 -I ${CLAUDE_PLUGIN_ROOT}/scripts/psd_layers.py <file.psd> --manifest assets/assets.yaml --export [--owner X --license Y]
+  ```
+  Run it without `--manifest` first to preview the YAML. Without psd-tools it exits 2 and says how to install (`pip install psd-tools`; `--export` also needs Pillow). Check masks and adjustment layers by hand; they're listed, not exported.
 - SVG/AI/PDF: vector paths per group, embedded images, text runs (PyMuPDF, Inkscape CLI)
-- Figma: the Figma connector (components, styles, variables)
-- Raster: palette extraction; segmentation only if asked
+- Figma: the official Figma plugin (`claude plugin install figma@claude-plugins-official`). It brings the Figma MCP (components, styles, variables, asset export) and its skills. Load its `figma-use` / `figma-design-to-code` skill before calling its tools. Read-only for decomposition: don't edit the Figma file. Record `figma-mcp@<version>` and the file key and node id in `source`.
+- Raster: palette extraction; segmentation only if asked:
+  ```
+  python3 -I ${CLAUDE_PLUGIN_ROOT}/scripts/palette.py <image> -k 6 [--method kmeans|mediancut] --manifest assets/assets.yaml
+  ```
+  It prints hex, share, a role (background, text, accent, primary, secondary, support) and WCAG contrast against the background, and writes `assets/palette/<id>.json`. Roles are a heuristic first read; say so. It needs Pillow to read the image (exits 2 with an install hint otherwise); the clustering is pure Python.
 - Video/audio: ffmpeg (keyframes, tracks, stems if available)
 - Fonts: names and licenses only; never redistribute font files
 
