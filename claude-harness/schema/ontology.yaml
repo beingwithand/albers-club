@@ -99,7 +99,7 @@ types:
     desc: one line of the append-only work log (schema/event.md); most other records are also announced here
     store: {root: harness-data, path: log/YYYY-MM.jsonl, format: jsonl, append_only: true, privacy: harness-data, status: active, writer: "hooks/log_event.py, hooks/_common.py, scripts/label_events.py, skills"}
     id_prefix: evt_
-    id_pattern: '^evt_\d{8}_\d{4,6}_[0-9a-f]{4}$'
+    id_pattern: '^evt_\d{8}_\d{4,6}_[0-9a-f]{4}(?:[0-9a-f]{4})?$'
     unique_id: true
     fields: [id, ts, actor, model, agent, scope, scope_hint, session_id, transcript_path, type, intent, situation, content, meta, justification, proof, labels, parent_event, pointers, outcome, cost_usd, corrects, end_reason, patterns, pattern_status, correction_candidate, correction_confidence, correction_patterns, labels_for, is_correction, source_batch, verdict, items, cold_read, trigger, custom_instructions, claim, summary, result, project_dir, cwd, fanout_tier, fanout_n, est_tokens, fanout_pattern, fanout_uncovered, usage_level]
     required: [id, ts, type, actor]
@@ -395,7 +395,7 @@ types:
     desc: draft -> final pair the user edited; few-shot references (scripts/style_pairs.py)
     store: {root: harness-data, path: style/pairs.jsonl, format: jsonl, append_only: true, privacy: harness-data, status: active, writer: "scripts/style_pairs.py"}
     id_prefix: sp_
-    id_pattern: '^sp_\d{8}_\d{6}_[0-9a-f]{4}$'
+    id_pattern: '^sp_\d{8}_\d{6}_[0-9a-f]{4}(?:[0-9a-f]{4})?$'
     unique_id: true
     fields: [id, ts, draft, final, language, direction, register, domain, audience, client, scope, reasoning, labels, edited, source, origin, supersedes, derived_from]
     required: [id, ts, draft, final, language, direction, register]

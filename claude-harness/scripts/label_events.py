@@ -317,7 +317,7 @@ def apply(args):
             continue
         seen.add(target)
         ev = {
-            "id": f"evt_{now:%Y%m%d_%H%M%S}_{uuid.uuid4().hex[:4]}",
+            "id": f"evt_{now:%Y%m%d_%H%M%S}_{uuid.uuid4().hex[:8]}",
             "ts": now.isoformat(),
             "actor": "agent:librarian",
             "model": args.model,

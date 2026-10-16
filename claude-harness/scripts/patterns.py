@@ -1213,7 +1213,7 @@ def record(args):
         status = r.get("status")
         kind = r.get("kind") or r.get("signal")
         scope = r.get("scope") if isinstance(r.get("scope"), str) else None
-        ev = {"id": f"evt_{now:%Y%m%d_%H%M%S}_{uuid.uuid4().hex[:4]}", "ts": now.isoformat(), "actor": args.actor,
+        ev = {"id": f"evt_{now:%Y%m%d_%H%M%S}_{uuid.uuid4().hex[:8]}", "ts": now.isoformat(), "actor": args.actor,
               "type": event_type_for(status), "patterns": [r["id"]] + list(r.get("encodes") or []),
               "pattern_status": status, "scope": scope or "global",
               "intent": args.intent, "situation": args.situation or f"pattern-review recorded {r['id']} as {status}",

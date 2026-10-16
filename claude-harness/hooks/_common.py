@@ -155,7 +155,7 @@ def append_event(kind, payload, env=None, **fields):
     log_dir = data_dir(env) / "log"
     log_dir.mkdir(parents=True, exist_ok=True)
     ev = {
-        "id": f"evt_{now:%Y%m%d_%H%M%S}_{uuid.uuid4().hex[:4]}",
+        "id": f"evt_{now:%Y%m%d_%H%M%S}_{uuid.uuid4().hex[:8]}",
         "ts": now.isoformat(),
         "actor": "harness",
         "type": kind,
@@ -167,9 +167,25 @@ def append_event(kind, payload, env=None, **fields):
         "meta": None,
     }
     ev.update(fields)
-    with open(log_dir / f"{now:%Y-%m}.jsonl", "a", encoding="utf-8") as f:
-        f.write(json.dumps(ev, ensure_ascii=False) + "\n")
+    locked_append(log_dir / f"{now:%Y-%m}.jsonl", json.dumps(ev, ensure_ascii=False) + "\n")
     return ev
+
+
+def locked_append(path, line):
+    """Append one line atomically w.r.t. other harness writers (parallel subagents/hooks)."""
+    try:
+        import fcntl
+    except ImportError:  # non-POSIX: best effort
+        fcntl = None
+    with open(path, "a", encoding="utf-8") as f:
+        if fcntl:
+            fcntl.flock(f.fileno(), fcntl.LOCK_EX)
+        try:
+            f.write(line)
+            f.flush()
+        finally:
+            if fcntl:
+                fcntl.flock(f.fileno(), fcntl.LOCK_UN)
 
 
 def now():

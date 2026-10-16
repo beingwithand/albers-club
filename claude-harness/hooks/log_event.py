@@ -118,7 +118,7 @@ def main():
     cwd = payload.get("cwd", os.getcwd())
     content = payload.get("prompt") if kind == "prompt" else None
     event = {
-        "id": f"evt_{now:%Y%m%d_%H%M%S}_{uuid.uuid4().hex[:4]}",
+        "id": f"evt_{now:%Y%m%d_%H%M%S}_{uuid.uuid4().hex[:8]}",
         "ts": now.isoformat(),
         "actor": "me" if kind == "prompt" else "harness",
         "type": kind,
@@ -138,8 +138,15 @@ def main():
         if names:
             event["correction_patterns"] = names
 
+    line = json.dumps(event, ensure_ascii=False) + "\n"
     with open(log_dir / f"{now:%Y-%m}.jsonl", "a", encoding="utf-8") as f:
-        f.write(json.dumps(event, ensure_ascii=False) + "\n")
+        try:
+            import fcntl
+            fcntl.flock(f.fileno(), fcntl.LOCK_EX)
+        except Exception:
+            pass
+        f.write(line)
+        f.flush()
 
 
 if __name__ == "__main__":

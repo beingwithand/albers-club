@@ -113,7 +113,7 @@ def validate(rec, registers=None):
 def add(rec, path=None, registers=None, now=None):
     out = validate(rec, registers)
     now = now or datetime.datetime.now(datetime.timezone.utc)
-    stored = {"id": f"sp_{now:%Y%m%d_%H%M%S}_{uuid.uuid4().hex[:4]}", "ts": now.isoformat()}
+    stored = {"id": f"sp_{now:%Y%m%d_%H%M%S}_{uuid.uuid4().hex[:8]}", "ts": now.isoformat()}
     stored.update(out)
     p = data_file(path)
     p.parent.mkdir(parents=True, exist_ok=True)
