@@ -179,12 +179,19 @@
   "env": {
     "HARNESS_DATA": "__HOME__/harness-data",
     "CLAUDE_CODE_SUBAGENT_MODEL": "sonnet",
-    "CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH": "2"
+    "CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH": "2",
+    "HARNESS_CTX_BUDGET": "250000"
   },
   "enableAllProjectMcpServers": false,
   "cleanupPeriodDays": 365,
   "autoMemoryEnabled": true,
   "effortLevel": "high",
+  "autoCompactWindow": 250000,
+  "statusLine": {
+    "type": "command",
+    "command": "python3 -I __HOME__/code/claude-harness/scripts/statusline.py",
+    "refreshInterval": 30
+  },
   "hooks": {
     "Notification": [
       {

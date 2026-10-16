@@ -1,0 +1,90 @@
+# Self-eval sheet: session handoff (HANDOFF.md). See BLUEPRINT.md §4.9, skills/handoff/SKILL.md.
+# Producing agents may NOT edit this file (PreToolUse deny rule on rubrics/**).
+rubric: handoff
+version: 0.1.0
+applies_to: "Any HANDOFF.md written by the handoff or compact-prep skill (session to session, machine to machine, agent to agent)"
+producer_agent: main session        # whichever model wrote the note
+judge:
+  agent: verifier
+  model_must_differ_from_producer: true   # the cold-read reader is haiku; the judge is a different, stronger model
+cold_reader:
+  model: haiku
+  input: "HANDOFF.md only (no conversation, no other files)"
+  questions: [goal, next_action, verify_first, decisions_and_why, dead_ends, proof_location]
+human_sample_rate: 0.1              # you score 1 in 10 handoffs, ideally the morning after, when you are the cold reader
+
+scoring:
+  scale: [1, 2, 3, 4, 5]            # 2 and 4 are "between the anchors"
+  pass_if: "weighted_mean >= 4.0 AND resumability >= 4 AND no criterion < 3 AND every blocking automatic check passes"
+  needs_human_if: "cold-read still failing after 2 revision rounds, or git state could not be read"
+
+criteria:
+  - id: resumability
+    description: "A cold reader with only HANDOFF.md answers the 6 cold-read questions correctly."
+    weight: 0.35
+    dimension: correctness
+    anchors:
+      1: "Cold reader gets 3 or fewer of 6 right; next action is vague ('continue the refactor')."
+      3: "5 of 6 right after one revision; one answer needed inference beyond the note."
+      5: "6 of 6 right on the first try; next action is an exact command with an expected result."
+  - id: completeness
+    description: "All template sections present and filled: git_commit/branch, goal+intent, state, decisions, dead ends, open questions, next 3 actions, verify-first, risks, pointers."
+    weight: 0.20
+    dimension: correctness
+    anchors:
+      1: "Missing goal or next actions; decisions listed without reasons; no dead ends though some occurred."
+      3: "All sections present; one is thin (e.g. a decision without its rejected alternative)."
+      5: "Every section filled; every decision has why + rejected alternative + proof; every dead end has its failure reason."
+  - id: accuracy
+    description: "Matches reality: git_commit/branch equal git at write time, uncommitted list matches `git status --porcelain`, DONE items match PROGRESS.md and have passing evidence."
+    weight: 0.20
+    dimension: correctness
+    anchors:
+      1: "Wrong commit or branch; claims DONE for work that fails its test; contradicts PROGRESS.md."
+      3: "Git fields correct; one stale or unproven status line."
+      5: "Every factual claim checks out against git, PROGRESS.md and the cited proof."
+  - id: proof_pointers
+    description: "Each DONE item and decision points to evidence (test command+result, file:line, sha, verification event id); unproven claims are labeled 'unverified'."
+    weight: 0.15
+    dimension: correctness
+    anchors:
+      1: "No pointers; 'tests pass' with no command or output."
+      3: "Most items have pointers; one or two are vague ('see logs')."
+      5: "Every claim has a resolvable pointer; nothing unproven is presented as done."
+  - id: concision
+    description: "Carries only what can't be recovered from files; links instead of copying; no conversation references."
+    weight: 0.10
+    dimension: style_match
+    anchors:
+      1: "Over 300 lines, pasted logs/diffs, or relies on 'as discussed above'."
+      3: "Under 150 lines; some copied content that should be a link."
+      5: "Under 150 lines, every line load-bearing, zero references to the chat."
+
+automatic_checks:
+  - id: commit_matches_head
+    description: "The git_commit line equals `git rev-parse --short HEAD` at write time."
+    command: "grep -oE 'git_commit:[[:space:]]*`?[0-9a-f]{7,40}' HANDOFF.md | grep -qF \"$(git rev-parse --short HEAD)\""
+    blocking: true
+  - id: sections_present
+    description: "All 9 numbered template headings are present."
+    command: "for h in 'Goal and intent' 'State' 'Decisions' 'Dead ends' 'Open questions' 'Next 3 actions' 'Verify first' 'Risks' 'Pointers'; do grep -q \"^## [0-9]*\\. *$h\" HANDOFF.md || echo \"missing: $h\"; done   # expect no output"
+    blocking: true
+  - id: cold_read_logged
+    description: "The handoff event in $HARNESS_DATA/log records cold_read.score and rounds."
+    blocking: true
+  - id: length
+    description: "HANDOFF.md is at most ~150 lines."
+    command: "test $(wc -l < HANDOFF.md) -le 160"
+    blocking: false
+  - id: no_chat_references
+    description: "No phrases that only make sense inside the conversation."
+    command: "grep -niE 'as discussed|as mentioned|above|earlier approach|option [A-C]\\b|that file' HANDOFF.md   # expect no output"
+    blocking: false
+
+dimensions:
+  correctness: {from_criteria: [resumability, completeness, accuracy, proof_pointers], aggregate: weighted_mean}
+  style_match: {from_criteria: [concision], aggregate: weighted_mean}
+  correction_rate: {source: "corrections in the first 10 prompts of the resumed session that contradict or fill gaps in the handoff", better: lower}
+  cost: {source: "sum(cost_usd) of cold-read subagent runs for this handoff", better: lower}
+  time: {source: "minutes from the resumed session's first prompt to its first completed next action", better: lower}
+  outcome: {source: "resumed session completed next action 1 without re-asking the user (1) / had to ask (0)", better: higher}

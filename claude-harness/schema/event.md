@@ -9,7 +9,7 @@ Append-only: never edit a past event. Correct it with a new event that has `corr
   "actor": "me | agent:<name>",
   "model": "haiku|sonnet|opus|fable|null",
   "scope": "global | <area>/<project>",
-  "type": "prompt|session_end|decision|correction|mishap|handoff|session_note|verification|intake|task|label",
+  "type": "prompt|session_end|decision|correction|mishap|handoff|session_note|verification|intake|task|label|precompact|postcompact",
 
   "intent": "why this was done or asked: the goal behind it",
   "situation": "the context at the time (what was happening, constraints, deadline)",
@@ -38,3 +38,5 @@ Append-only: never edit a past event. Correct it with a new event that has `corr
 - **`label` events** (written by `scripts/label_events.py --apply`) carry `labels_for: <event id>` plus `intent`, `situation`, `meta`, `labels` and `is_correction`. Past lines are never edited.
 - **`verification` events** carry `verdict: pass|fail|needs-human` and per-criterion results with proof pointers.
 - **Corrections** are either explicit `correction` events or `label` events with `is_correction: true`.
+- **`handoff` events** (skill `handoff`) carry `pointers` to HANDOFF.md and `cold_read: {score: "6/6", rounds: N, model: "haiku"}`.
+- **`precompact` / `postcompact` events** (hook `precompact_snapshot.py`) carry `trigger`, `custom_instructions` (pre) or the truncated compact summary in `content` (post), and `pointers` to `log/handoffs/auto_<ts>.md`.

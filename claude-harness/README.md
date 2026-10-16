@@ -21,8 +21,8 @@ git clone https://github.com/beingwithand/claude-harness ~/code/claude-harness
 |---|---|
 | `global/CLAUDE.md` | Global rules, symlinked to `~/.claude/CLAUDE.md`. Hand-written, kept under 200 lines |
 | `agents/` | Reusable subagents, each with its own `skills:`, `model:` and `memory:` |
-| `skills/` | Small, curated skills: handoff, intake, web-research, verify, retro, why, mishap |
-| `hooks/` | Automatic logging of prompts and session ends |
+| `skills/` | Small, curated skills: handoff (with cold-read test), compact-prep, intake, web-research, verify, retro, why, mishap |
+| `hooks/` | Automatic logging of prompts and session ends; verification gate; usage guard (context/5h/7d advice from the status-line state); pre-compaction snapshot and post-compaction/clear re-injection |
 | `schema/` | Ontology plus the event/decision/mishap record formats |
 | `templates/project/` | Standard skeleton for every new project |
 | `rubrics/` | Self-eval sheets for each task type |

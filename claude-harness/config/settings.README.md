@@ -89,6 +89,7 @@ Path syntax: `~/` is your home folder, `//abs/path` is an absolute path, `/x` is
 
 ### `env`
 These are set for every Claude Code session.
+- **`HARNESS_CTX_BUDGET`:** your working context budget for the status line and usage guard (see `statusLine`).
 - **`HARNESS_DATA`:** where the logging hooks write (`~/harness-data`). `__HOME__` is filled in at install, because settings values are not shell-expanded.
 - **`CLAUDE_CODE_SUBAGENT_MODEL: "sonnet"`:** subagents with no `model:` use Sonnet instead of the expensive main model. Per BLUEPRINT §0.5, each agent file should still set `model:`.
 - **`CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH: "2"`:** limits how deep subagents can nest, to avoid runaway fan-out and cost. The default is 3 levels.
@@ -111,6 +112,32 @@ Turns on auto memory (`~/.claude/projects/<project>/memory/MEMORY.md`). Review i
 Accepts `low`, `medium`, `high` or `xhigh` (not `max`). Note that `/effort` now saves a per-model value under `modelSettings`, which may override this.
 
 `model` is left unset on purpose. On a Max plan the default is Opus 5.5. Don't switch models mid-session, because it throws away the prompt cache.
+
+### `autoCompactWindow: 250000`
+Auto-compaction triggers at 250K tokens instead of near the model's full window. Opus/Sonnet 5.5 have 1M-token windows by default, so without this key compaction happens around ~967K, long after quality and cost have degraded. 250K matches the working budget (you compact or hand off at 200–250K).
+- **Env alternative:** `CLAUDE_CODE_AUTO_COMPACT_WINDOW` (integer, 100000–1000000).
+- **Lower the trigger further:** `CLAUDE_AUTOCOMPACT_PCT_OVERRIDE` (1–100) compacts at that percentage of the window.
+- **`/autocompact`** inside Claude Code shows or changes this interactively.
+- **`idleCompaction`** (default `true`): a conversation over 200K that sits idle ~54 min gets compacted in the background, so a stale long session is cheap to resume. Set `"idleCompaction": false` if you always hand off instead.
+- **Prefer handoff + `/clear`.** The harness hooks make compaction safe anyway: `PreCompact` writes `log/handoffs/auto_<ts>.md` (git state, PROGRESS tail, recent decisions; it never blocks, because blocking auto-compaction can fail the request), `PostCompact` appends the compact summary to it, and `SessionStart` (matcher `compact|clear`) re-injects HANDOFF.md, PROGRESS "Next" and the rules-file paths. `global/CLAUDE.md` carries a `# Compact instructions` section, and the `compact-prep` skill writes a precise `/compact <instructions>` string.
+
+### `statusLine`
+`scripts/statusline.py` prints one line: model, context tokens and % of the working budget (⚠ at 160K, ⛔ at 200K), 5-hour and 7-day usage with time to reset, prompt cache warm/cold, session cost. Example: `Opus 5.5 │ ctx 172k 69%⚠ │ 5h 41% ↻2h13m │ 7d 78% ↻3d11h │ cache warm 4m │ $3.12`.
+- **Path:** `__HOME__/code/claude-harness/...` assumes the repo lives at `~/code/claude-harness` (where `mac/bootstrap.sh` puts it). Plugins can't set `statusLine`, so this key points at the repo directly. Change the path if your clone lives elsewhere. Because the merge keeps existing values, an existing `statusLine` of yours wins; remove it first if you want this one.
+- **`refreshInterval: 30`** (seconds, minimum 1) keeps the reset countdowns current while the session is idle. Claude Code also re-runs it on events, when a rate-limit window resets and when a warm cache expires.
+- **Why it writes a file:** no hook input carries rate limits or context size, so the script persists `${HARNESS_STATE:-~/.claude/harness-state.json}` (atomic tmp+rename) and `hooks/usage_guard.py` (UserPromptSubmit) reads it to tell Claude when to wrap up: a heads-up once at 160K, "finish the step, `/handoff`, then `/clear`" at 200K, and "use cheaper models, no fan-out" when 5h or 7d reaches 90%. State older than 10 minutes or from another session is ignored for context; usage is account-wide, so any fresh session's numbers count.
+- **Rate-limit fields** only exist for Pro/Max subscribers and appear after the first API response; each window may be absent. The line simply omits what's missing.
+- **Tuning (env):** `HARNESS_CTX_BUDGET` (default 250000, set in `env` above), `HARNESS_CTX_WARN` (160000), `HARNESS_CTX_STOP` (200000), `HARNESS_STATE`, `HARNESS_USAGE_GUARD=0` (turn the guard off), `NO_COLOR`.
+- **`/usage`** (and `/cost`) inside Claude Code show the same limits on demand.
+
+### Phone alerts for usage (ntfy)
+There is **no GitHub-side or claude.ai-side usage alert** you can subscribe to, so the status line pushes to your phone itself:
+- Set `"HARNESS_NTFY_TOPIC": "<30+ random chars>"` in `env` and subscribe to that topic in the ntfy app. Optional `HARNESS_NTFY_SERVER` (default `https://ntfy.sh`).
+- It pushes when the 7-day window crosses **75%** and **90%**, and when the 5-hour window crosses **90%**, at most once per threshold per window (recorded in the state file under `ntfy_sent`). Sending happens in a detached child with a 2 s timeout, so the status line never stalls.
+- Anyone who knows the topic can read it, and messages contain only percentages and reset times.
+
+### `autoContinueAtUsageLimit` (not set)
+When a usage limit is hit mid-task, this setting lets Claude Code resume automatically once the window resets. It's left **off** on purpose: a long autonomous run that silently restarts after a reset can burn the next window too. Turn it on (`"autoContinueAtUsageLimit": true`) for unattended overnight jobs whose plan you trust (**verify** the key in the settings reference before relying on it).
 
 ### `hooks.Notification`
 Shows a macOS notification when Claude needs you.
