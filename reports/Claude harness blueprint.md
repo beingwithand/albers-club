@@ -1,7 +1,7 @@
 # Claude harness blueprint
 
 Working spec for a personal, self-improving Claude setup that survives losing any single machine.
-Status: draft v0.2 (2026-10-16). Source: conversation requirements. Everything here is to be refined, then built into a private `claude-harness` repo.
+Status: draft v0.3 (2026-10-16). Source: conversation requirements. Everything here is to be refined, then built into a private `claude-harness` repo.
 
 ## 0. Non-negotiables
 
@@ -10,6 +10,93 @@ Status: draft v0.2 (2026-10-16). Source: conversation requirements. Everything h
 3. **Every task ends in verification.** Nothing is marked done until a verifier (a script, a model, or a human) has checked it against a stated standard.
 4. **Rules change only with your approval.** The harness proposes changes to itself, and you approve them like a PR.
 5. **New laptop setup takes about 20 minutes:** install Claude Code, run `git clone`, run `./install.sh`, log in.
+
+## 0.5 State-of-the-art adjustments (v0.3)
+
+These come from the research notes in `research_notes/Claude harness/`. Where the rest of this blueprint conflicts with them, these win.
+
+**Packaging**
+- Ship the harness as a **Claude Code plugin** in a private GitHub marketplace. On a new machine:
+  1. Run `gh auth login`.
+  2. Run `claude plugin marketplace add beingwithand/claude-harness`.
+  3. Run `claude plugin install harness@claude-harness --scope user`.
+- Hooks go in the plugin's `hooks/hooks.json`. Plugin agents ignore any hooks set in their own frontmatter.
+
+**Agents and skills**
+- Each agent file declares its `skills:` (they load fully at startup), `model:`, `effort:`, `memory: project`, and the tools it may use.
+- Keep skills **few, focused and hand-curated**. Benchmarks show curated skills help a lot, while self-generated skills average slightly negative.
+- New skills are drafted by agents but adopted only after review.
+
+**Keep the memory files small**
+- Each `CLAUDE.md` stays under 200 lines, written by hand, containing only what Claude can't infer. Research found that long or LLM-generated context files lower success and raise cost.
+- Rules that apply to one area go in `.claude/rules/` with `paths:` filters.
+- Procedures go in skills.
+- Anything that must always happen goes in a hook.
+
+**Verification**
+- Use escalating gates:
+  1. A self-check written into the prompt.
+  2. A `Stop` hook that blocks until checks pass.
+  3. An independent, skeptical verifier.
+- The verifier should use a different model where possible, be calibrated with a few examples, and check against criteria agreed before the work started. Self-evaluation "reliably skews positive."
+- **Protect against reward hacking:**
+  - Producing agents cannot edit tests, rubrics or eval sets (enforced by `PreToolUse` deny rules).
+  - Verifiers check correctness and the stated requirements only, not "find anything", which leads to over-engineering.
+
+**Long tasks**
+- `PROGRESS.md` plus a `tasks.json` in which agents may change only the `passes` field. JSON is less likely to be rewritten.
+- Git commits serve as checkpoints, one verified unit of work per session.
+- Write `SPEC.md` first, then run the work in a fresh session.
+
+**The improvement loop (the RL part)**
+1. Log sessions, mishaps and corrections.
+2. Keep an **eval set of about 20 real tasks for each area**, with automatic checks plus a judge running on a different model.
+3. Propose edits to rules and skills as **small itemized changes** (ACE-style), never full rewrites.
+4. **Merge an edit only if the eval set does not get worse** (SkillOpt/GEPA-style). This guards against overfitting: one public example went from 90% to 95% on the training tasks while held-out results dropped from 95% to 85%.
+5. You review the change, and it is committed to git.
+6. Rules that haven't been used in N weeks are expired.
+
+Score along several dimensions: correctness, how often you correct the work, cost, time, style match, and real outcomes.
+
+Methods by maturity:
+- **Mature:** DSPy/GEPA prompt optimization, best-of-N with verifiers, and rubric judges.
+- **Early-stage (pilot carefully):** ACE, ReasoningBank (learning from failures) and learning from your edits.
+- **Fine-tuning open models** with GRPO (OpenPipe ART, TRL) only for narrow, high-volume tasks. Not needed at the start.
+
+**Knowledge and intake (the "LLM wiki" pattern)**
+- Layout:
+  - `knowledge/raw/` holds the untouched sources.
+  - `knowledge/wiki/` holds pages the agent writes, each one cited.
+  - `knowledge/index.md` is the catalog agents read first.
+  - `knowledge/log.md` records each ingest.
+  - `manifest.json` maps each source to its sha256 hash, its archive location, the converter and its version.
+- Each wiki page's frontmatter records the source ID, the page anchors and the hash.
+- A lint pass checks that every citation resolves.
+- **Delete originals only after** the extraction is verified and archived.
+- Converters to evaluate: markitdown, Docling, MinerU, Marker. Cleaning the Markdown matters more than which retriever is used.
+- Add vector search (via MCP) only for large or fuzzy collections, and a knowledge graph (LightRAG) only for questions that chain across many entities.
+- **Back-catalog import:** convert everything in bulk, cluster it by topic, draft candidate rules and skills, then curate them by hand.
+
+**Model routing**
+- Haiku for logging, labeling and extraction workers.
+- Sonnet for most work.
+- Opus or Fable to lead orchestration and make hard calls. Anthropic's best research setup was an Opus lead with Sonnet workers.
+- Set a `model:` in every agent file. A subagent with no model set inherits the expensive one.
+- Don't switch the main model mid-session: it throws away the prompt cache.
+
+**Security**
+- Treat skills, hooks and `.claude/` files as **executable code**: install nothing you haven't read, and scan third-party skills (e.g. NVIDIA SkillSpector). One audit found 36.8% of public skills flawed.
+- Avoid mega-catalogs and capture-everything memory plugins: they cause context bloat and risk memory poisoning.
+
+**Borrow ideas from these:**
+- anthropics/skills
+- obra/superpowers (plan, then one subagent per task with review)
+- planning-with-files
+- github/spec-kit
+- Anthropic's long-running harness quickstart
+- ECC, but only its "instincts" scoring and scanner ideas, not the whole catalog
+
+Star counts in 2026 are inflated, so treat them as a measure of attention, not quality.
 
 ## 1. Repo layout (`claude-harness`)
 
