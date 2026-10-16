@@ -63,6 +63,10 @@ Session: https://claude.ai/code/session_01TsbW2R32y5VMMxyaYoyyZh
   - Fix: use `discover -s tests -t .`.
   - Prevention: documented in `docs/INTAKE.md` and the test files.
 
+- **M4: A false "pushed to Git" claim was made in another terminal** (reported by the user).
+  - Root cause: a success claim was made without checking the remote.
+  - Prevention: the `hooks/claim_gate.py` Stop and PostToolUse gates (they check the ahead count, the dirty tree, and `ls-remote` against HEAD, in EN and KO), plus a global invariant 4 addendum. In this session the remote was verified by `ls-remote` to equal HEAD (c72a74d).
+
 ## Principles distilled
 See `claude-harness/global/PRINCIPLES.md` (16 principles, v0).
 
