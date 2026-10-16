@@ -39,7 +39,7 @@ registers: [formal-email, office, friendly, chat, client-deliverable, annotation
 scope_grammar: '^(global|task:[a-z0-9-]+|<area>(/[^/\s]+)?)$'
 
 enums:
-  event_type: [prompt, session_end, decision, correction, mishap, handoff, session_note, verification, intake, task, label, precompact, postcompact, drill, pattern_proposed, pattern_promoted, pattern_retired, unknown]
+  event_type: [prompt, session_end, decision, correction, mishap, handoff, session_note, verification, intake, task, label, precompact, postcompact, drill, pattern_proposed, pattern_promoted, pattern_retired, harvest_run, voice_rule_proposed, unknown]
   actor_kind: [me, harness, agent]            # actor = me | harness | agent:<name>
   outcome: [pending, worked, failed, reverted]
   fanout_tier: ['0', '1', '2', '3', V, S]   # docs/FANOUT.md
@@ -70,6 +70,9 @@ enums:
   project_status: [active, paused, pending, completed, cancelled, archived]
   eval_split: [train, holdout]
   eval_difficulty: [routine, hard, known-failure]
+  # Eval areas are task types (evals/<area>/), not life areas; scripts/harness_index.py checks folders against this list.
+  eval_area: [translation, synopsis, annotation, job-search, email-scan, email-draft, art, code, research, intake, invoice, browser, harness]
+  rubric_status: [active, draft]
   # Multi-layer pattern system (docs/PATTERNS.md, scripts/patterns.py). The ladder:
   #   L0 observation (Event) -> L1 episode (Event + its label) -> L2 pattern (Pattern) -> L3 encoding (Encoding)
   #   -> L4 principle (Principle, global/PRINCIPLES.md) -> L5 meta-pattern (MetaPattern, about the system itself).
@@ -87,6 +90,18 @@ enums:
   meta_signal: [reoccurrence-after-encoding, encoding-overridden, encoding-unused, correction-hotspot, preference-drift, blind-spot, principle-conflict, kind-concentration, unclassified-share, label-gap]
   meta_target: [ontology, mining, thresholds, cadence, encoding, principle, pattern]
   gate_verdict: [accept, reject, ungated, pending]
+  # Email voice (skills/voice-harvest/SKILL.md, scripts/voice.py). Purposes are email speech acts (cf. intent_recognition §3.1).
+  voice_audience_kind: [client, recruiter, employer, platform-support, colleague, friend, family, other]
+  voice_relationship: [new, ongoing, close, formal-authority, unknown]
+  voice_purpose: [apply, follow-up, inquire, decline, accept, negotiate, thank, apologize, inform, request, schedule, complain, chat, unknown]
+  voice_outcome: [replied, positive, negative, no-reply, unknown]
+  # user = the user wrote it (training-eligible); mixed = the sent text started as a Claude draft (linked StylePair)
+  authorship: [user, mixed]
+  voice_rule_status: [candidate, proposed, approved, retired]
+  voice_origin: [harvest, backfill, manual]
+  harvest_mode: [incremental, backfill, import, outcomes]
+  ko_speech_level: [hasipsio, haeyo, banmal, plain, nominal, mixed, none]
+  length_bucket: [xs, s, m, l]
 
 renamed:          # BLUEPRINT §5 names -> v0.2 names
   Person: Contact
@@ -117,6 +132,8 @@ types:
       pattern_proposed: [patterns]
       pattern_promoted: [patterns]
       pattern_retired: [patterns]
+      harvest_run: [items, pointers]
+      voice_rule_proposed: [items]
     coverage: {provenance: [actor, model, session_id, transcript_path, source_batch, parent_event], intent: intent, meta: meta}
 
   Proof:       # embedded in Event.proof / Mishap.proof, not stored on its own
@@ -262,7 +279,7 @@ types:
   # ------------------------------------------------------------------ evaluation
   Evaluation:
     desc: one task's scores inside an EvalRun (or a one-off rubric judgement)
-    store: {root: harness-data, path: "evals/results/<area>/*.json", format: embedded, append_only: true, privacy: harness-data, status: active, writer: "eval runner"}
+    store: {root: harness-data, path: "evals/results/<area>/*.json", format: embedded, append_only: true, privacy: harness-data, status: active, writer: "skills/self-eval (eval runner)"}
     fields: [id, target, rubric, scores, checks, locked, split, judge, judge_model, producer_model]
     required: [scores]
     enums: {split: eval_split}
@@ -270,7 +287,7 @@ types:
 
   EvalRun:
     desc: result file compared by scripts/eval_gate.py (evals/README.md "Result file format")
-    store: {root: harness-data, path: "evals/results/<area>/*.json", format: json, append_only: true, privacy: harness-data, status: active, writer: "eval runner; read by scripts/eval_gate.py"}
+    store: {root: harness-data, path: "evals/results/<area>/*.json", format: json, append_only: true, privacy: harness-data, status: active, writer: "skills/self-eval (eval runner); read by scripts/eval_gate.py"}
     fields: [eval_set, eval_set_sha256, policy, producer_model, judge_model, run_at, tasks]
     required: [tasks]
     formats: {run_at: datetime}
@@ -282,14 +299,15 @@ types:
     id_pattern: '^[a-z-]+-\d{3}$'
     fields: [id, area, rubric, split, locked, source_event, difficulty, input, criteria, expected_checks, reference_output, human_scores]
     required: [id, area, rubric, split, locked]
-    enums: {area: areas, split: eval_split, difficulty: eval_difficulty}
+    enums: {area: eval_area, split: eval_split, difficulty: eval_difficulty}
     coverage: {provenance: [source_event], intent: input, meta: [difficulty]}
 
   Rubric:
     desc: self-eval sheet per task type
     store: {root: repo, path: rubrics/*.yaml, format: yaml, append_only: false, privacy: repo, status: active, writer: "the user only"}
-    fields: [rubric, version, applies_to, producer_agent, judge, human_sample_rate, scoring, dimensions, criteria, automatic_checks, cold_reader, notes]
+    fields: [rubric, status, version, applies_to, producer_agent, judge, human_sample_rate, scoring, dimensions, criteria, automatic_checks, cold_reader, notes]
     required: [rubric, criteria]
+    enums: {status: rubric_status}
     coverage: {provenance: [version], intent: applies_to, meta: null}
 
   # ------------------------------------------------------------------ projects, work, knowledge
@@ -405,7 +423,7 @@ types:
     coverage: {provenance: [origin, source, client, derived_from], intent: reasoning, meta: [labels, edited]}
 
   StyleSample:
-    desc: a single text the user wrote (no draft), with register; raw excerpts belong in the vault
+    desc: a single text the user wrote (no draft), with register; raw excerpts belong in the vault. For email, VoiceSample supersedes it (`voice.py ingest --from-backfill` imports this shape)
     store: {root: msg-vault, path: style/samples.jsonl, format: jsonl, append_only: true, privacy: vault, status: planned, writer: "Gmail backfill (style_samples.jsonl shape)"}
     id_prefix: ss_
     fields: [id, message_id, thread_id, date, to_domain, subject, register, language, context, excerpt, excerpt_source]
@@ -421,6 +439,70 @@ types:
     required: [register, rule, evidence]
     enums: {register: registers}
     coverage: {provenance: [evidence], intent: null, meta: [approved_on]}
+
+  # ------------------------------------------------------------------ email voice (skills/voice-harvest/SKILL.md)
+  # Raw text and per-message context stay in the vault; harness-data gets only features, counts and rules whose
+  # evidence is vs_ ids (sha-derived, non-identifying). No names, addresses, subjects or quotes in harness-data.
+  VoiceSample:
+    desc: one email the user SENT, with who/why/context and computed features; latest line per id wins (outcome and relabels append)
+    store: {root: msg-vault, path: voice/samples.jsonl, format: jsonl, append_only: true, privacy: vault, status: active, writer: "scripts/voice.py ingest|update (skills/voice-harvest)"}
+    id_prefix: vs_
+    id_pattern: '^vs_[0-9a-f]{12}$'
+    unique_id: false
+    fields: [id, ts, ingested_at, source, account, thread, message, direction, language, register, audience_party, audience_kind, relationship, purpose, context_summary, subject, to_domain, features, outcome, outcome_after_days, authorship, text_ref, text_source, origin, classified_by, confidence, draft_pair, harvest, notes]
+    required: [id, ts, source, account, message, direction, language, register, audience_kind, purpose, features, authorship, text_ref]
+    refs: {account: Account, thread: Thread, message: Message, draft_pair: StylePair, harvest: HarvestRun}
+    enums: {source: message_source, direction: [sent], language: language, register: registers, audience_kind: voice_audience_kind, relationship: voice_relationship, purpose: voice_purpose, outcome: voice_outcome, authorship: authorship, text_source: [body, snippet], origin: voice_origin, classified_by: [rule, model, user], confidence: confidence}
+    formats: {ts: datetime, ingested_at: datetime}
+    # audience_party: a Party id (pty_, information_organization §4.2) once that registry lands; until then a ct-/org-/client- id. Never a name or address.
+    coverage: {provenance: [source, message, thread, origin, classified_by], intent: purpose, meta: [audience_kind, relationship, register, outcome]}
+
+  VoiceFeatures:     # embedded in VoiceSample.features; computed by `voice.py features` (no raw text)
+    desc: style features of one text (language, greeting/closing type, sentence stats, Korean speech level, honorifics, hedges, English formality cues, length bucket)
+    store: {root: msg-vault, path: voice/samples.jsonl, format: embedded, append_only: true, privacy: vault, status: active, writer: "scripts/voice.py features"}
+    fields: [language, greeting, addressed_by_name, closing, ko_signoff, chars, words, sentences, paragraphs, avg_sentence_chars, sentence_len_bucket, length_bucket, ko_levels, ko_speech_level, honorific_si, honorific_nim, hedges, apologies, thanks, questions, exclamations, bullets, signature, emoji, emoticons, en_contractions, en_formal, en_informal, partial]
+    required: [language, length_bucket]
+    enums: {language: language, ko_speech_level: ko_speech_level, length_bucket: length_bucket, sentence_len_bucket: [short, medium, long]}
+    coverage: {provenance: [], intent: null, meta: [ko_speech_level, length_bucket]}
+
+  VoiceRule:
+    desc: "a contrast-mined voice rule ('in ko formal-email to recruiters, use 하십시오체') with vs_ evidence; I approve it before it is used"
+    store: {root: harness-data, path: voice/rules.jsonl, format: jsonl, append_only: true, privacy: harness-data, status: active, writer: "scripts/voice.py propose-rules|rule (skills/voice-harvest)"}
+    id_prefix: vr_
+    id_pattern: '^vr_[0-9a-f]{10}$'
+    unique_id: false
+    fields: [id, ts, statement, feature, value, scope, evidence, counterexamples, n, support, contrast, confidence, status, version, supersedes, harvest, approved_on, notes]
+    required: [id, ts, statement, feature, scope, evidence, support, status, version]
+    refs: {evidence: VoiceSample, counterexamples: VoiceSample, supersedes: VoiceRule, harvest: HarvestRun}
+    enums: {status: voice_rule_status, confidence: confidence}
+    formats: {ts: datetime, approved_on: date}
+    # scope: {language, register, audience_kind, purpose}; a null/absent key means "any"
+    coverage: {provenance: [evidence, harvest], intent: null, meta: [scope, confidence]}
+
+  VoiceProfile:
+    desc: a versioned snapshot of my email voice (per-segment stats + approved rules) with its diff from the previous version
+    store: {root: harness-data, path: voice/profiles.jsonl, format: jsonl, append_only: true, privacy: harness-data, status: active, writer: "scripts/voice.py profile"}
+    id_prefix: vp_
+    id_pattern: '^vp_\d{4}$'
+    unique_id: true
+    fields: [id, ts, version, generated_from, previous, n_samples, segments, rules, rule_details, diff_from_previous, notes]
+    required: [id, ts, version, segments]
+    refs: {generated_from: HarvestRun, previous: VoiceProfile, rules: VoiceRule}
+    formats: {ts: datetime}
+    coverage: {provenance: [generated_from, previous], intent: null, meta: [diff_from_previous]}
+
+  HarvestRun:
+    desc: one voice-harvest run (sent-mail window, counts, new samples, rules proposed, lessons, comparison vs the previous profile, cost)
+    store: {root: harness-data, path: voice/harvests.jsonl, format: jsonl, append_only: true, privacy: harness-data, status: active, writer: "scripts/voice.py harvest-log (skills/voice-harvest)"}
+    id_prefix: hr_
+    id_pattern: '^hr_\d{8}_\d{6}_[0-9a-f]{4}(?:[0-9a-f]{4})?$'
+    unique_id: true
+    fields: [id, ts, source, account, mode, cursor_from, cursor_to, counts, new_samples, new_rules_proposed, lessons, comparison, profile, cost, notes]
+    required: [id, ts, source, account, mode, counts]
+    refs: {account: Account, new_samples: VoiceSample, new_rules_proposed: VoiceRule, profile: VoiceProfile}
+    enums: {source: message_source, mode: harvest_mode}
+    formats: {ts: datetime, cursor_from: datetime, cursor_to: datetime}
+    coverage: {provenance: [source, account, cursor_from, cursor_to], intent: null, meta: [lessons, comparison]}
 
   # ------------------------------------------------------------------ job search
   Application:
@@ -528,7 +610,7 @@ types:
 
   SyncCursor:
     desc: incremental sync position per source/account
-    store: {root: msg-vault, path: cursors.json, format: json, container: cursors, append_only: false, privacy: vault, status: planned, writer: "ingest"}
+    store: {root: msg-vault, path: cursors.json, format: json, container: cursors, append_only: false, privacy: vault, status: active, writer: "scripts/voice.py cursor (skills/voice-harvest; id cur_<source>_sent_<account>); other ingest later"}
     id_prefix: cur_
     fields: [id, source, account, last_ts, last_id, updated]
     required: [source, account, last_ts]
@@ -577,7 +659,7 @@ relations:
   - {name: for_client,    domain: [Project, Invoice, LedgerEntry, StylePair, GlossaryTerm], range: [Client], via: "Project.client, Invoice.client, LedgerEntry.client, StylePair.client, GlossaryTerm.client"}
   - {name: produced_by,   domain: [Event, Task, Asset, Evaluation, Document], range: [agent+model], via: "Event.actor+model, Task.agent+model, Asset.provenance.extracted_by, Evaluation.judge_model, Document.converter"}
   - {name: derived_from,  domain: [WikiPage, StylePair, Lesson, Asset, Application, JobLead], range: [Document, Message, Thread], via: "WikiPage.source_id/derived_from, StylePair.derived_from, Asset.provenance.from_sha256, Application.source_thread, JobLead.source_message"}
-  - {name: evidence_for,  domain: [Proof, Event, StylePair, Mishap, Decision, SessionNote], range: [Decision, Lesson, StyleGuide, Principle, Pattern, MetaPattern], via: "Decision.evidence, StyleGuide.evidence, Principle.evidence, Pattern.evidence, MetaPattern.evidence (ids or pointers)"}
+  - {name: evidence_for,  domain: [Proof, Event, StylePair, Mishap, Decision, SessionNote, VoiceSample], range: [Decision, Lesson, StyleGuide, Principle, Pattern, MetaPattern, VoiceRule], via: "Decision.evidence, StyleGuide.evidence, Principle.evidence, Pattern.evidence, MetaPattern.evidence, VoiceRule.evidence (ids or pointers)"}
   - {name: proven_by,     domain: [Event, Mishap, Decision], range: [Proof], via: "Event.proof, Mishap.proof, Decision.evidence"}
   - {name: supersedes,    domain: [StylePair, Preference, Lesson, Pattern, Encoding, MetaPattern], range: [StylePair, Preference, Lesson, Pattern, Encoding, MetaPattern], via: "<type>.supersedes (same type)"}
   - {name: corrects,      domain: [Event, Correction], range: [Event], via: "Event.corrects, Correction.corrects; label events use labels_for/parent_event"}
@@ -588,8 +670,10 @@ relations:
   - {name: blocks,        domain: [Task, ProgressItem], range: [Task, ProgressItem], via: null}
   - {name: labels,        domain: [Event], range: [Event], via: "label Event.labels_for"}
   - {name: applies_to,    domain: [Application], range: [JobLead, Organization], via: "Application.joblead, Application.org (name, not id)"}
-  - {name: received_via,  domain: [Message, Thread, Attachment, SyncCursor, Application, JobLead], range: [Account], via: "<type>.account (Account.id, acct_...)"}
+  - {name: received_via,  domain: [Message, Thread, Attachment, SyncCursor, Application, JobLead, VoiceSample, HarvestRun], range: [Account], via: "<type>.account (Account.id, acct_...)"}
   - {name: forwards_to,   domain: [Account], range: [Account], via: "Account.forwards_to"}
   - {name: encodes,       domain: [Encoding], range: [Pattern], via: "Encoding.encodes (Pattern.encoded_by mirrors it)"}
   - {name: generalizes,   domain: [Principle], range: [Pattern, Encoding], via: "Principle.patterns (Pattern.principles mirrors it)"}
   - {name: about,         domain: [MetaPattern], range: [Pattern, Encoding, Principle, "type"], via: "MetaPattern.about (ids, P<n>, or an ontology type/area name)"}
+  - {name: drafted_as,    domain: [VoiceSample], range: [StylePair], via: "VoiceSample.draft_pair (the email-draft StylePair whose final was sent; authorship then mixed)"}
+  - {name: summarizes,    domain: [VoiceProfile, HarvestRun], range: [VoiceRule, VoiceSample], via: "VoiceProfile.rules, HarvestRun.new_samples, HarvestRun.new_rules_proposed"}

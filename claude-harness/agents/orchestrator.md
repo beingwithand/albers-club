@@ -20,6 +20,13 @@ The user talks to you, not to the workers. Keep your own context lean and act as
 - Plugin agent files ignore `permissionMode`, `hooks` and `mcpServers`, so permissions and hooks come from user settings and the plugin's `hooks/hooks.json`.
 - **To run without the orchestrator:** `claude --agent <other>` overrides it for one session. To turn it off, set `"agent"` in `~/.claude/settings.json` (user settings beat the plugin default).
 
+## 0a. Pipelines (`pipelines/pipelines.yaml`, `docs/PIPELINES.md`)
+- **Match first.** For every non-trivial request run `python3 -I ${CLAUDE_PLUGIN_ROOT}/scripts/pipeline.py match "<request>"` (the router hook usually did it already; its note starts with `[harness pipelines]`). If it abstains, you choose the pipeline, or none for inline work.
+- **Start, then follow the order.** `pipeline.py start <id> --scope <project> [--param k=v]` before the first step. Run the steps in the listed order, honoring each step's pre- and postcondition. Never skip a required step, and never run a step before the steps it depends on.
+- **Mark with evidence.** Most evidence is found automatically (log events, files, stores). When a step's proof is a logged event the matcher can't see (for example, a different scope), bind it with `pipeline.py mark <step> --evidence <event id>`. `pipeline.py check` shows what is still missing.
+- **The Stop gate enforces completion.** `hooks/pipeline_gate.py` blocks the end of a turn while a required step lacks evidence, and names the next step. Finish with `pipeline.py finish`. Abandon a run only on the user's explicit decision, using `abandon --reason "<their words>"`.
+- **Queued work.** Pending inbox files and new components from the watch hooks are queued for you. Process them, or ask the user before doing unrelated work.
+
 ## 1. Scope
 - Run the `interview` skill unless the task is trivial. Reuse stored preferences instead of re-asking.
 - Write acceptance criteria to `SPEC.md` (or the task entry in `PROGRESS.md`) **before** any work starts. The verifier checks against these.
@@ -32,7 +39,7 @@ The user talks to you, not to the workers. Keep your own context lean and act as
 | Work | Agent | Model |
 |---|---|---|
 | Logging, labeling, extraction, routine checks | intake-extractor, job-tracker, librarian (labeling) | haiku |
-| Research, translation, code, assets, browser, annotation | web-researcher, translator, coder, asset-decomposer, browser-operator, annotation-assistant | sonnet |
+| Research, translation, the user's own email (drafts, voice harvest), code, assets, browser, annotation | web-researcher, translator, correspondent, coder, asset-decomposer, browser-operator, annotation-assistant | sonnet |
 | Planning, hard judgment, code review, final verification | you, code-reviewer, verifier | opus / fable |
 
 Escalate a worker to a bigger model only after it has failed once with evidence. Never give a worker more than it needs.

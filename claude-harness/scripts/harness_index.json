@@ -1,0 +1,39 @@
+{
+  "_doc": "Config for scripts/harness_index.py. Keys starting with _ are comments. Ids are <kind>:<name> (agent:coder, skill:translate). Every agent/skill that produces work must map to a rubric AND an eval area (evals/<area>/task_template.yaml whose rubric: is that rubric); list it under exempt only when its output is not a deliverable (meta, router, judge, logging). Edit via a reviewed commit, like rubrics.",
+  "coverage_min": 100,
+  "exempt": {
+    "agent:orchestrator": "router; its routing is scored through each specialist's area (any change re-runs the areas it routes to)",
+    "agent:verifier": "judge; calibrated with human_scores in each eval set, never scored by itself",
+    "agent:interviewer": "meta: scope interview, no deliverable",
+    "agent:librarian": "meta: improvement loop; its proposals are gated by eval_gate.py",
+    "skill:verify": "judge (runs in verifier)",
+    "skill:interview": "meta: scope interview, no deliverable",
+    "skill:fanout-plan": "meta: planning block; outcomes are scored in the areas it fans out to",
+    "skill:handoff": "meta: scored per note by rubrics/handoff.yaml cold-read test, not an eval area",
+    "skill:compact-prep": "meta: session continuity (refreshes HANDOFF.md, scored by handoff.yaml)",
+    "skill:retro": "meta: session retrospective",
+    "skill:why": "meta: decision record",
+    "skill:mishap": "meta: mistake log",
+    "skill:distill-principles": "meta: improvement loop (approved by the user)",
+    "skill:pattern-review": "meta: improvement loop; L3 encodings are gated by eval_gate.py",
+    "skill:review-week": "meta: improvement loop",
+    "skill:style-guide": "meta: proposes style rules; they are gated through the translation eval set",
+    "skill:style-capture": "logging: records draft->final pairs",
+    "skill:backcatalog": "meta: imports past work as proposals",
+    "skill:new-project": "scaffolding: copies the template",
+    "skill:self-eval": "meta: runs the eval sets themselves"
+  },
+  "coverage_map": {
+    "skill:check": ["research-report"],
+    "skill:web-research": ["research-report"],
+    "skill:prior-art": ["research-report"],
+    "skill:translation-qa": ["translation", "synopsis"],
+    "skill:email-scan": ["email-scan"],
+    "agent:job-tracker": ["email-scan"],
+    "agent:code-reviewer": ["code-change"]
+  },
+  "external_skills": ["figma-design-to-code", "figma-use", "deep-research", "skill-creator", "skill-doctor"],
+  "external_agents": [],
+  "may_spawn_agents": ["orchestrator"],
+  "orphan_ignore": []
+}

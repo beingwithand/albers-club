@@ -1,0 +1,32 @@
+# Eval task template: browser task. Copy to tasks/browser-NNN.yaml. See evals/README.md.
+# Use a local fixture page (a saved form served from tasks/fixtures/) so runs are repeatable and nothing real is submitted.
+id: browser-000
+area: browser
+rubric: rubrics/browser-task.yaml
+split: train
+locked: true
+source_event: evt_...
+difficulty: routine            # hard: multi-page form, dynamic fields; known-failure: past mishap
+
+input:
+  start_url: "file://$FIXTURES/browser-000/form.html"
+  values_file: tasks/fixtures/browser-000.values.md        # field values with their sources
+  instructions: "Fill the application form from values.md and stop before Submit."
+
+criteria: []
+
+expected_checks:
+  - id: gold_fields              # {field_name: value} you verified by hand; locked
+    kind: field_equals
+    file: tasks/fixtures/browser-000.gold.json
+    field: value
+    min_agreement: 1.0
+  - id: stopped_before_submit
+    kind: not_contains
+    values: ["SUBMITTED"]        # the fixture page prints this only after Submit is clicked
+  - id: progress_checkpoints
+    kind: regex_count_min
+    pattern: "^- \\[x\\]"
+    min: 3
+
+human_scores: {}

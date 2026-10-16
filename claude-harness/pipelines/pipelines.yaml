@@ -1,0 +1,991 @@
+# Pipelines: the declarative process graph of the harness (docs/PIPELINES.md).
+#
+# For every TRIGGER (a kind of task, or an event) this file lists the ORDERED steps (skills, agents,
+# scripts), which are REQUIRED, their pre/postconditions (linked to docs/VERIFICATION.md), and the
+# machine-checkable EVIDENCE that proves a step ran. scripts/pipeline.py reads it; hooks/pipeline_gate.py
+# (Stop) blocks a turn from ending while an active run misses a required step.
+#
+# Format: the YAML subset of scripts/schema_check.py (also valid YAML). Regexes are single-quoted (no
+# escaping inside); never put a comma inside a flow-list item. `python3 -I scripts/pipeline.py lint`
+# validates this file (refs exist, evidence matchers well formed, `after` refs valid, every skill and
+# agent is in a pipeline or listed under `standalone`).
+#
+# ---- step fields
+#   id            unique within the pipeline (kebab-case)
+#   run           skill:<name> | agent:<name> | script:<path> [args] | hook:<file> | user (a human action)
+#   required      true = the Stop gate blocks until evidence exists; false = advisory
+#   after         [step ids] that must be satisfied first (order); evidence older than a dependency's is an
+#                 order violation (a failure when the pipeline sets strict_order: true)
+#   pre / post    the step-verification protocol (docs/VERIFICATION.md "The loop"); post names the check
+#   verification  docs/VERIFICATION.md#<heading-slug-prefix>; lint checks the heading exists
+#   evidence      list of matchers; ANY one satisfies the step (OR); the fields inside one matcher are ANDed
+#
+# ---- evidence matchers (all are read-only checks; nothing here executes commands)
+#   event: <type>          an event in $HARNESS_DATA/log/*.jsonl, scope = the run's project, ts >= run start
+#     labels: [..]         all present          not_labels: [..]   none present
+#     verdict: [..]        verdict in list      agent: <name>      event.agent (or actor agent:<name>)
+#     where: {a.b: v}      dotted field equals v (v starting with 're:' is a regex; a list means "one of")
+#     content_re: '<re>'   regex over content/command/items
+#     min_count: N         at least N matching events (default 1)
+#   file: <glob>           relative to the project root
+#     changed_since_start: true    mtime >= run start
+#     contains: '<re>'     not_contains: '<re>'
+#   json: <path>           has: <dotted path with [*]>   (some value non-empty)
+#     select: {k: v}       only array elements whose k equals v ({file_name} etc. come from run params;
+#                          an unresolved placeholder drops that select key)
+#     changed_since_start: true
+#   store: <path>          a JSONL store under $HARNESS_DATA with records whose ts >= run start (+ where:)
+#   builtin: <name>        a check implemented in scripts/pipeline.py (component_frontmatter,
+#                          learning_contract, rubric_eval, pipeline_membership, index_fresh)
+#   lib:<name>             a named matcher from evidence_library below
+# `pipeline.py mark <step> --evidence <event id>` binds a specific event to a step; check re-validates that
+# the event exists and matches one of the step's event matchers (ignoring scope; ts still >= start - grace).
+# Steps with `manual: true` accept any existing event id logged since the run started (e.g. the user's OK).
+#
+# ---- pipeline fields
+#   title, owner_agent, client_bound (true -> tier-V verification is a required step)
+#   triggers: slash [skills whose /command starts it], strong / weak / negative [regexes over the prompt],
+#             events [event types that start it], paths [globs for FileChanged-type events]
+#   autostart: never | on_event   (on_event: the watch hook / router starts it without asking)
+#   params: [names]   values given to `start --param k=v` (file -> also file_name)
+#   strict_order: true|false
+version: 1
+
+defaults:
+  min_confidence: 0.6     # below this `match` abstains and the orchestrator decides
+  margin: 0.15            # top score must beat the runner-up by this much, else abstain
+  strong_weight: 0.6
+  weak_weight: 0.15
+  negative_weight: 0.6
+  grace_s: 120            # evidence up to this many seconds before `start` still counts
+  stale_days: 7           # active runs older than this stop blocking; the router reports them instead
+
+# Components the pipelines reference that other work is still building. lint reports them as
+# "pending" instead of dangling; remove an entry once the file exists. Format: "kind:name": why
+pending_components: {}
+
+# Skills and agents that run inside other steps or on their own schedule rather than as a pipeline of
+# their own. lint requires every skill/agent to be either referenced by a step or listed here.
+standalone:
+  "skill:coding-standards": preloaded rulebook of coder and code-reviewer (code-change)
+  "skill:compact-prep": user-invoked before /compact; the handoff pipelines cover the same ground
+  "skill:distill-principles": improvement loop, user-approved; runs from review-week
+  "skill:pattern-review": improvement loop; gated by eval_gate.py
+  "skill:review-week": weekly ritual (librarian)
+  "skill:backcatalog": one-off import of past work
+  "skill:mishap": any time a self-correction happens (logs a mishap event)
+  "skill:voice-harvest": scheduled sent-mail voice harvest (correspondent); feeds email-draft
+  "agent:verifier": runs the verify skill (context fork) in every pipeline's verify step
+  "skill:style-guide": proposes style rules; gated through the translation eval set
+  "skill:why": decision records, any time
+  "skill:asset-decompose": art/asset work; no pipeline yet (BACKLOG)
+  "skill:browser-task": browser work; per-step read-back is its own protocol (docs/VERIFICATION.md#browser)
+  "skill:email-scan": scheduled inbox scan (job-tracker)
+  "agent:asset-decomposer": art/asset work; no pipeline yet
+  "agent:browser-operator": browser work, called from job-application/invoice when a portal is involved
+  "agent:interviewer": runs the interview skill when the orchestrator delegates it
+  "agent:librarian": weekly labeling and improvement loop
+  "agent:orchestrator": runs the pipelines (it is the router, not a step)
+  "agent:job-tracker": scheduled email-scan; application status updates
+
+evidence_library:
+  verify_pass:
+    event: verification
+    not_labels: [step_check]
+    verdict: [pass]
+  tier_v:
+    event: verification
+    not_labels: [step_check]
+    verdict: [pass]
+    min_count: 2
+  task_event:
+    event: task
+  progress_updated:
+    file: PROGRESS.md
+    changed_since_start: true
+  changelog:
+    event: changelog_updated
+  handoff_event:
+    event: handoff
+  session_note:
+    event: session_note
+  self_eval_run:
+    event: task
+    where: {meta.kind_of_thing: 're:(?i)self-eval'}
+  code_review:
+    event: task
+    agent: code-reviewer
+
+pipelines:
+  # ------------------------------------------------------------------ new project
+  new-project:
+    title: New project from the standard template
+    owner_agent: orchestrator
+    client_bound: false
+    autostart: never
+    params: [project]
+    triggers:
+      slash: [new-project]
+      strong:
+        - '(?i)\bnew project\b'
+        - '(?i)\bstart (a |the )?(new )?(client )?(project|job|campaign)\b'
+        - '(?i)\bset ?up (a )?(new )?project\b'
+        - '새\s*프로젝트'
+        - '프로젝트\s*(를\s*)?(시작|만들|생성)'
+      weak:
+        - '(?i)\bclient\b'
+        - '(?i)\btemplate\b'
+      negative:
+        - '(?i)\b(existing|this) project\b'
+    steps:
+      - id: interview
+        run: skill:interview
+        required: false
+        pre: [goal / client / deadline unknown]
+        post: [answers recorded in PROGRESS.md Goal]
+        verification: docs/VERIFICATION.md#the-loop
+        evidence: [lib:progress_updated]
+      - id: scaffold
+        run: skill:new-project
+        required: true
+        pre: [area is in schema/ontology.yaml areas; <area>/<project>/ does not exist yet]
+        post: [folder tree matches templates/project; no <...> placeholder left in CLAUDE.md]
+        verification: docs/VERIFICATION.md#the-loop
+        evidence:
+          - file: CLAUDE.md
+            changed_since_start: true
+            not_contains: '<Project name>|<link>|<translation \|'
+      - id: drive-folder
+        run: skill:new-project
+        required: false
+        after: [scaffold]
+        pre: [Google Drive connector available]
+        post: [Drive link in CLAUDE.md and knowledge/manifest.json drive_folder (or TODO said to the user)]
+        verification: docs/VERIFICATION.md#the-loop
+        evidence:
+          - json: knowledge/manifest.json
+            has: drive_folder
+      - id: verify
+        run: skill:verify
+        required: true
+        after: [scaffold]
+        pre: [criteria from skills/new-project §5]
+        post: [verification event verdict pass]
+        verification: docs/VERIFICATION.md#the-loop
+        evidence: [lib:verify_pass]
+      - id: log
+        run: skill:new-project
+        required: true
+        after: [verify]
+        pre: [verify passed]
+        post: [task event with scope <area>/<project>, intent, situation, meta]
+        verification: docs/VERIFICATION.md#data-writes
+        evidence: [lib:task_event]
+
+  # ------------------------------------------------------------------ new document in a project inbox
+  intake:
+    title: New document in a project inbox
+    owner_agent: intake-extractor
+    client_bound: false
+    autostart: on_event
+    strict_order: true
+    params: [file]
+    triggers:
+      slash: [intake]
+      events: [inbox_file_detected]
+      paths: ['*/inbox/*']
+      strong:
+        - '(?i)\bintake\b'
+        - '(?i)\b(ingest|import) (this|these|the) (file|doc|document|pdf|brief)s?\b'
+        - '(?i)\bnew (file|document|doc|pdf|brief)s? (in|into|to) (the )?inbox\b'
+        - '(?i)\b(read|process) (the )?inbox\b'
+        - '인박스|받은\s*파일\s*정리|자료\s*(정리|등록)'
+      weak:
+        - '(?i)\.(pdf|hwpx?|docx?|pptx?|xlsx)\b'
+        - '(?i)\b(brief|attachment|source file)s?\b'
+    steps:
+      - id: register
+        run: script:scripts/kb.py register
+        required: true
+        pre: [the file exists in inbox/; knowledge/ exists]
+        post: [manifest.json has the source with its sha256; raw/<sha8>_<name> exists]
+        verification: docs/VERIFICATION.md#intake
+        evidence:
+          - json: knowledge/manifest.json
+            has: sources[*].sha256
+            select: {original_name: '{file_name}'}
+      - id: convert
+        run: script:scripts/kb.py convert
+        required: true
+        after: [register]
+        pre: [source registered; a local converter installed (docs/LOCAL_ONLY.md)]
+        post: [manifest entry has converter and work_md]
+        verification: docs/VERIFICATION.md#intake
+        evidence:
+          - json: knowledge/manifest.json
+            has: sources[*].converter
+            select: {original_name: '{file_name}'}
+      - id: wiki
+        run: agent:intake-extractor
+        required: true
+        after: [convert]
+        pre: [converted Markdown exists]
+        post: [wiki pages with full frontmatter; every claim links raw/...#p.N]
+        verification: docs/VERIFICATION.md#intake
+        evidence:
+          - file: knowledge/wiki/*.md
+            changed_since_start: true
+      - id: index
+        run: script:scripts/kb.py index
+        required: true
+        after: [wiki]
+        pre: [wiki pages written]
+        post: [knowledge/index.md has one line per page]
+        verification: docs/VERIFICATION.md#intake
+        evidence:
+          - file: knowledge/index.md
+            changed_since_start: true
+      - id: manifest
+        run: script:scripts/kb.py lint
+        required: true
+        after: [index]
+        pre: [index rebuilt]
+        post: [kb.py lint exit 0; manifest pages_produced filled]
+        verification: docs/VERIFICATION.md#intake
+        evidence:
+          - event: verification
+            content_re: 'kb\.py lint'
+          - json: knowledge/manifest.json
+            has: sources[*].pages_produced
+            select: {original_name: '{file_name}'}
+      - id: verify
+        run: skill:verify
+        required: true
+        after: [manifest]
+        pre: [a different agent than the extractor]
+        post: [3 random passages + all tables match; PASS line for the sha8 in knowledge/log.md]
+        verification: docs/VERIFICATION.md#intake
+        evidence:
+          - file: knowledge/log.md
+            changed_since_start: true
+            contains: '\bPASS\b'
+          - lib:verify_pass
+      - id: archive
+        run: script:scripts/kb.py archive
+        required: true
+        after: [verify]
+        pre: [verify passed (kb.py safe-to-delete needs PASS + archive)]
+        post: [manifest entry has archive link; only then tell the user the original may be deleted]
+        verification: docs/VERIFICATION.md#intake
+        evidence:
+          - json: knowledge/manifest.json
+            has: sources[*].archive
+            select: {original_name: '{file_name}'}
+
+  # ------------------------------------------------------------------ translation
+  translation:
+    title: KO<->EN translation (client-bound by default)
+    owner_agent: translator
+    client_bound: true
+    autostart: never
+    triggers:
+      slash: [translate]
+      strong:
+        - '(?i)\btranslat(e|ion|ing)\b'
+        - '(?i)\b(into|to) (english|korean)\b'
+        - '번역'
+        - '영어로|한국어로|한글로'
+      weak:
+        - '(?i)\bclient\b'
+        - '(?i)\b(ko|en)\s*(->|→|to)\s*(ko|en)\b'
+        - '(?i)\bglossary\b'
+      negative:
+        - '(?i)\bsynopsis\b|시놉시스'
+    steps:
+      - id: frame
+        run: skill:translate
+        required: false
+        pre: [direction / register / domain / audience settled]
+        post: [frame recorded in PROGRESS.md or SPEC.md]
+        verification: docs/VERIFICATION.md#translation
+        evidence: [lib:progress_updated]
+      - id: translate
+        run: agent:translator
+        required: true
+        pre: [glossary and nearest style pairs loaded]
+        post: [draft saved under work/ or deliverables/]
+        verification: docs/VERIFICATION.md#translation
+        evidence:
+          - event: task
+            agent: translator
+          - file: deliverables/**/*
+            changed_since_start: true
+          - file: work/**/*
+            changed_since_start: true
+      - id: qa
+        run: skill:translation-qa
+        required: true
+        after: [translate]
+        pre: [source and target segments on disk]
+        post: [scripts/translation_qa.py 0 errors (or each fixed)]
+        verification: docs/VERIFICATION.md#translation
+        evidence:
+          - event: verification
+            content_re: 'translation_qa'
+          - event: verification
+            labels: [translation-qa]
+      - id: verify
+        run: skill:verify
+        required: true
+        after: [qa]
+        pre: [executable checks done; client-bound -> tier V (2-3 lenses)]
+        post: [every lens passes; splits went to the user]
+        verification: docs/VERIFICATION.md#translation
+        evidence: [lib:tier_v]
+      - id: capture-edit
+        run: skill:style-capture
+        required: false
+        after: [verify]
+        pre: [the user edited the draft]
+        post: [StylePair appended]
+        verification: docs/VERIFICATION.md#data-writes
+        evidence:
+          - store: style/pairs.jsonl
+      - id: log
+        run: skill:translate
+        required: true
+        after: [verify]
+        pre: [verify passed]
+        post: [task event with intent, situation, meta]
+        verification: docs/VERIFICATION.md#data-writes
+        evidence: [lib:task_event]
+
+  # ------------------------------------------------------------------ synopsis
+  synopsis:
+    title: Length-capped synopsis condense (KO->KO, client-bound)
+    owner_agent: translator
+    client_bound: true
+    autostart: never
+    triggers:
+      slash: [synopsis]
+      strong:
+        - '(?i)\bsynops[ie]s\b'
+        - '(?i)\blogline\b'
+        - '시놉시스|줄거리\s*(요약|줄)'
+      weak:
+        - '(?i)\b(limit|chars?|characters)\b'
+        - '\d+\s*자'
+        - '(?i)\b(netflix|toin|episode)\b'
+    steps:
+      - id: load-rules
+        run: skill:synopsis
+        required: true
+        pre: [knowledge/reviewer_rules.md and style_notes.md exist (else ask the user)]
+        post: [rules read; limit and unit known]
+        verification: docs/VERIFICATION.md#synopsis
+        evidence:
+          - file: knowledge/reviewer_rules.md
+      - id: drafts
+        run: agent:translator
+        required: true
+        after: [load-rules]
+        pre: [LRT title; sibling synopses or genre exemplars]
+        post: [3 drafts with different strategies]
+        verification: docs/VERIFICATION.md#synopsis
+        evidence:
+          - event: task
+            agent: translator
+          - file: work/**/*
+            changed_since_start: true
+          - file: deliverables/**/*
+            changed_since_start: true
+      - id: length-and-rules
+        run: script:scripts/textlen.py
+        required: true
+        after: [drafts]
+        pre: [drafts on disk]
+        post: [textlen.py within the limit; every R- rule pass/fail listed]
+        verification: docs/VERIFICATION.md#synopsis
+        evidence:
+          - event: verification
+            content_re: 'textlen'
+      - id: verify
+        run: skill:verify
+        required: true
+        after: [length-and-rules]
+        pre: [client-bound -> tier V]
+        post: [every lens passes]
+        verification: docs/VERIFICATION.md#synopsis
+        evidence: [lib:tier_v]
+      - id: log
+        run: skill:synopsis
+        required: true
+        after: [verify]
+        pre: [verify passed]
+        post: [task event; reviewer feedback becomes correction events + R- rules]
+        verification: docs/VERIFICATION.md#data-writes
+        evidence: [lib:task_event]
+
+  # ------------------------------------------------------------------ client / employer email
+  email-draft:
+    title: Client or employer email draft (never sent without the user's OK)
+    owner_agent: correspondent
+    client_bound: true
+    autostart: never
+    triggers:
+      slash: [email-draft]
+      strong:
+        - '(?i)\b(draft|write|reply to|answer) (an? |the |this )?(e-?mail|message)\b'
+        - '(?i)\be-?mail (to|for) (the |my )?(client|employer|recruiter|manager|pm)\b'
+        - '메일\s*(써|작성|답장|회신)|답장\s*(써|작성)'
+      weak:
+        - '(?i)\b(client|employer|recruiter|hiring manager)\b'
+        - '(?i)\b(polite|formal|follow[- ]?up)\b'
+      negative:
+        - '(?i)\bscan (my )?(inbox|email)\b'
+    steps:
+      - id: draft
+        run: agent:correspondent
+        required: true
+        pre: [recipient, relationship, register known (docs/REGISTERS.md); facts the email states are sourced]
+        post: [draft saved; nothing sent]
+        verification: docs/VERIFICATION.md#translation
+        evidence:
+          - event: task
+            where: {meta.kind_of_thing: 're:(?i)e-?mail'}
+          - file: deliverables/**/*
+            changed_since_start: true
+          - file: work/**/*
+            changed_since_start: true
+      - id: verify
+        run: skill:verify
+        required: true
+        after: [draft]
+        pre: [client/employer-bound -> tier V (fidelity, rules, language)]
+        post: [every lens passes]
+        verification: docs/VERIFICATION.md#translation
+        evidence: [lib:tier_v]
+      - id: user-ok
+        run: user
+        required: false
+        manual: true
+        after: [verify]
+        pre: [the user has read the final draft]
+        post: [the user sends it herself (or says OK explicitly)]
+        verification: docs/VERIFICATION.md#the-loop
+        evidence:
+          - event: prompt
+      - id: log
+        run: skill:email-draft
+        required: true
+        after: [verify]
+        pre: [verify passed]
+        post: [task event with intent, situation, meta]
+        verification: docs/VERIFICATION.md#data-writes
+        evidence: [lib:task_event]
+
+  # ------------------------------------------------------------------ job application
+  job-application:
+    title: Job application (CV + cover letter; never submitted by the agent)
+    owner_agent: translator
+    client_bound: true
+    autostart: never
+    triggers:
+      slash: [job-application]
+      strong:
+        - '(?i)\b(job|role|position) (posting|ad|listing|opening)\b'
+        - '(?i)\bapply (for|to)\b'
+        - '(?i)\bcover letter\b'
+        - '(?i)\b(tailor|update) (my )?(cv|resume|résumé)\b'
+        - '지원서|자기소개서|채용\s*공고|이력서'
+      weak:
+        - '(?i)\b(cv|resume|recruiter|hiring)\b'
+        - '(?i)\bdeadline\b'
+    steps:
+      - id: open-check
+        run: skill:job-application
+        required: true
+        pre: [posting saved under inbox/ with URL and date]
+        post: [posting re-opened today; open / closed / unknown recorded]
+        verification: docs/VERIFICATION.md#job-applications
+        evidence:
+          - file: inbox/**/*
+          - lib:progress_updated
+      - id: match-check
+        run: skill:job-application
+        required: true
+        after: [open-check]
+        pre: [master CV and job-search/_master/facts.md loaded]
+        post: [requirement table + fit score; must-have none or score < 3 -> stop and ask]
+        verification: docs/VERIFICATION.md#job-applications
+        evidence: [lib:progress_updated]
+      - id: draft
+        run: agent:translator
+        required: true
+        after: [match-check]
+        pre: [fit score >= 3 or the user said go]
+        post: [deliverables/YYYY-MM-DD_<org>-<role>_cv_v1 and _cover_v1]
+        verification: docs/VERIFICATION.md#job-applications
+        evidence:
+          - file: deliverables/**/*
+            changed_since_start: true
+      - id: claim-check
+        run: script:scripts/claim_check.py
+        required: true
+        after: [draft]
+        pre: [plain-text export of each draft]
+        post: [claim_check.py exit 0; report saved next to the drafts]
+        verification: docs/VERIFICATION.md#job-applications
+        evidence:
+          - file: deliverables/*claimcheck*
+            changed_since_start: true
+          - event: verification
+            content_re: 'claim_check'
+      - id: verify
+        run: skill:verify
+        required: true
+        after: [claim-check]
+        pre: [employer-bound -> tier V; claim-check report is first-line proof]
+        post: [every lens passes]
+        verification: docs/VERIFICATION.md#job-applications
+        evidence: [lib:tier_v]
+      - id: record
+        run: skill:job-application
+        required: true
+        after: [verify]
+        pre: [verify passed]
+        post: [Application record with claim_check pass and a dated next_step; task event]
+        verification: docs/VERIFICATION.md#data-writes
+        evidence:
+          - store: applications.jsonl
+      - id: log
+        run: skill:job-application
+        required: true
+        after: [verify]
+        pre: [verify passed]
+        post: [task event with intent, situation, meta]
+        verification: docs/VERIFICATION.md#data-writes
+        evidence: [lib:task_event]
+
+  # ------------------------------------------------------------------ research question
+  research:
+    title: Research question (/check for quick facts, /web-research for multi-source)
+    owner_agent: web-researcher
+    client_bound: false
+    autostart: never
+    triggers:
+      slash: [check, web-research, prior-art]
+      strong:
+        - '(?i)\b(research|look up|look into|find out|investigate)\b'
+        - '(?i)\bwhat(''s| is| are) the (latest|current|newest|best)\b'
+        - '(?i)\b(state of the art|sota|prior art)\b'
+        - '(?i)\bcompare\b.*\b(tools|options|models|libraries|services|prices)\b'
+        - '조사|리서치|최신|찾아\s*(봐|줘)'
+      weak:
+        - '(?i)\b(price|pricing|release|version|docs|paper|benchmark)s?\b'
+        - '(?i)\bsources?\b'
+      negative:
+        - '(?i)\btranslat'
+    steps:
+      - id: ledger-lookup
+        run: skill:check
+        required: false
+        pre: [question stated]
+        post: [an earlier still-valid ResearchNote reused, or none found]
+        verification: docs/VERIFICATION.md#research
+        evidence:
+          - store: research/ledger.jsonl
+      - id: depth
+        run: skill:fanout-plan
+        required: false
+        pre: [quick fact (<=3 sources, one type) -> /check tier 0; otherwise /web-research tier 2+]
+        post: [plan block in PROGRESS.md for tier 2+]
+        verification: docs/VERIFICATION.md#research
+        evidence: [lib:progress_updated]
+      - id: gather
+        run: skill:web-research
+        required: true
+        pre: [date window = today (`date`)]
+        post: [each claim has a quote + URL + access date]
+        verification: docs/VERIFICATION.md#research
+        evidence:
+          - store: research/ledger.jsonl
+          - event: task
+            agent: web-researcher
+      - id: verify-claims
+        run: skill:check
+        required: true
+        after: [gather]
+        pre: [claims gathered]
+        post: [second independent source per claim, or marked single-source]
+        verification: docs/VERIFICATION.md#research
+        evidence:
+          - store: research/ledger.jsonl
+            where: {verification: 're:.+'}
+          - lib:verify_pass
+      - id: log
+        run: skill:check
+        required: true
+        after: [verify-claims]
+        pre: [answer ready]
+        post: [one ResearchNote per question in the ledger]
+        verification: docs/VERIFICATION.md#data-writes
+        evidence:
+          - store: research/ledger.jsonl
+
+  # ------------------------------------------------------------------ code change
+  code-change:
+    title: Code change (coder -> code-reviewer per step -> back-review -> verify)
+    owner_agent: coder
+    client_bound: false
+    autostart: never
+    triggers:
+      strong:
+        - '(?i)\b(fix|implement|refactor|debug|add|write) (a |the |this )?(bug|function|feature|test|tests|script|hook|endpoint|class|module|cli)\b'
+        - '(?i)\b(code change|pull request|unit tests?|failing tests?|stack ?trace|traceback)\b'
+        - '(?i)\.(py|ts|tsx|js|swift|go|rs|sh)\b'
+        - '(코드|버그|함수|테스트)\s*(수정|고쳐|작성|추가|구현)'
+      weak:
+        - '(?i)\b(code|python|typescript|repo|commit|diff|error)\b'
+      negative:
+        - '(?i)\btranslat'
+    steps:
+      - id: spec
+        run: agent:orchestrator
+        required: false
+        pre: [acceptance criteria written before work starts]
+        post: [SPEC.md or the PROGRESS.md task entry has criteria]
+        verification: docs/VERIFICATION.md#code
+        evidence: [lib:progress_updated]
+      - id: implement
+        run: agent:coder
+        required: true
+        pre: [baseline run of the touched test file recorded]
+        post: [step_check passes; touched tests pass; nothing that passed before fails]
+        verification: docs/VERIFICATION.md#code
+        evidence:
+          - event: task
+            agent: coder
+          - event: verification
+            labels: [step_check]
+            verdict: [pass]
+      - id: step-review
+        run: agent:code-reviewer
+        required: true
+        after: [implement]
+        pre: [diff + spec + coder's proof; mode step]
+        post: [verdict approve / fix-applied (changes-requested goes back to the coder)]
+        verification: docs/VERIFICATION.md#code
+        evidence: [lib:code_review]
+      - id: back-review
+        run: agent:code-reviewer
+        required: true
+        after: [step-review]
+        pre: [all the task's commits or files; mode back-review]
+        post: [no regression across steps]
+        verification: docs/VERIFICATION.md#code
+        evidence:
+          - event: task
+            agent: code-reviewer
+            content_re: '(?i)back-?review'
+          - event: task
+            agent: code-reviewer
+            where: {meta.mode: back-review}
+      - id: verify
+        run: skill:verify
+        required: true
+        after: [back-review]
+        pre: [full test suite run]
+        post: [verification event verdict pass (review verdicts never count)]
+        verification: docs/VERIFICATION.md#code
+        evidence: [lib:verify_pass]
+      - id: changelog
+        run: script:scripts/changelog.py update
+        required: true
+        after: [verify]
+        pre: [the change is verified]
+        post: ['scripts/changelog.py check --scope <dir> exits 0 (CHANGELOG.md [Unreleased] covers every commit/decision/mishap since the last entry)']
+        verification: docs/VERIFICATION.md#data-writes
+        evidence: [lib:changelog]
+      - id: log
+        run: agent:orchestrator
+        required: true
+        after: [verify]
+        pre: [verify passed]
+        post: [task event per unit with agent, model, intent, situation, meta]
+        verification: docs/VERIFICATION.md#data-writes
+        evidence: [lib:task_event]
+
+  # ------------------------------------------------------------------ invoice
+  invoice:
+    title: Invoice (client-bound; sending waits for the user's OK)
+    owner_agent: orchestrator
+    client_bound: true
+    autostart: never
+    triggers:
+      slash: [invoice]
+      strong:
+        - '(?i)\binvoice\b'
+        - '(?i)\bbill (the )?client\b'
+        - '인보이스|청구서|세금계산서|정산'
+      weak:
+        - '(?i)\b(rate|per word|withholding|payment|due date)\b'
+    steps:
+      - id: count
+        run: script:scripts/invoice.py count
+        required: true
+        pre: [delivered files on disk; agreement terms known]
+        post: [quantities recounted from the delivered work]
+        verification: docs/VERIFICATION.md#invoices
+        evidence:
+          - event: verification
+            content_re: 'invoice\.py count'
+          - lib:progress_updated
+      - id: dry-run
+        run: script:scripts/invoice.py make --dry-run
+        required: true
+        after: [count]
+        pre: [spec JSON written]
+        post: [gross / withholding / net match a hand recount]
+        verification: docs/VERIFICATION.md#invoices
+        evidence:
+          - event: verification
+            content_re: 'dry-run'
+      - id: make
+        run: script:scripts/invoice.py make
+        required: true
+        after: [dry-run]
+        pre: [dry-run matched]
+        post: [deliverables/YYYY-MM-DD_<client>_invoice_<number>.md + ledger row]
+        verification: docs/VERIFICATION.md#invoices
+        evidence:
+          - file: deliverables/*invoice*
+            changed_since_start: true
+      - id: verify
+        run: skill:verify
+        required: true
+        after: [make]
+        pre: [client-bound -> tier V]
+        post: [every lens passes]
+        verification: docs/VERIFICATION.md#invoices
+        evidence: [lib:tier_v]
+      - id: log
+        run: skill:invoice
+        required: true
+        after: [verify]
+        pre: [verify passed]
+        post: [task event with intent, situation, meta]
+        verification: docs/VERIFICATION.md#data-writes
+        evidence: [lib:task_event]
+
+  # ------------------------------------------------------------------ annotation batch
+  annotation-batch:
+    title: Annotation batch (consistency check, sample self-eval, verify; the user submits)
+    owner_agent: annotation-assistant
+    client_bound: false
+    autostart: never
+    triggers:
+      slash: [annotation-workflow]
+      strong:
+        - '(?i)\bannotat(e|ion|ing)\b'
+        - '(?i)\b(labeling|labelling) (task|batch|guideline)s?\b'
+        - '(?i)\bguideline (question|doc)\b'
+        - '어노테이션|라벨링|주석\s*작업|가이드라인'
+      weak:
+        - '(?i)\b(batch|rubric|platform|items?)\b'
+    steps:
+      - id: guideline
+        run: skill:annotation-workflow
+        required: false
+        pre: [guideline version known]
+        post: [decision table up to date]
+        verification: docs/VERIFICATION.md#the-loop
+        evidence: [lib:progress_updated]
+      - id: consistency
+        run: agent:annotation-assistant
+        required: true
+        pre: [batch on disk]
+        post: [consistency findings listed per rule ID]
+        verification: docs/VERIFICATION.md#the-loop
+        evidence:
+          - event: task
+            agent: annotation-assistant
+          - file: work/**/*
+            changed_since_start: true
+      - id: sample-eval
+        run: skill:annotation-workflow
+        required: true
+        after: [consistency]
+        pre: [10% sample (min 5 items)]
+        post: [scores against rubrics/annotation-batch.yaml]
+        verification: docs/VERIFICATION.md#the-loop
+        evidence: [lib:progress_updated]
+      - id: verify
+        run: skill:verify
+        required: true
+        after: [sample-eval]
+        pre: [decision table as criteria]
+        post: [verification pass]
+        verification: docs/VERIFICATION.md#the-loop
+        evidence: [lib:verify_pass]
+      - id: log
+        run: skill:annotation-workflow
+        required: true
+        after: [verify]
+        pre: [verify passed]
+        post: [task event scope annotation/<platform>]
+        verification: docs/VERIFICATION.md#data-writes
+        evidence: [lib:task_event]
+
+  # ------------------------------------------------------------------ session end
+  session-end:
+    title: Session end (retro + changelog + handoff)
+    owner_agent: orchestrator
+    client_bound: false
+    autostart: never
+    triggers:
+      slash: [retro, handoff]
+      events: [session_end_requested]
+      strong:
+        - '(?i)\b(wrap (it )?up|let''s stop|stop here|end (the |this )?session|call it a day|done for (today|now))\b'
+        - '(?i)\b(retro|retrospective|hand ?off)\b'
+        - '(오늘|여기)\s*(까지|마무리)|마무리\s*(하자|해)|그만\s*하자'
+      weak:
+        - '(?i)\b(tomorrow|later|next session)\b'
+    steps:
+      - id: park-step
+        run: agent:orchestrator
+        required: true
+        pre: [no edit half-done]
+        post: [PROGRESS.md Done (with proof) / In progress / Next updated]
+        verification: docs/VERIFICATION.md#the-loop
+        evidence: [lib:progress_updated]
+      - id: retro
+        run: skill:retro
+        required: false
+        after: [park-step]
+        pre: [mishaps or corrections this session]
+        post: [log/sessions/<date>_<topic>.md; proposals shown, only approved ones applied]
+        verification: docs/VERIFICATION.md#the-loop
+        evidence: [lib:session_note]
+      - id: changelog
+        run: script:scripts/changelog.py update
+        required: true
+        after: [park-step]
+        pre: [the session's commits / decisions / mishaps are known]
+        post: ['scripts/changelog.py check --scope <dir> exits 0 (Keep a Changelog, ## [Unreleased])']
+        verification: docs/VERIFICATION.md#data-writes
+        evidence: [lib:changelog]
+      - id: handoff
+        run: skill:handoff
+        required: true
+        after: [changelog]
+        pre: [PROGRESS.md current]
+        post: [HANDOFF.md written; cold-read test 6/6; handoff event]
+        verification: docs/VERIFICATION.md#the-loop
+        evidence: [lib:handoff_event]
+
+  # ------------------------------------------------------------------ context >= 200k
+  context-handoff:
+    title: Context at or above 200k tokens -> finish the step and hand off
+    owner_agent: orchestrator
+    client_bound: false
+    autostart: on_event
+    triggers:
+      events: [context_threshold]
+    steps:
+      - id: park-step
+        run: agent:orchestrator
+        required: true
+        pre: [the usage guard reported context >= ctx_stop]
+        post: [current atomic step finished or reverted; PROGRESS.md updated]
+        verification: docs/VERIFICATION.md#the-loop
+        evidence: [lib:progress_updated]
+      - id: handoff
+        run: skill:handoff
+        required: true
+        after: [park-step]
+        pre: [PROGRESS.md current]
+        post: [HANDOFF.md + cold-read 6/6; then the user runs /clear]
+        verification: docs/VERIFICATION.md#the-loop
+        evidence: [lib:handoff_event]
+
+  # ------------------------------------------------------------------ new harness component
+  new-component:
+    title: New component added (skill / agent / hook / script) -> integration checklist
+    owner_agent: orchestrator
+    client_bound: false
+    autostart: on_event
+    params: [component]
+    triggers:
+      slash: [integrate]
+      events: [component_detected]
+      paths: ['skills/*/SKILL.md', 'agents/*.md', 'hooks/*.py', 'scripts/*.py', 'scripts/*.sh']
+      strong:
+        - '(?i)\b(new|add|added|create|wrote) (a |the )?(skill|agent|subagent|hook|script)\b'
+        - '(?i)\bintegrat(e|ion) (checklist|the (new )?(skill|agent|hook|script))\b'
+        - '(스킬|에이전트|훅)\s*(추가|만들)'
+      weak:
+        - '(?i)\bharness\b'
+        - '(?i)\bplugin\b'
+    steps:
+      - id: frontmatter
+        run: skill:integrate
+        required: true
+        pre: [the component file exists]
+        post: [skill name+description; agent name+description+explicit model; hook registered in hooks/hooks.json; script has a docstring]
+        verification: docs/VERIFICATION.md#the-loop
+        evidence:
+          - builtin: component_frontmatter
+      - id: learning-contract
+        run: skill:integrate
+        required: true
+        after: [frontmatter]
+        pre: [component id known]
+        post: [learning/contracts.yaml has a contract (status draft until the user approves) or an exempt entry]
+        verification: docs/VERIFICATION.md#the-loop
+        evidence:
+          - builtin: learning_contract
+      - id: rubric-eval
+        run: skill:integrate
+        required: true
+        after: [frontmatter]
+        pre: [work-producing skills/agents need a rubric + eval area; meta ones an exempt reason]
+        post: [docs/components.json coverage row covered or exempt (drafts proposed, never auto-approved)]
+        verification: docs/VERIFICATION.md#the-loop
+        evidence:
+          - builtin: rubric_eval
+      - id: pipeline-membership
+        run: skill:integrate
+        required: true
+        after: [frontmatter]
+        pre: [pipelines/pipelines.yaml read]
+        post: [component is a step of a pipeline or listed under standalone with a reason; pipeline.py lint exit 0]
+        verification: docs/VERIFICATION.md#the-loop
+        evidence:
+          - builtin: pipeline_membership
+      - id: index
+        run: script:scripts/harness_index.py --write
+        required: true
+        after: [learning-contract, rubric-eval, pipeline-membership]
+        pre: [all of the above done]
+        post: [docs/INDEX.md + docs/components.json regenerated; harness_index.py --check exit 0]
+        verification: docs/VERIFICATION.md#the-loop
+        evidence:
+          - builtin: index_fresh
+      - id: eval-run
+        run: skill:self-eval
+        required: true
+        after: [index]
+        pre: [harness_index.py --affected <file> lists the areas]
+        post: [EvalRun per affected area gated by eval_gate.py (or ungated stated)]
+        verification: docs/VERIFICATION.md#the-loop
+        evidence: [lib:self_eval_run]
+      - id: changelog
+        run: script:scripts/changelog.py update
+        required: true
+        after: [eval-run]
+        pre: [integration done]
+        post: ['scripts/changelog.py check --scope <harness root> exits 0']
+        verification: docs/VERIFICATION.md#data-writes
+        evidence: [lib:changelog]

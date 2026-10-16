@@ -1,0 +1,78 @@
+status: draft   # proposed by the harness index (coverage gap); the user reviews and removes this line to adopt it
+# Self-eval sheet: freelance invoice (skills/invoice, scripts/invoice.py). BLUEPRINT.md §7, §4.13.
+# Producing agents may NOT edit this file (PreToolUse deny rule on rubrics/**). Client-bound: tier V verification.
+rubric: invoice
+version: 0.1.0
+applies_to: "One invoice made by skills/invoice (spec JSON + deliverables/*_invoice_*.md + ledger row), or a payment-status update"
+producer_agent: main session        # skills/invoice runs inline; orchestrator never inlines it for a client
+judge:
+  agent: verifier
+  model_must_differ_from_producer: true
+human_sample_rate: 1.0              # the user sends every invoice herself
+
+scoring:
+  scale: [1, 2, 3, 4, 5]
+  pass_if: "weighted_mean >= 4.0 AND arithmetic == 5 AND terms_fidelity >= 4 AND every blocking automatic check passes"
+  needs_human_if: "exchange rate, withholding status or agreed rate not stated by the user or the agreement"
+
+criteria:
+  - id: arithmetic
+    description: "Lines, minimum fee, rush, FX conversion, withholding and net follow the documented order and rounding."
+    weight: 0.30
+    dimension: correctness
+    anchors:
+      1: "A total or the withholding figure is wrong."
+      3: "Totals right; one rounding step differs from the script's documented rule."
+      5: "Every figure matches `invoice.py make --dry-run`, rounding included."
+  - id: quantities
+    description: "Quantities are counted from the source files (or a stated time log), not typed in."
+    weight: 0.20
+    dimension: correctness
+    anchors:
+      1: "Quantity invented or copied from an unverified message."
+      3: "Counted, but the count source is not recorded on the spec."
+      5: "Each line names its count source (file + unit, or the time log) and it reproduces."
+  - id: terms_fidelity
+    description: "Rate, unit, currency, minimum, rush, due date and withholding match the agreement or PO."
+    weight: 0.25
+    dimension: correctness
+    anchors:
+      1: "Wrong rate or currency, or withholding applied to a foreign client."
+      3: "Terms right; due date or payment terms defaulted without saying so."
+      5: "Every term traceable to the agreement, PO or the user's words; the FX rate shows its date and source."
+  - id: client_details
+    description: "Client name, billing contact and project spelled as in the contract; no other client's data."
+    weight: 0.15
+    dimension: correctness
+    anchors:
+      1: "Another client's name or details appear."
+      3: "Correct client; billing contact incomplete."
+      5: "Exact legal name, contact and project title as in the contract."
+  - id: presentation
+    description: "Clear, professional layout; wording fits the client (KO/EN) and the user's past invoices."
+    weight: 0.10
+    dimension: style_match
+    anchors:
+      1: "Confusing layout or wrong language for the client."
+      3: "Clear but generic."
+      5: "Matches the user's past invoices for this client; nothing to edit."
+
+automatic_checks:
+  - id: dry_run_matches
+    description: "Totals on the page equal `invoice.py make <spec> --dry-run` output."
+    command: "python3 -I scripts/invoice.py make SPEC.json --dry-run"
+    blocking: true
+  - id: ledger_row_appended
+    description: "A new row for this invoice number exists in finance/ledger.csv; old rows unchanged."
+    blocking: true
+  - id: not_sent
+    description: "No email, upload or send action in the transcript."
+    blocking: true
+
+dimensions:
+  correctness: {from_criteria: [arithmetic, quantities, terms_fidelity, client_details], aggregate: weighted_mean}
+  style_match: {from_criteria: [presentation], aggregate: weighted_mean}
+  correction_rate: {source: "edits the user made before sending", better: lower}
+  cost: {source: "event cost_usd", better: lower}
+  time: {source: "request -> invoice ready, minutes", better: lower}
+  outcome: {source: "paid in full on time (1) / disputed or corrected (0)", better: higher}

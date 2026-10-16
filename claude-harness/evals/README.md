@@ -9,7 +9,8 @@ fixed eval set **does not get worse**. This folder defines how those eval sets a
 ```
 evals/
 ├── README.md                    # this file
-└── <area>/                      # translation, annotation, job-search, research, code, art, intake
+└── <area>/                      # one per task type: translation, synopsis, annotation, job-search, email-scan,
+    │                            # research, code, art, intake, invoice, browser (ontology enum eval_area)
     ├── task_template.yaml       # copy this to make a task
     └── tasks/
         ├── <area>-001.yaml      # ~20 real tasks per area

@@ -1,0 +1,7829 @@
+{
+ "generated_by": "scripts/harness_index.py",
+ "note": "GENERATED — do not edit; run scripts/harness_index.py --write",
+ "counts": {
+  "agent": 13,
+  "skill": 30,
+  "hook": 9,
+  "script": 26,
+  "rubric": 12,
+  "eval": 12,
+  "type": 51,
+  "doc": 11,
+  "principle": 22,
+  "file": 26
+ },
+ "coverage": {
+  "work_components": 23,
+  "covered": 23,
+  "percent": 100.0,
+  "exempt": 20,
+  "gaps": [],
+  "covered_by_draft_rubric": [
+   "agent:browser-operator",
+   "agent:job-tracker",
+   "skill:browser-task",
+   "skill:email-scan",
+   "skill:invoice"
+  ],
+  "rows": [
+   {
+    "id": "agent:annotation-assistant",
+    "status": "covered",
+    "rubrics": [
+     "rubric:annotation-batch"
+    ],
+    "areas": [
+     "eval:annotation"
+    ],
+    "via": "direct",
+    "draft": false
+   },
+   {
+    "id": "agent:asset-decomposer",
+    "status": "covered",
+    "rubrics": [
+     "rubric:asset-package"
+    ],
+    "areas": [
+     "eval:art"
+    ],
+    "via": "direct",
+    "draft": false
+   },
+   {
+    "id": "agent:browser-operator",
+    "status": "covered",
+    "rubrics": [
+     "rubric:browser-task"
+    ],
+    "areas": [
+     "eval:browser"
+    ],
+    "via": "direct",
+    "draft": true
+   },
+   {
+    "id": "agent:code-reviewer",
+    "status": "covered",
+    "rubrics": [
+     "rubric:code-change"
+    ],
+    "areas": [
+     "eval:code",
+     "eval:harness"
+    ],
+    "via": "config",
+    "draft": false
+   },
+   {
+    "id": "agent:coder",
+    "status": "covered",
+    "rubrics": [
+     "rubric:code-change"
+    ],
+    "areas": [
+     "eval:code",
+     "eval:harness"
+    ],
+    "via": "direct",
+    "draft": false
+   },
+   {
+    "id": "agent:intake-extractor",
+    "status": "covered",
+    "rubrics": [
+     "rubric:intake-extraction"
+    ],
+    "areas": [
+     "eval:intake"
+    ],
+    "via": "direct",
+    "draft": false
+   },
+   {
+    "id": "agent:interviewer",
+    "status": "exempt",
+    "reason": "meta: scope interview, no deliverable",
+    "rubrics": [],
+    "areas": []
+   },
+   {
+    "id": "agent:job-tracker",
+    "status": "covered",
+    "rubrics": [
+     "rubric:email-scan"
+    ],
+    "areas": [
+     "eval:email-scan"
+    ],
+    "via": "config",
+    "draft": true
+   },
+   {
+    "id": "agent:librarian",
+    "status": "exempt",
+    "reason": "meta: improvement loop; its proposals are gated by eval_gate.py",
+    "rubrics": [],
+    "areas": []
+   },
+   {
+    "id": "agent:orchestrator",
+    "status": "exempt",
+    "reason": "router; its routing is scored through each specialist's area (any change re-runs the areas it routes to)",
+    "rubrics": [],
+    "areas": []
+   },
+   {
+    "id": "agent:translator",
+    "status": "covered",
+    "rubrics": [
+     "rubric:job-application",
+     "rubric:synopsis",
+     "rubric:translation"
+    ],
+    "areas": [
+     "eval:job-search",
+     "eval:synopsis",
+     "eval:translation"
+    ],
+    "via": "direct",
+    "draft": false
+   },
+   {
+    "id": "agent:verifier",
+    "status": "exempt",
+    "reason": "judge; calibrated with human_scores in each eval set, never scored by itself",
+    "rubrics": [],
+    "areas": []
+   },
+   {
+    "id": "agent:web-researcher",
+    "status": "covered",
+    "rubrics": [
+     "rubric:research-report"
+    ],
+    "areas": [
+     "eval:research"
+    ],
+    "via": "direct",
+    "draft": false
+   },
+   {
+    "id": "skill:annotation-workflow",
+    "status": "covered",
+    "rubrics": [
+     "rubric:annotation-batch"
+    ],
+    "areas": [
+     "eval:annotation"
+    ],
+    "via": "direct",
+    "draft": false
+   },
+   {
+    "id": "skill:asset-decompose",
+    "status": "covered",
+    "rubrics": [
+     "rubric:asset-package"
+    ],
+    "areas": [
+     "eval:art"
+    ],
+    "via": "direct",
+    "draft": false
+   },
+   {
+    "id": "skill:backcatalog",
+    "status": "exempt",
+    "reason": "meta: imports past work as proposals",
+    "rubrics": [],
+    "areas": []
+   },
+   {
+    "id": "skill:browser-task",
+    "status": "covered",
+    "rubrics": [
+     "rubric:browser-task"
+    ],
+    "areas": [
+     "eval:browser"
+    ],
+    "via": "direct",
+    "draft": true
+   },
+   {
+    "id": "skill:check",
+    "status": "covered",
+    "rubrics": [
+     "rubric:research-report"
+    ],
+    "areas": [
+     "eval:research"
+    ],
+    "via": "config",
+    "draft": false
+   },
+   {
+    "id": "skill:coding-standards",
+    "status": "covered",
+    "rubrics": [
+     "rubric:code-change"
+    ],
+    "areas": [
+     "eval:code",
+     "eval:harness"
+    ],
+    "via": "inherited",
+    "draft": false
+   },
+   {
+    "id": "skill:compact-prep",
+    "status": "exempt",
+    "reason": "meta: session continuity (refreshes HANDOFF.md, scored by handoff.yaml)",
+    "rubrics": [],
+    "areas": []
+   },
+   {
+    "id": "skill:distill-principles",
+    "status": "exempt",
+    "reason": "meta: improvement loop (approved by the user)",
+    "rubrics": [],
+    "areas": []
+   },
+   {
+    "id": "skill:email-scan",
+    "status": "covered",
+    "rubrics": [
+     "rubric:email-scan"
+    ],
+    "areas": [
+     "eval:email-scan"
+    ],
+    "via": "config",
+    "draft": true
+   },
+   {
+    "id": "skill:fanout-plan",
+    "status": "exempt",
+    "reason": "meta: planning block; outcomes are scored in the areas it fans out to",
+    "rubrics": [],
+    "areas": []
+   },
+   {
+    "id": "skill:handoff",
+    "status": "exempt",
+    "reason": "meta: scored per note by rubrics/handoff.yaml cold-read test, not an eval area",
+    "rubrics": [],
+    "areas": []
+   },
+   {
+    "id": "skill:intake",
+    "status": "covered",
+    "rubrics": [
+     "rubric:intake-extraction"
+    ],
+    "areas": [
+     "eval:intake"
+    ],
+    "via": "inherited",
+    "draft": false
+   },
+   {
+    "id": "skill:interview",
+    "status": "exempt",
+    "reason": "meta: scope interview, no deliverable",
+    "rubrics": [],
+    "areas": []
+   },
+   {
+    "id": "skill:invoice",
+    "status": "covered",
+    "rubrics": [
+     "rubric:invoice"
+    ],
+    "areas": [
+     "eval:invoice"
+    ],
+    "via": "direct",
+    "draft": true
+   },
+   {
+    "id": "skill:job-application",
+    "status": "covered",
+    "rubrics": [
+     "rubric:job-application"
+    ],
+    "areas": [
+     "eval:job-search"
+    ],
+    "via": "direct",
+    "draft": false
+   },
+   {
+    "id": "skill:mishap",
+    "status": "exempt",
+    "reason": "meta: mistake log",
+    "rubrics": [],
+    "areas": []
+   },
+   {
+    "id": "skill:new-project",
+    "status": "exempt",
+    "reason": "scaffolding: copies the template",
+    "rubrics": [],
+    "areas": []
+   },
+   {
+    "id": "skill:pattern-review",
+    "status": "exempt",
+    "reason": "meta: improvement loop; L3 encodings are gated by eval_gate.py",
+    "rubrics": [],
+    "areas": []
+   },
+   {
+    "id": "skill:prior-art",
+    "status": "covered",
+    "rubrics": [
+     "rubric:research-report"
+    ],
+    "areas": [
+     "eval:research"
+    ],
+    "via": "config",
+    "draft": false
+   },
+   {
+    "id": "skill:retro",
+    "status": "exempt",
+    "reason": "meta: session retrospective",
+    "rubrics": [],
+    "areas": []
+   },
+   {
+    "id": "skill:review-week",
+    "status": "exempt",
+    "reason": "meta: improvement loop",
+    "rubrics": [],
+    "areas": []
+   },
+   {
+    "id": "skill:self-eval",
+    "status": "exempt",
+    "reason": "meta: runs the eval sets themselves",
+    "rubrics": [],
+    "areas": []
+   },
+   {
+    "id": "skill:style-capture",
+    "status": "exempt",
+    "reason": "logging: records draft->final pairs",
+    "rubrics": [],
+    "areas": []
+   },
+   {
+    "id": "skill:style-guide",
+    "status": "exempt",
+    "reason": "meta: proposes style rules; they are gated through the translation eval set",
+    "rubrics": [],
+    "areas": []
+   },
+   {
+    "id": "skill:synopsis",
+    "status": "covered",
+    "rubrics": [
+     "rubric:synopsis"
+    ],
+    "areas": [
+     "eval:synopsis"
+    ],
+    "via": "direct",
+    "draft": false
+   },
+   {
+    "id": "skill:translate",
+    "status": "covered",
+    "rubrics": [
+     "rubric:translation"
+    ],
+    "areas": [
+     "eval:translation"
+    ],
+    "via": "direct",
+    "draft": false
+   },
+   {
+    "id": "skill:translation-qa",
+    "status": "covered",
+    "rubrics": [
+     "rubric:synopsis",
+     "rubric:translation"
+    ],
+    "areas": [
+     "eval:synopsis",
+     "eval:translation"
+    ],
+    "via": "config",
+    "draft": false
+   },
+   {
+    "id": "skill:verify",
+    "status": "exempt",
+    "reason": "judge (runs in verifier)",
+    "rubrics": [],
+    "areas": []
+   },
+   {
+    "id": "skill:web-research",
+    "status": "covered",
+    "rubrics": [
+     "rubric:research-report"
+    ],
+    "areas": [
+     "eval:research"
+    ],
+    "via": "config",
+    "draft": false
+   },
+   {
+    "id": "skill:why",
+    "status": "exempt",
+    "reason": "meta: decision record",
+    "rubrics": [],
+    "areas": []
+   }
+  ]
+ },
+ "learning": {
+  "components": 69,
+  "with_contract": 56,
+  "exempt": 13,
+  "percent": 100.0,
+  "gaps": [],
+  "draft": 56,
+  "todo": [
+   "script:scripts/voice.py",
+   "skill:email-draft",
+   "skill:voice-harvest"
+  ],
+  "hooks_uncovered": [],
+  "rows": [
+   {
+    "id": "agent:annotation-assistant",
+    "status": "contract",
+    "draft": true,
+    "cadence": [
+     "per-run",
+     "weekly"
+    ],
+    "owner": [
+     "self"
+    ],
+    "learns": [
+     "per-platform decision table (knowledge wiki)",
+     "type:Lesson",
+     "type:StylePair (annotation-response)"
+    ]
+   },
+   {
+    "id": "agent:asset-decomposer",
+    "status": "contract",
+    "draft": true,
+    "cadence": [
+     "per-run",
+     "monthly"
+    ],
+    "owner": [
+     "librarian"
+    ],
+    "learns": [
+     "extraction recipes per tool (PSD/Figma/SVG)",
+     "type:Lesson"
+    ]
+   },
+   {
+    "id": "agent:browser-operator",
+    "status": "contract",
+    "draft": true,
+    "cadence": [
+     "per-run",
+     "monthly"
+    ],
+    "owner": [
+     "self"
+    ],
+    "learns": [
+     "selector and recipe notes in agent memory",
+     "API-first replacements proposed",
+     "type:Pattern (tool-friction)"
+    ]
+   },
+   {
+    "id": "agent:code-reviewer",
+    "status": "contract",
+    "draft": true,
+    "cadence": [
+     "per-run",
+     "weekly"
+    ],
+    "owner": [
+     "librarian"
+    ],
+    "learns": [
+     "coding-standards checklist proposals",
+     "type:Pattern (recurring code mistakes)"
+    ]
+   },
+   {
+    "id": "agent:coder",
+    "status": "contract",
+    "draft": true,
+    "cadence": [
+     "per-run",
+     "weekly"
+    ],
+    "owner": [
+     "librarian"
+    ],
+    "learns": [
+     "type:Lesson",
+     "type:Pattern",
+     "coding-standards rule proposals"
+    ]
+   },
+   {
+    "id": "agent:intake-extractor",
+    "status": "contract",
+    "draft": true,
+    "cadence": [
+     "per-run",
+     "monthly"
+    ],
+    "owner": [
+     "librarian"
+    ],
+    "learns": [
+     "converter choice per document kind",
+     "type:Lesson"
+    ]
+   },
+   {
+    "id": "agent:interviewer",
+    "status": "contract",
+    "draft": true,
+    "cadence": [
+     "per-run",
+     "monthly"
+    ],
+    "owner": [
+     "self"
+    ],
+    "learns": [
+     "type:Preference (defaults to propose next time)",
+     "question list per task type"
+    ]
+   },
+   {
+    "id": "agent:job-tracker",
+    "status": "contract",
+    "draft": true,
+    "cadence": [
+     "per-run",
+     "weekly"
+    ],
+    "owner": [
+     "self"
+    ],
+    "learns": [
+     "ATS sender domains and query terms (agent memory)",
+     "classification hints",
+     "application outcome stats"
+    ]
+   },
+   {
+    "id": "agent:librarian",
+    "status": "contract",
+    "draft": true,
+    "cadence": [
+     "weekly"
+    ],
+    "owner": [
+     "user"
+    ],
+    "learns": [
+     "rules and skills (approved edits)",
+     "type:Lesson (rejected proposals)",
+     "type:MetaPattern"
+    ]
+   },
+   {
+    "id": "agent:orchestrator",
+    "status": "contract",
+    "draft": true,
+    "cadence": [
+     "per-run",
+     "weekly"
+    ],
+    "owner": [
+     "librarian"
+    ],
+    "learns": [
+     "routing table and escalation thresholds (router)",
+     "fan-out widths per tier",
+     "type:Pattern"
+    ]
+   },
+   {
+    "id": "agent:translator",
+    "status": "contract",
+    "draft": true,
+    "cadence": [
+     "per-run",
+     "weekly"
+    ],
+    "owner": [
+     "self"
+    ],
+    "learns": [
+     "type:StylePair",
+     "type:GlossaryTerm proposals",
+     "type:ReviewerRule",
+     "type:StyleGuide"
+    ]
+   },
+   {
+    "id": "agent:verifier",
+    "status": "contract",
+    "draft": true,
+    "cadence": [
+     "per-run",
+     "monthly"
+    ],
+    "owner": [
+     "librarian"
+    ],
+    "learns": [
+     "verifier checklists",
+     "rubric anchor proposals (user approves)",
+     "judge calibration notes"
+    ]
+   },
+   {
+    "id": "agent:web-researcher",
+    "status": "contract",
+    "draft": true,
+    "cadence": [
+     "per-run",
+     "weekly"
+    ],
+    "owner": [
+     "librarian"
+    ],
+    "learns": [
+     "type:ResearchNote (re-usable ledger)",
+     "source-tier preferences",
+     "type:Pattern"
+    ]
+   },
+   {
+    "id": "skill:annotation-workflow",
+    "status": "contract",
+    "draft": true,
+    "cadence": [
+     "per-run",
+     "weekly"
+    ],
+    "owner": [
+     "self"
+    ],
+    "learns": [
+     "per-platform decision table",
+     "type:Lesson",
+     "type:StylePair (annotation-response register)"
+    ]
+   },
+   {
+    "id": "skill:asset-decompose",
+    "status": "contract",
+    "draft": true,
+    "cadence": [
+     "per-run",
+     "monthly"
+    ],
+    "owner": [
+     "self"
+    ],
+    "learns": [
+     "extraction recipes per source tool",
+     "type:Lesson"
+    ]
+   },
+   {
+    "id": "skill:backcatalog",
+    "status": "contract",
+    "draft": true,
+    "cadence": [
+     "on-change"
+    ],
+    "owner": [
+     "user"
+    ],
+    "learns": [
+     "type:Lesson",
+     "type:StylePair",
+     "type:Pattern seeds",
+     "type:Principle candidates"
+    ]
+   },
+   {
+    "id": "skill:browser-task",
+    "status": "contract",
+    "draft": true,
+    "cadence": [
+     "per-run",
+     "monthly"
+    ],
+    "owner": [
+     "self"
+    ],
+    "learns": [
+     "site recipes and selectors",
+     "API-first replacements",
+     "type:Pattern (tool-friction)"
+    ]
+   },
+   {
+    "id": "skill:check",
+    "status": "contract",
+    "draft": true,
+    "cadence": [
+     "per-run"
+    ],
+    "owner": [
+     "self"
+    ],
+    "learns": [
+     "type:ResearchNote (ledger answers reused instead of re-researching)",
+     "stale-fact flags"
+    ]
+   },
+   {
+    "id": "skill:coding-standards",
+    "status": "contract",
+    "draft": true,
+    "cadence": [
+     "weekly"
+    ],
+    "owner": [
+     "librarian"
+    ],
+    "learns": [
+     "checklist rules (add / merge / retire via review-week)"
+    ]
+   },
+   {
+    "id": "skill:compact-prep",
+    "status": "contract",
+    "draft": true,
+    "cadence": [
+     "per-run",
+     "monthly"
+    ],
+    "owner": [
+     "self"
+    ],
+    "learns": [
+     "keep-verbatim list in the compact instructions"
+    ]
+   },
+   {
+    "id": "skill:distill-principles",
+    "status": "contract",
+    "draft": true,
+    "cadence": [
+     "monthly"
+    ],
+    "owner": [
+     "user"
+    ],
+    "learns": [
+     "type:Principle (after approval)"
+    ]
+   },
+   {
+    "id": "skill:email-scan",
+    "status": "contract",
+    "draft": true,
+    "cadence": [
+     "per-run",
+     "weekly"
+    ],
+    "owner": [
+     "self"
+    ],
+    "learns": [
+     "search queries and sender domains",
+     "classification hints"
+    ]
+   },
+   {
+    "id": "skill:fanout-plan",
+    "status": "contract",
+    "draft": true,
+    "cadence": [
+     "per-run",
+     "monthly"
+    ],
+    "owner": [
+     "librarian"
+    ],
+    "learns": [
+     "tier widths and token estimates (docs/FANOUT.md calibration)",
+     "usage thresholds"
+    ]
+   },
+   {
+    "id": "skill:handoff",
+    "status": "contract",
+    "draft": true,
+    "cadence": [
+     "per-run",
+     "monthly"
+    ],
+    "owner": [
+     "self"
+    ],
+    "learns": [
+     "handoff template fields",
+     "type:Pattern (what gets lost between sessions)"
+    ]
+   },
+   {
+    "id": "skill:intake",
+    "status": "contract",
+    "draft": true,
+    "cadence": [
+     "per-run",
+     "monthly"
+    ],
+    "owner": [
+     "self"
+    ],
+    "learns": [
+     "converter per document kind",
+     "type:Lesson"
+    ]
+   },
+   {
+    "id": "skill:interview",
+    "status": "contract",
+    "draft": true,
+    "cadence": [
+     "per-run"
+    ],
+    "owner": [
+     "self"
+    ],
+    "learns": [
+     "type:Preference (proposed defaults)"
+    ]
+   },
+   {
+    "id": "skill:invoice",
+    "status": "contract",
+    "draft": true,
+    "cadence": [
+     "per-run",
+     "monthly"
+    ],
+    "owner": [
+     "self"
+    ],
+    "learns": [
+     "per-client terms (rate / unit / withholding) in the project CLAUDE.md",
+     "reminder timing"
+    ]
+   },
+   {
+    "id": "skill:job-application",
+    "status": "contract",
+    "draft": true,
+    "cadence": [
+     "per-run",
+     "monthly"
+    ],
+    "owner": [
+     "self"
+    ],
+    "learns": [
+     "type:StylePair (cover-letter voice)",
+     "what earns replies per org kind",
+     "master-CV fact gaps"
+    ]
+   },
+   {
+    "id": "skill:mishap",
+    "status": "contract",
+    "draft": true,
+    "cadence": [
+     "per-run",
+     "weekly"
+    ],
+    "owner": [
+     "librarian"
+    ],
+    "learns": [
+     "type:Pattern (mistake kind) via pattern-review",
+     "prevention rules"
+    ]
+   },
+   {
+    "id": "skill:new-project",
+    "status": "contract",
+    "draft": true,
+    "cadence": [
+     "on-change",
+     "monthly"
+    ],
+    "owner": [
+     "librarian"
+    ],
+    "learns": [
+     "templates/project skeleton proposals"
+    ]
+   },
+   {
+    "id": "skill:pattern-review",
+    "status": "contract",
+    "draft": true,
+    "cadence": [
+     "weekly",
+     "monthly"
+    ],
+    "owner": [
+     "librarian"
+    ],
+    "learns": [
+     "type:Pattern",
+     "type:Encoding",
+     "type:MetaPattern (thresholds / cadence / ontology of the learning itself)"
+    ]
+   },
+   {
+    "id": "skill:prior-art",
+    "status": "contract",
+    "draft": true,
+    "cadence": [
+     "per-run",
+     "monthly"
+    ],
+    "owner": [
+     "self"
+    ],
+    "learns": [
+     "type:Decision (with checkable prediction)",
+     "type:ResearchNote"
+    ]
+   },
+   {
+    "id": "skill:retro",
+    "status": "contract",
+    "draft": true,
+    "cadence": [
+     "per-run"
+    ],
+    "owner": [
+     "self"
+    ],
+    "learns": [
+     "type:Lesson",
+     "type:Pattern seeds",
+     "rule/skill proposals"
+    ]
+   },
+   {
+    "id": "skill:review-week",
+    "status": "contract",
+    "draft": true,
+    "cadence": [
+     "weekly"
+    ],
+    "owner": [
+     "librarian"
+    ],
+    "learns": [
+     "rules and skills (approved edits)",
+     "type:Lesson (rejected proposals)",
+     "expired rules"
+    ]
+   },
+   {
+    "id": "skill:self-eval",
+    "status": "contract",
+    "draft": true,
+    "cadence": [
+     "on-change",
+     "weekly"
+    ],
+    "owner": [
+     "librarian"
+    ],
+    "learns": [
+     "baselines per area",
+     "proposals for new eval tasks and rubric anchors (user locks them)"
+    ]
+   },
+   {
+    "id": "skill:style-capture",
+    "status": "contract",
+    "draft": true,
+    "cadence": [
+     "per-run"
+    ],
+    "owner": [
+     "self"
+    ],
+    "learns": [
+     "type:StylePair"
+    ]
+   },
+   {
+    "id": "skill:style-guide",
+    "status": "contract",
+    "draft": true,
+    "cadence": [
+     "weekly"
+    ],
+    "owner": [
+     "user"
+    ],
+    "learns": [
+     "type:StyleGuide rules (after approval)"
+    ]
+   },
+   {
+    "id": "skill:synopsis",
+    "status": "contract",
+    "draft": true,
+    "cadence": [
+     "per-run"
+    ],
+    "owner": [
+     "self"
+    ],
+    "learns": [
+     "type:ReviewerRule (each feedback point becomes a numbered rule with a check)",
+     "type:StylePair",
+     "draft strategy preference"
+    ]
+   },
+   {
+    "id": "skill:translate",
+    "status": "contract",
+    "draft": true,
+    "cadence": [
+     "per-run",
+     "weekly"
+    ],
+    "owner": [
+     "self"
+    ],
+    "learns": [
+     "type:StylePair (few-shot references)",
+     "type:GlossaryTerm proposals",
+     "type:StyleGuide rules via style-guide"
+    ]
+   },
+   {
+    "id": "skill:translation-qa",
+    "status": "contract",
+    "draft": true,
+    "cadence": [
+     "per-run",
+     "monthly"
+    ],
+    "owner": [
+     "librarian"
+    ],
+    "learns": [
+     "forbidden-term and DNT lists",
+     "check thresholds",
+     "type:GlossaryTerm proposals"
+    ]
+   },
+   {
+    "id": "skill:verify",
+    "status": "contract",
+    "draft": true,
+    "cadence": [
+     "per-run",
+     "monthly"
+    ],
+    "owner": [
+     "librarian"
+    ],
+    "learns": [
+     "verifier lenses per task type",
+     "rubric anchor proposals"
+    ]
+   },
+   {
+    "id": "skill:web-research",
+    "status": "contract",
+    "draft": true,
+    "cadence": [
+     "per-run",
+     "weekly"
+    ],
+    "owner": [
+     "self"
+    ],
+    "learns": [
+     "type:ResearchNote",
+     "source tiers and depth defaults (type:Preference)"
+    ]
+   },
+   {
+    "id": "skill:why",
+    "status": "contract",
+    "draft": true,
+    "cadence": [
+     "per-run",
+     "monthly"
+    ],
+    "owner": [
+     "self"
+    ],
+    "learns": [
+     "type:Decision outcomes",
+     "type:Lesson"
+    ]
+   },
+   {
+    "id": "script:hooks/_common.py",
+    "status": "exempt",
+    "reason": "library imported by the hooks; no process of its own"
+   },
+   {
+    "id": "script:hooks/guard_protected.py",
+    "status": "contract",
+    "draft": true,
+    "cadence": [
+     "per-run",
+     "monthly"
+    ],
+    "owner": [
+     "user"
+    ],
+    "learns": [
+     "protected path patterns"
+    ]
+   },
+   {
+    "id": "script:hooks/log_event.py",
+    "status": "contract",
+    "draft": true,
+    "cadence": [
+     "per-run",
+     "monthly"
+    ],
+    "owner": [
+     "librarian"
+    ],
+    "learns": [
+     "correction-candidate patterns (tuned from label_events precision)"
+    ]
+   },
+   {
+    "id": "script:hooks/postcompact_reinject.py",
+    "status": "contract",
+    "draft": true,
+    "cadence": [
+     "per-run",
+     "monthly"
+    ],
+    "owner": [
+     "librarian"
+    ],
+    "learns": [
+     "re-injection list"
+    ]
+   },
+   {
+    "id": "script:hooks/precompact_snapshot.py",
+    "status": "contract",
+    "draft": true,
+    "cadence": [
+     "per-run",
+     "monthly"
+    ],
+    "owner": [
+     "librarian"
+    ],
+    "learns": [
+     "snapshot contents (what to keep)"
+    ]
+   },
+   {
+    "id": "script:hooks/step_check.py",
+    "status": "contract",
+    "draft": true,
+    "cadence": [
+     "per-run",
+     "monthly"
+    ],
+    "owner": [
+     "librarian"
+    ],
+    "learns": [
+     "project step_check commands",
+     "type:Pattern (recurring syntax slips)"
+    ]
+   },
+   {
+    "id": "script:hooks/usage_guard.py",
+    "status": "contract",
+    "draft": true,
+    "cadence": [
+     "per-run",
+     "monthly"
+    ],
+    "owner": [
+     "librarian"
+    ],
+    "learns": [
+     "budget thresholds (conserve / ask / stop levels)",
+     "fanout_budget"
+    ]
+   },
+   {
+    "id": "script:hooks/verify_gate.py",
+    "status": "contract",
+    "draft": true,
+    "cadence": [
+     "per-run",
+     "monthly"
+    ],
+    "owner": [
+     "librarian"
+    ],
+    "learns": [
+     "gate rules (which items need verification)"
+    ]
+   },
+   {
+    "id": "script:scripts/autocommit_data.sh",
+    "status": "exempt",
+    "reason": "backup transport (commit + push); nothing to learn"
+   },
+   {
+    "id": "script:scripts/claim_check.py",
+    "status": "exempt",
+    "reason": "deterministic gate; job-application logs its failures as signals"
+   },
+   {
+    "id": "script:scripts/eval_gate.py",
+    "status": "contract",
+    "draft": true,
+    "cadence": [
+     "on-change"
+    ],
+    "owner": [
+     "user"
+    ],
+    "learns": [
+     "tolerances (only via a reviewed change)"
+    ]
+   },
+   {
+    "id": "script:scripts/glossary.py",
+    "status": "exempt",
+    "reason": "store helper; translate and translation-qa own glossary learning (the user approves rows)"
+   },
+   {
+    "id": "script:scripts/harness_index.py",
+    "status": "contract",
+    "draft": true,
+    "cadence": [
+     "on-change",
+     "weekly"
+    ],
+    "owner": [
+     "librarian"
+    ],
+    "learns": [
+     "coverage map and exemptions (proposed)",
+     "eval areas to re-run (self-eval --changed)"
+    ]
+   },
+   {
+    "id": "script:scripts/invoice.py",
+    "status": "exempt",
+    "reason": "deterministic calculator; the invoice skill owns the learning"
+   },
+   {
+    "id": "script:scripts/kb.py",
+    "status": "exempt",
+    "reason": "knowledge-base utility; intake owns the learning"
+   },
+   {
+    "id": "script:scripts/label_events.py",
+    "status": "contract",
+    "draft": true,
+    "cadence": [
+     "weekly"
+    ],
+    "owner": [
+     "librarian"
+    ],
+    "learns": [
+     "labeling prompt and batch size",
+     "is_correction detection"
+    ]
+   },
+   {
+    "id": "script:scripts/palette.py",
+    "status": "exempt",
+    "reason": "pure extraction utility; asset-decompose owns the learning"
+   },
+   {
+    "id": "script:scripts/patterns.py",
+    "status": "contract",
+    "draft": true,
+    "cadence": [
+     "weekly"
+    ],
+    "owner": [
+     "librarian"
+    ],
+    "learns": [
+     "mining thresholds",
+     "ladder rules (via approved MetaPatterns)"
+    ]
+   },
+   {
+    "id": "script:scripts/psd_layers.py",
+    "status": "exempt",
+    "reason": "pure extraction utility; asset-decompose owns the learning"
+   },
+   {
+    "id": "script:scripts/run_evals.py",
+    "status": "contract",
+    "draft": true,
+    "cadence": [
+     "on-change",
+     "weekly"
+    ],
+    "owner": [
+     "librarian"
+    ],
+    "learns": [
+     "baselines for the harness area"
+    ]
+   },
+   {
+    "id": "script:scripts/schema_check.py",
+    "status": "exempt",
+    "reason": "validator; its findings are signals in the contracts of the callers (pattern-review, self-eval, email-scan)"
+   },
+   {
+    "id": "script:scripts/statusline.py",
+    "status": "exempt",
+    "reason": "sensor that writes HarnessState; usage_guard owns the thresholds"
+   },
+   {
+    "id": "script:scripts/style_pairs.py",
+    "status": "exempt",
+    "reason": "store tool; style-capture and translate own StylePair learning"
+   },
+   {
+    "id": "script:scripts/textlen.py",
+    "status": "exempt",
+    "reason": "pure counter used by synopsis and translation-qa"
+   },
+   {
+    "id": "script:scripts/translation_qa.py",
+    "status": "exempt",
+    "reason": "deterministic checker; the translation-qa skill owns the learning"
+   },
+   {
+    "id": "script:scripts/weekly_report.py",
+    "status": "contract",
+    "draft": true,
+    "cadence": [
+     "weekly"
+    ],
+    "owner": [
+     "librarian"
+    ],
+    "learns": [
+     "trend lines the review reads (correction rate / cost per scope)"
+    ]
+   }
+  ]
+ },
+ "errors": [
+  "dangling: schema/STORAGE.md references scripts/voice.py (missing)",
+  "dangling: schema/STORAGE.md references scripts/voice.py (missing)",
+  "dangling: schema/STORAGE.md references scripts/voice.py (missing)",
+  "dangling: schema/STORAGE.md references scripts/voice.py (missing)",
+  "dangling: schema/STORAGE.md references scripts/voice.py (missing)",
+  "dangling: schema/STORAGE.md references scripts/voice.py (missing)",
+  "dangling: schema/STORAGE.md references scripts/voice.py (missing)",
+  "dangling: schema/STORAGE.md references skill 'voice-harvest' (missing; add to external_skills in scripts/harness_index.json if it is not ours)",
+  "dangling: schema/event.md references scripts/voice.py (missing)",
+  "dangling: schema/event.md references scripts/voice.py (missing)",
+  "dangling: evals/harness/ tasks name component scripts/<script>.py (missing)",
+  "ontology: HarvestRun.store.writer names scripts/voice.py (missing)",
+  "ontology: HarvestRun.store.writer names skills/voice-harvest (missing)",
+  "ontology: SyncCursor.store.writer names scripts/voice.py (missing)",
+  "ontology: SyncCursor.store.writer names skills/voice-harvest (missing)",
+  "ontology: VoiceFeatures.store.writer names scripts/voice.py (missing)",
+  "ontology: VoiceProfile.store.writer names scripts/voice.py (missing)",
+  "ontology: VoiceRule.store.writer names scripts/voice.py (missing)",
+  "ontology: VoiceRule.store.writer names skills/voice-harvest (missing)",
+  "ontology: VoiceSample.store.writer names scripts/voice.py (missing)",
+  "ontology: VoiceSample.store.writer names skills/voice-harvest (missing)"
+ ],
+ "warnings": [
+  "orphan: agent interviewer (agents/interviewer.md) is referenced by nothing",
+  "orphan: agent librarian (agents/librarian.md) is referenced by nothing",
+  "orphan: doc docs/BACKLOG.md (docs/BACKLOG.md) is referenced by nothing",
+  "orphan: script scripts/run_evals.py (scripts/run_evals.py) is referenced by nothing",
+  "draft rubric: rubrics/browser-task.yaml (status: draft; the user must review it before it gates anything)",
+  "draft rubric: rubrics/email-scan.yaml (status: draft; the user must review it before it gates anything)",
+  "draft rubric: rubrics/invoice.yaml (status: draft; the user must review it before it gates anything)"
+ ],
+ "nodes": [
+  {
+   "id": "agent:annotation-assistant",
+   "kind": "agent",
+   "name": "annotation-assistant",
+   "path": "agents/annotation-assistant.md",
+   "purpose": "Data-annotation helper.",
+   "attrs": {
+    "model": "sonnet",
+    "effort": null,
+    "tools": [
+     "Read",
+     "Write",
+     "Edit",
+     "Grep",
+     "Glob"
+    ],
+    "disallowedTools": [],
+    "skills": [
+     "annotation-workflow"
+    ],
+    "memory": "project"
+   }
+  },
+  {
+   "id": "agent:asset-decomposer",
+   "kind": "agent",
+   "name": "asset-decomposer",
+   "path": "agents/asset-decomposer.md",
+   "purpose": "Breaks a digital or art source file (PSD, AI, SVG, Figma, PDF, video, audio) into compone…",
+   "attrs": {
+    "model": "sonnet",
+    "effort": null,
+    "tools": [
+     "Read",
+     "Write",
+     "Bash",
+     "Grep",
+     "Glob"
+    ],
+    "disallowedTools": [],
+    "skills": [
+     "asset-decompose"
+    ],
+    "memory": "project"
+   }
+  },
+  {
+   "id": "agent:browser-operator",
+   "kind": "agent",
+   "name": "browser-operator",
+   "path": "agents/browser-operator.md",
+   "purpose": "Carries out Chrome tasks (filling documents and forms, navigating portals, collecting dat…",
+   "attrs": {
+    "model": "sonnet",
+    "effort": null,
+    "tools": null,
+    "disallowedTools": [
+     "Agent",
+     "mcp__Gmail__send_message",
+     "mcp__Gmail__reply",
+     "mcp__Gmail__forward"
+    ],
+    "skills": [
+     "browser-task"
+    ],
+    "memory": "user"
+   }
+  },
+  {
+   "id": "agent:code-reviewer",
+   "kind": "agent",
+   "name": "code-reviewer",
+   "path": "agents/code-reviewer.md",
+   "purpose": "Fresh-context code reviewer that applies the shared coding-standards checklist.",
+   "attrs": {
+    "model": "opus",
+    "effort": "high",
+    "tools": [
+     "Read",
+     "Grep",
+     "Glob",
+     "Bash",
+     "Edit"
+    ],
+    "disallowedTools": [
+     "Write",
+     "NotebookEdit",
+     "Agent"
+    ],
+    "skills": [
+     "coding-standards",
+     "mishap"
+    ],
+    "memory": "project"
+   }
+  },
+  {
+   "id": "agent:coder",
+   "kind": "agent",
+   "name": "coder",
+   "path": "agents/coder.md",
+   "purpose": "Makes code changes in repos against a stated spec, with tests as proof.",
+   "attrs": {
+    "model": "sonnet",
+    "effort": null,
+    "tools": [
+     "Read",
+     "Write",
+     "Edit",
+     "Bash",
+     "Grep",
+     "Glob"
+    ],
+    "disallowedTools": [],
+    "skills": [
+     "coding-standards",
+     "prior-art",
+     "mishap"
+    ],
+    "memory": "project"
+   }
+  },
+  {
+   "id": "agent:intake-extractor",
+   "kind": "agent",
+   "name": "intake-extractor",
+   "path": "agents/intake-extractor.md",
+   "purpose": "Converts source documents (PDF, DOCX, HTML) into cited knowledge-wiki pages with provenan…",
+   "attrs": {
+    "model": "haiku",
+    "effort": null,
+    "tools": [
+     "Read",
+     "Write",
+     "Bash",
+     "Grep",
+     "Glob"
+    ],
+    "disallowedTools": [],
+    "skills": [
+     "intake"
+    ],
+    "memory": null
+   }
+  },
+  {
+   "id": "agent:interviewer",
+   "kind": "agent",
+   "name": "interviewer",
+   "path": "agents/interviewer.md",
+   "purpose": "Runs the short scope interview before any non-trivial task, proposing answers from stored…",
+   "attrs": {
+    "model": "sonnet",
+    "effort": null,
+    "tools": [
+     "Read",
+     "Write",
+     "Grep",
+     "Glob"
+    ],
+    "disallowedTools": [],
+    "skills": [
+     "interview"
+    ],
+    "memory": "user"
+   }
+  },
+  {
+   "id": "agent:job-tracker",
+   "kind": "agent",
+   "name": "job-tracker",
+   "path": "agents/job-tracker.md",
+   "purpose": "Scans Gmail (via the connector) for job applications, replies, rejections and interview i…",
+   "attrs": {
+    "model": "haiku",
+    "effort": null,
+    "tools": [
+     "Read",
+     "Write",
+     "Grep",
+     "Glob",
+     "mcp__Gmail__search_threads",
+     "mcp__Gmail__get_thread",
+     "mcp__Gmail__get_message",
+     "mcp__Gmail__list_labels"
+    ],
+    "disallowedTools": [
+     "mcp__Gmail__send_message",
+     "mcp__Gmail__reply",
+     "mcp__Gmail__forward",
+     "mcp__Gmail__create_draft",
+     "mcp__Gmail__update_draft",
+     "mcp__Gmail__trash_message",
+     "mcp__Gmail__trash_thread",
+     "mcp__Gmail__mark_message_spam",
+     "mcp__Gmail__mark_thread_spam"
+    ],
+    "skills": [
+     "email-scan"
+    ],
+    "memory": "user"
+   }
+  },
+  {
+   "id": "agent:librarian",
+   "kind": "agent",
+   "name": "librarian",
+   "path": "agents/librarian.md",
+   "purpose": "Weekly curator of the harness.",
+   "attrs": {
+    "model": "sonnet",
+    "effort": null,
+    "tools": [
+     "Read",
+     "Write",
+     "Grep",
+     "Glob",
+     "Bash"
+    ],
+    "disallowedTools": [],
+    "skills": [
+     "distill-principles"
+    ],
+    "memory": "user"
+   }
+  },
+  {
+   "id": "agent:orchestrator",
+   "kind": "agent",
+   "name": "orchestrator",
+   "path": "agents/orchestrator.md",
+   "purpose": "Default main-thread agent (set by the plugin's settings.json).",
+   "attrs": {
+    "model": "opus",
+    "effort": "high",
+    "tools": null,
+    "disallowedTools": [],
+    "skills": [
+     "interview",
+     "fanout-plan",
+     "verify",
+     "handoff",
+     "mishap"
+    ],
+    "memory": "project"
+   }
+  },
+  {
+   "id": "agent:translator",
+   "kind": "agent",
+   "name": "translator",
+   "path": "agents/translator.md",
+   "purpose": "KO↔EN translator, KO→KO synopsis condenser (length-capped, reviewer-rule driven), and reg…",
+   "attrs": {
+    "model": "sonnet",
+    "effort": null,
+    "tools": [
+     "Read",
+     "Write",
+     "Grep",
+     "Glob",
+     "Bash",
+     "WebSearch",
+     "WebFetch"
+    ],
+    "disallowedTools": [],
+    "skills": [
+     "translate",
+     "synopsis",
+     "style-capture"
+    ],
+    "memory": "user"
+   }
+  },
+  {
+   "id": "agent:verifier",
+   "kind": "agent",
+   "name": "verifier",
+   "path": "agents/verifier.md",
+   "purpose": "Independent, skeptical verifier.",
+   "attrs": {
+    "model": "opus",
+    "effort": "high",
+    "tools": [
+     "Read",
+     "Grep",
+     "Glob",
+     "Bash"
+    ],
+    "disallowedTools": [
+     "Edit",
+     "Write"
+    ],
+    "skills": [],
+    "memory": "project"
+   }
+  },
+  {
+   "id": "agent:web-researcher",
+   "kind": "agent",
+   "name": "web-researcher",
+   "path": "agents/web-researcher.md",
+   "purpose": "Research worker for one sub-question or source tier.",
+   "attrs": {
+    "model": "sonnet",
+    "effort": null,
+    "tools": [
+     "WebSearch",
+     "WebFetch",
+     "Read",
+     "Write",
+     "Grep",
+     "Glob"
+    ],
+    "disallowedTools": [],
+    "skills": [],
+    "memory": "user"
+   }
+  },
+  {
+   "id": "skill:annotation-workflow",
+   "kind": "skill",
+   "name": "annotation-workflow",
+   "path": "skills/annotation-workflow/SKILL.md",
+   "purpose": "Data-annotation workflow.",
+   "attrs": {
+    "dir": "skills/annotation-workflow",
+    "disable_model_invocation": false,
+    "user_invocable": true,
+    "context": null,
+    "agent": null
+   }
+  },
+  {
+   "id": "skill:asset-decompose",
+   "kind": "skill",
+   "name": "asset-decompose",
+   "path": "skills/asset-decompose/SKILL.md",
+   "purpose": "Break a digital or art source file into its component assets (layers, text, images, vecto…",
+   "attrs": {
+    "dir": "skills/asset-decompose",
+    "disable_model_invocation": false,
+    "user_invocable": true,
+    "context": null,
+    "agent": null
+   }
+  },
+  {
+   "id": "skill:backcatalog",
+   "kind": "skill",
+   "name": "backcatalog",
+   "path": "skills/backcatalog/SKILL.md",
+   "purpose": "Reverse-engineer the user's past work.",
+   "attrs": {
+    "dir": "skills/backcatalog",
+    "disable_model_invocation": false,
+    "user_invocable": true,
+    "context": null,
+    "agent": null
+   }
+  },
+  {
+   "id": "skill:browser-task",
+   "kind": "skill",
+   "name": "browser-task",
+   "path": "skills/browser-task/SKILL.md",
+   "purpose": "Run a Chrome task (fill a document or form, navigate a portal, collect data) reliably.",
+   "attrs": {
+    "dir": "skills/browser-task",
+    "disable_model_invocation": false,
+    "user_invocable": true,
+    "context": null,
+    "agent": null
+   }
+  },
+  {
+   "id": "skill:check",
+   "kind": "skill",
+   "name": "check",
+   "path": "skills/check/SKILL.md",
+   "purpose": "Default for any factual, technical, product, pricing, legal or \"what's current\" question.",
+   "attrs": {
+    "dir": "skills/check",
+    "disable_model_invocation": false,
+    "user_invocable": true,
+    "context": null,
+    "agent": null
+   }
+  },
+  {
+   "id": "skill:coding-standards",
+   "kind": "skill",
+   "name": "coding-standards",
+   "path": "skills/coding-standards/SKILL.md",
+   "purpose": "The shared coding rules for writing and reviewing code (surgical diffs, read-before-edit,…",
+   "attrs": {
+    "dir": "skills/coding-standards",
+    "disable_model_invocation": false,
+    "user_invocable": false,
+    "context": null,
+    "agent": null
+   }
+  },
+  {
+   "id": "skill:compact-prep",
+   "kind": "skill",
+   "name": "compact-prep",
+   "path": "skills/compact-prep/SKILL.md",
+   "purpose": "Prepare a safe /compact - refresh HANDOFF.md first, then produce one precise `/compact <i…",
+   "attrs": {
+    "dir": "skills/compact-prep",
+    "disable_model_invocation": false,
+    "user_invocable": true,
+    "context": null,
+    "agent": null
+   }
+  },
+  {
+   "id": "skill:distill-principles",
+   "kind": "skill",
+   "name": "distill-principles",
+   "path": "skills/distill-principles/SKILL.md",
+   "purpose": "Decompose what the user says, decides and corrects into short, reusable principles that a…",
+   "attrs": {
+    "dir": "skills/distill-principles",
+    "disable_model_invocation": false,
+    "user_invocable": true,
+    "context": null,
+    "agent": null
+   }
+  },
+  {
+   "id": "skill:email-scan",
+   "kind": "skill",
+   "name": "email-scan",
+   "path": "skills/email-scan/SKILL.md",
+   "purpose": "Scan Gmail for job-search mail (application confirmations, recruiter replies, rejections,…",
+   "attrs": {
+    "dir": "skills/email-scan",
+    "disable_model_invocation": false,
+    "user_invocable": true,
+    "context": null,
+    "agent": null
+   }
+  },
+  {
+   "id": "skill:fanout-plan",
+   "kind": "skill",
+   "name": "fanout-plan",
+   "path": "skills/fanout-plan/SKILL.md",
+   "purpose": "Decide whether and how wide to fan out before spawning any subagents.",
+   "attrs": {
+    "dir": "skills/fanout-plan",
+    "disable_model_invocation": false,
+    "user_invocable": true,
+    "context": null,
+    "agent": null
+   }
+  },
+  {
+   "id": "skill:handoff",
+   "kind": "skill",
+   "name": "handoff",
+   "path": "skills/handoff/SKILL.md",
+   "purpose": "Write HANDOFF.md so a cold reader (the next session after /clear, another machine, or ano…",
+   "attrs": {
+    "dir": "skills/handoff",
+    "disable_model_invocation": false,
+    "user_invocable": true,
+    "context": null,
+    "agent": null
+   }
+  },
+  {
+   "id": "skill:intake",
+   "kind": "skill",
+   "name": "intake",
+   "path": "skills/intake/SKILL.md",
+   "purpose": "Ingest project inputs (PDFs, briefs, docs, links) into the project's knowledge/ wiki with…",
+   "attrs": {
+    "dir": "skills/intake",
+    "disable_model_invocation": false,
+    "user_invocable": true,
+    "context": null,
+    "agent": null
+   }
+  },
+  {
+   "id": "skill:interview",
+   "kind": "skill",
+   "name": "interview",
+   "path": "skills/interview/SKILL.md",
+   "purpose": "Short scope interview before any non-trivial task.",
+   "attrs": {
+    "dir": "skills/interview",
+    "disable_model_invocation": false,
+    "user_invocable": true,
+    "context": null,
+    "agent": null
+   }
+  },
+  {
+   "id": "skill:invoice",
+   "kind": "skill",
+   "name": "invoice",
+   "path": "skills/invoice/SKILL.md",
+   "purpose": "Prepare a freelance invoice for translation or annotation work (per source word, per Kore…",
+   "attrs": {
+    "dir": "skills/invoice",
+    "disable_model_invocation": false,
+    "user_invocable": true,
+    "context": null,
+    "agent": null
+   }
+  },
+  {
+   "id": "skill:job-application",
+   "kind": "skill",
+   "name": "job-application",
+   "path": "skills/job-application/SKILL.md",
+   "purpose": "Tailor a CV and cover letter to one job posting, with an explicit requirement-by-requirem…",
+   "attrs": {
+    "dir": "skills/job-application",
+    "disable_model_invocation": false,
+    "user_invocable": true,
+    "context": null,
+    "agent": null
+   }
+  },
+  {
+   "id": "skill:mishap",
+   "kind": "skill",
+   "name": "mishap",
+   "path": "skills/mishap/SKILL.md",
+   "purpose": "Log a mistake that was noticed and fixed (by the agent or the user) with root cause, prev…",
+   "attrs": {
+    "dir": "skills/mishap",
+    "disable_model_invocation": false,
+    "user_invocable": true,
+    "context": null,
+    "agent": null
+   }
+  },
+  {
+   "id": "skill:new-project",
+   "kind": "skill",
+   "name": "new-project",
+   "path": "skills/new-project/SKILL.md",
+   "purpose": "Start a new project from the standard template.",
+   "attrs": {
+    "dir": "skills/new-project",
+    "disable_model_invocation": false,
+    "user_invocable": true,
+    "context": null,
+    "agent": null
+   }
+  },
+  {
+   "id": "skill:pattern-review",
+   "kind": "skill",
+   "name": "pattern-review",
+   "path": "skills/pattern-review/SKILL.md",
+   "purpose": "Multi-layer pattern review.",
+   "attrs": {
+    "dir": "skills/pattern-review",
+    "disable_model_invocation": true,
+    "user_invocable": true,
+    "context": null,
+    "agent": null
+   }
+  },
+  {
+   "id": "skill:prior-art",
+   "kind": "skill",
+   "name": "prior-art",
+   "path": "skills/prior-art/SKILL.md",
+   "purpose": "Before implementing any technical feature, research how others have built it (apps, repos…",
+   "attrs": {
+    "dir": "skills/prior-art",
+    "disable_model_invocation": false,
+    "user_invocable": true,
+    "context": null,
+    "agent": null
+   }
+  },
+  {
+   "id": "skill:retro",
+   "kind": "skill",
+   "name": "retro",
+   "path": "skills/retro/SKILL.md",
+   "purpose": "End-of-session retrospective.",
+   "attrs": {
+    "dir": "skills/retro",
+    "disable_model_invocation": false,
+    "user_invocable": true,
+    "context": null,
+    "agent": null
+   }
+  },
+  {
+   "id": "skill:review-week",
+   "kind": "skill",
+   "name": "review-week",
+   "path": "skills/review-week/SKILL.md",
+   "purpose": "Weekly improvement loop.",
+   "attrs": {
+    "dir": "skills/review-week",
+    "disable_model_invocation": true,
+    "user_invocable": true,
+    "context": null,
+    "agent": null
+   }
+  },
+  {
+   "id": "skill:self-eval",
+   "kind": "skill",
+   "name": "self-eval",
+   "path": "skills/self-eval/SKILL.md",
+   "purpose": "Run the eval set for an area, skill or agent and gate the result against the baseline.",
+   "attrs": {
+    "dir": "skills/self-eval",
+    "disable_model_invocation": false,
+    "user_invocable": true,
+    "context": null,
+    "agent": null
+   }
+  },
+  {
+   "id": "skill:style-capture",
+   "kind": "skill",
+   "name": "style-capture",
+   "path": "skills/style-capture/SKILL.md",
+   "purpose": "Log a draft→final pair whenever the user edits (or approves) text Claude drafted, in any…",
+   "attrs": {
+    "dir": "skills/style-capture",
+    "disable_model_invocation": false,
+    "user_invocable": true,
+    "context": null,
+    "agent": null
+   }
+  },
+  {
+   "id": "skill:style-guide",
+   "kind": "skill",
+   "name": "style-guide",
+   "path": "skills/style-guide/SKILL.md",
+   "purpose": "Distill the user's logged draft→final pairs into a personal, data-derived style guide per…",
+   "attrs": {
+    "dir": "skills/style-guide",
+    "disable_model_invocation": false,
+    "user_invocable": true,
+    "context": null,
+    "agent": null
+   }
+  },
+  {
+   "id": "skill:synopsis",
+   "kind": "skill",
+   "name": "synopsis",
+   "path": "skills/synopsis/SKILL.md",
+   "purpose": "Condense a Korean synopsis to a length limit (e.g. ~150 → 110) for streaming-metadata wor…",
+   "attrs": {
+    "dir": "skills/synopsis",
+    "disable_model_invocation": false,
+    "user_invocable": true,
+    "context": null,
+    "agent": null
+   }
+  },
+  {
+   "id": "skill:translate",
+   "kind": "skill",
+   "name": "translate",
+   "path": "skills/translate/SKILL.md",
+   "purpose": "Translate between Korean and English in the user's own style and register (formal email,…",
+   "attrs": {
+    "dir": "skills/translate",
+    "disable_model_invocation": false,
+    "user_invocable": true,
+    "context": null,
+    "agent": null
+   }
+  },
+  {
+   "id": "skill:translation-qa",
+   "kind": "skill",
+   "name": "translation-qa",
+   "path": "skills/translation-qa/SKILL.md",
+   "purpose": "Run deterministic CAT-style QA on a translation or a length-capped Korean rewrite.",
+   "attrs": {
+    "dir": "skills/translation-qa",
+    "disable_model_invocation": false,
+    "user_invocable": true,
+    "context": null,
+    "agent": null
+   }
+  },
+  {
+   "id": "skill:verify",
+   "kind": "skill",
+   "name": "verify",
+   "path": "skills/verify/SKILL.md",
+   "purpose": "Independently verify a piece of work against pre-agreed criteria before it is marked done.",
+   "attrs": {
+    "dir": "skills/verify",
+    "disable_model_invocation": false,
+    "user_invocable": true,
+    "context": "fork",
+    "agent": "verifier"
+   }
+  },
+  {
+   "id": "skill:web-research",
+   "kind": "skill",
+   "name": "web-research",
+   "path": "skills/web-research/SKILL.md",
+   "purpose": "Scoped, cited, state-of-the-art web research with automatic fan-out.",
+   "attrs": {
+    "dir": "skills/web-research",
+    "disable_model_invocation": false,
+    "user_invocable": true,
+    "context": null,
+    "agent": null
+   }
+  },
+  {
+   "id": "skill:why",
+   "kind": "skill",
+   "name": "why",
+   "path": "skills/why/SKILL.md",
+   "purpose": "Record a decision with its intent, justification, evidence, alternatives and a checkable…",
+   "attrs": {
+    "dir": "skills/why",
+    "disable_model_invocation": false,
+    "user_invocable": true,
+    "context": null,
+    "agent": null
+   }
+  },
+  {
+   "id": "hook:PostCompact:0.0",
+   "kind": "hook",
+   "name": "PostCompact",
+   "path": "hooks/hooks.json",
+   "purpose": "",
+   "attrs": {
+    "event": "PostCompact",
+    "matcher": "",
+    "command": "python3 -I \"${CLAUDE_PLUGIN_ROOT}/hooks/precompact_snapshot.py\" post",
+    "script": "hooks/precompact_snapshot.py",
+    "arg": "post",
+    "timeout": 10
+   }
+  },
+  {
+   "id": "hook:PostToolUse:0.0",
+   "kind": "hook",
+   "name": "PostToolUse[Edit|Write|MultiEdit|NotebookEdit]",
+   "path": "hooks/hooks.json",
+   "purpose": "",
+   "attrs": {
+    "event": "PostToolUse",
+    "matcher": "Edit|Write|MultiEdit|NotebookEdit",
+    "command": "python3 -I \"${CLAUDE_PLUGIN_ROOT}/hooks/step_check.py\"",
+    "script": "hooks/step_check.py",
+    "arg": "",
+    "timeout": 65
+   }
+  },
+  {
+   "id": "hook:PreCompact:0.0",
+   "kind": "hook",
+   "name": "PreCompact[manual|auto]",
+   "path": "hooks/hooks.json",
+   "purpose": "",
+   "attrs": {
+    "event": "PreCompact",
+    "matcher": "manual|auto",
+    "command": "python3 -I \"${CLAUDE_PLUGIN_ROOT}/hooks/precompact_snapshot.py\"",
+    "script": "hooks/precompact_snapshot.py",
+    "arg": "",
+    "timeout": 20
+   }
+  },
+  {
+   "id": "hook:PreToolUse:0.0",
+   "kind": "hook",
+   "name": "PreToolUse[Bash]",
+   "path": "hooks/hooks.json",
+   "purpose": "",
+   "attrs": {
+    "event": "PreToolUse",
+    "matcher": "Bash",
+    "command": "python3 -I \"${CLAUDE_PLUGIN_ROOT}/hooks/guard_protected.py\"",
+    "script": "hooks/guard_protected.py",
+    "arg": "",
+    "timeout": null
+   }
+  },
+  {
+   "id": "hook:SessionEnd:0.0",
+   "kind": "hook",
+   "name": "SessionEnd",
+   "path": "hooks/hooks.json",
+   "purpose": "",
+   "attrs": {
+    "event": "SessionEnd",
+    "matcher": "",
+    "command": "python3 -I \"${CLAUDE_PLUGIN_ROOT}/hooks/log_event.py\" session_end",
+    "script": "hooks/log_event.py",
+    "arg": "session_end",
+    "timeout": null
+   }
+  },
+  {
+   "id": "hook:SessionStart:0.0",
+   "kind": "hook",
+   "name": "SessionStart[compact|clear]",
+   "path": "hooks/hooks.json",
+   "purpose": "",
+   "attrs": {
+    "event": "SessionStart",
+    "matcher": "compact|clear",
+    "command": "python3 -I \"${CLAUDE_PLUGIN_ROOT}/hooks/postcompact_reinject.py\"",
+    "script": "hooks/postcompact_reinject.py",
+    "arg": "",
+    "timeout": 10
+   }
+  },
+  {
+   "id": "hook:Stop:0.0",
+   "kind": "hook",
+   "name": "Stop",
+   "path": "hooks/hooks.json",
+   "purpose": "",
+   "attrs": {
+    "event": "Stop",
+    "matcher": "",
+    "command": "python3 -I \"${CLAUDE_PLUGIN_ROOT}/hooks/verify_gate.py\"",
+    "script": "hooks/verify_gate.py",
+    "arg": "",
+    "timeout": 10
+   }
+  },
+  {
+   "id": "hook:UserPromptSubmit:0.0",
+   "kind": "hook",
+   "name": "UserPromptSubmit",
+   "path": "hooks/hooks.json",
+   "purpose": "",
+   "attrs": {
+    "event": "UserPromptSubmit",
+    "matcher": "",
+    "command": "python3 -I \"${CLAUDE_PLUGIN_ROOT}/hooks/log_event.py\" prompt",
+    "script": "hooks/log_event.py",
+    "arg": "prompt",
+    "timeout": null
+   }
+  },
+  {
+   "id": "hook:UserPromptSubmit:0.1",
+   "kind": "hook",
+   "name": "UserPromptSubmit",
+   "path": "hooks/hooks.json",
+   "purpose": "",
+   "attrs": {
+    "event": "UserPromptSubmit",
+    "matcher": "",
+    "command": "python3 -I \"${CLAUDE_PLUGIN_ROOT}/hooks/usage_guard.py\"",
+    "script": "hooks/usage_guard.py",
+    "arg": "",
+    "timeout": 5
+   }
+  },
+  {
+   "id": "script:hooks/_common.py",
+   "kind": "script",
+   "name": "hooks/_common.py",
+   "path": "hooks/_common.py",
+   "purpose": "Shared helpers for the usage / compaction hooks.",
+   "attrs": {
+    "dir": "hooks",
+    "tests": []
+   }
+  },
+  {
+   "id": "script:hooks/guard_protected.py",
+   "kind": "script",
+   "name": "hooks/guard_protected.py",
+   "path": "hooks/guard_protected.py",
+   "purpose": "PreToolUse guard: block Bash commands that write to protected eval/rubric/test paths.",
+   "attrs": {
+    "dir": "hooks",
+    "tests": [
+     "tests/test_review_wiring.py",
+     "tests/test_usage_and_compaction.py"
+    ]
+   }
+  },
+  {
+   "id": "script:hooks/log_event.py",
+   "kind": "script",
+   "name": "hooks/log_event.py",
+   "path": "hooks/log_event.py",
+   "purpose": "Append a raw event to $HARNESS_DATA/log/YYYY-MM.jsonl from a Claude Code hook.",
+   "attrs": {
+    "dir": "hooks",
+    "tests": [
+     "tests/test_hooks.py",
+     "tests/test_review_wiring.py",
+     "tests/test_schema_check.py",
+     "tests/test_scripts.py",
+     "tests/test_usage_and_compaction.py"
+    ]
+   }
+  },
+  {
+   "id": "script:hooks/postcompact_reinject.py",
+   "kind": "script",
+   "name": "hooks/postcompact_reinject.py",
+   "path": "hooks/postcompact_reinject.py",
+   "purpose": "SessionStart hook (matcher \"compact\", also \"clear\"): put the durable state back in context.",
+   "attrs": {
+    "dir": "hooks",
+    "tests": [
+     "tests/test_review_wiring.py",
+     "tests/test_usage_and_compaction.py"
+    ]
+   }
+  },
+  {
+   "id": "script:hooks/precompact_snapshot.py",
+   "kind": "script",
+   "name": "hooks/precompact_snapshot.py",
+   "path": "hooks/precompact_snapshot.py",
+   "purpose": "PreCompact hook: write a recoverable snapshot before compaction summarizes the thread away.",
+   "attrs": {
+    "dir": "hooks",
+    "tests": [
+     "tests/test_review_wiring.py",
+     "tests/test_usage_and_compaction.py"
+    ]
+   }
+  },
+  {
+   "id": "script:hooks/step_check.py",
+   "kind": "script",
+   "name": "hooks/step_check.py",
+   "path": "hooks/step_check.py",
+   "purpose": "PostToolUse hook (Edit|Write|MultiEdit|NotebookEdit): cheap syntax check of the edited file.",
+   "attrs": {
+    "dir": "hooks",
+    "tests": [
+     "tests/test_review_wiring.py",
+     "tests/test_step_check.py"
+    ]
+   }
+  },
+  {
+   "id": "script:hooks/usage_guard.py",
+   "kind": "script",
+   "name": "hooks/usage_guard.py",
+   "path": "hooks/usage_guard.py",
+   "purpose": "UserPromptSubmit hook: turn context size and 5-hour / 7-day usage into advice for Claude.",
+   "attrs": {
+    "dir": "hooks",
+    "tests": [
+     "tests/test_review_wiring.py",
+     "tests/test_usage_and_compaction.py"
+    ]
+   }
+  },
+  {
+   "id": "script:hooks/verify_gate.py",
+   "kind": "script",
+   "name": "hooks/verify_gate.py",
+   "path": "hooks/verify_gate.py",
+   "purpose": "Stop hook: don't let a turn end while done items lack a verification event.",
+   "attrs": {
+    "dir": "hooks",
+    "tests": [
+     "tests/test_hooks.py",
+     "tests/test_review_wiring.py",
+     "tests/test_step_check.py",
+     "tests/test_usage_and_compaction.py"
+    ]
+   }
+  },
+  {
+   "id": "script:scripts/autocommit_data.sh",
+   "kind": "script",
+   "name": "scripts/autocommit_data.sh",
+   "path": "scripts/autocommit_data.sh",
+   "purpose": "Commit and push $HARNESS_DATA (the private data repo: log/, style/, sessions/, labels/, evals/results/)",
+   "attrs": {
+    "dir": "scripts",
+    "tests": [
+     "tests/test_scripts.py"
+    ]
+   }
+  },
+  {
+   "id": "script:scripts/claim_check.py",
+   "kind": "script",
+   "name": "scripts/claim_check.py",
+   "path": "scripts/claim_check.py",
+   "purpose": "Fact-check gate for CVs and cover letters: every claim in a draft must trace to the facts file.",
+   "attrs": {
+    "dir": "scripts",
+    "tests": [
+     "tests/test_claim_check.py",
+     "tests/test_review_wiring.py"
+    ]
+   }
+  },
+  {
+   "id": "script:scripts/eval_gate.py",
+   "kind": "script",
+   "name": "scripts/eval_gate.py",
+   "path": "scripts/eval_gate.py",
+   "purpose": "Accept or reject a candidate policy change by comparing eval results (BLUEPRINT.md §0.5 step 4).",
+   "attrs": {
+    "dir": "scripts",
+    "tests": [
+     "tests/test_run_evals.py",
+     "tests/test_scripts.py"
+    ]
+   }
+  },
+  {
+   "id": "script:scripts/glossary.py",
+   "kind": "script",
+   "name": "scripts/glossary.py",
+   "path": "scripts/glossary.py",
+   "purpose": "Glossary helper for a project's knowledge/glossary.md (format: templates/glossary.md).",
+   "attrs": {
+    "dir": "scripts",
+    "tests": [
+     "tests/test_glossary.py",
+     "tests/test_translation_qa.py"
+    ]
+   }
+  },
+  {
+   "id": "script:scripts/harness_index.py",
+   "kind": "script",
+   "name": "scripts/harness_index.py",
+   "path": "scripts/harness_index.py",
+   "purpose": "Build the harness component graph, check it, and write docs/INDEX.md + docs/components.json.",
+   "attrs": {
+    "dir": "scripts",
+    "tests": [
+     "tests/test_harness_index.py"
+    ]
+   }
+  },
+  {
+   "id": "script:scripts/invoice.py",
+   "kind": "script",
+   "name": "scripts/invoice.py",
+   "path": "scripts/invoice.py",
+   "purpose": "Freelance invoices for translation and annotation work: compute, number, ledger, track payment.",
+   "attrs": {
+    "dir": "scripts",
+    "tests": [
+     "tests/test_invoice.py",
+     "tests/test_usage_and_compaction.py"
+    ]
+   }
+  },
+  {
+   "id": "script:scripts/kb.py",
+   "kind": "script",
+   "name": "scripts/kb.py",
+   "path": "scripts/kb.py",
+   "purpose": "Knowledge-base helper for a project's knowledge/ directory (BLUEPRINT §0.5, §4.11, §4.12).",
+   "attrs": {
+    "dir": "scripts",
+    "tests": [
+     "tests/test_kb.py",
+     "tests/test_review_wiring.py",
+     "tests/test_schema_check.py"
+    ]
+   }
+  },
+  {
+   "id": "script:scripts/label_events.py",
+   "kind": "script",
+   "name": "scripts/label_events.py",
+   "path": "scripts/label_events.py",
+   "purpose": "Weekly labeling pass for the raw event log (BLUEPRINT.md §0.5 \"improvement loop\", schema/event.md).",
+   "attrs": {
+    "dir": "scripts",
+    "tests": [
+     "tests/test_scripts.py"
+    ]
+   }
+  },
+  {
+   "id": "script:scripts/palette.py",
+   "kind": "script",
+   "name": "scripts/palette.py",
+   "path": "scripts/palette.py",
+   "purpose": "Extract a colour palette from an image: hex colours, pixel shares, roles and WCAG contrast.",
+   "attrs": {
+    "dir": "scripts",
+    "tests": [
+     "tests/test_asset_scripts.py"
+    ]
+   }
+  },
+  {
+   "id": "script:scripts/patterns.py",
+   "kind": "script",
+   "name": "scripts/patterns.py",
+   "path": "scripts/patterns.py",
+   "purpose": "Multi-layer pattern system: mine, promote/demote, and reflect on recurring patterns (docs/PATTERNS.md).",
+   "attrs": {
+    "dir": "scripts",
+    "tests": [
+     "tests/test_patterns.py"
+    ]
+   }
+  },
+  {
+   "id": "script:scripts/psd_layers.py",
+   "kind": "script",
+   "name": "scripts/psd_layers.py",
+   "path": "scripts/psd_layers.py",
+   "purpose": "List the layers of a PSD/PSB and write them as assets/assets.yaml entries.",
+   "attrs": {
+    "dir": "scripts",
+    "tests": [
+     "tests/test_asset_scripts.py"
+    ]
+   }
+  },
+  {
+   "id": "script:scripts/run_evals.py",
+   "kind": "script",
+   "name": "scripts/run_evals.py",
+   "path": "scripts/run_evals.py",
+   "purpose": "Run an eval area's deterministic tasks and write an EvalRun JSON for scripts/eval_gate.py.",
+   "attrs": {
+    "dir": "scripts",
+    "tests": [
+     "tests/test_run_evals.py"
+    ]
+   }
+  },
+  {
+   "id": "script:scripts/schema_check.py",
+   "kind": "script",
+   "name": "scripts/schema_check.py",
+   "path": "scripts/schema_check.py",
+   "purpose": "Validate harness data files against schema/ontology.yaml (stdlib only; run with `python3 -I`).",
+   "attrs": {
+    "dir": "scripts",
+    "tests": [
+     "tests/test_patterns.py",
+     "tests/test_review_wiring.py",
+     "tests/test_schema_check.py"
+    ]
+   }
+  },
+  {
+   "id": "script:scripts/statusline.py",
+   "kind": "script",
+   "name": "scripts/statusline.py",
+   "path": "scripts/statusline.py",
+   "purpose": "Claude Code status line: context budget, 5-hour / 7-day usage, cache, cost.",
+   "attrs": {
+    "dir": "scripts",
+    "tests": [
+     "tests/test_usage_and_compaction.py"
+    ]
+   }
+  },
+  {
+   "id": "script:scripts/style_pairs.py",
+   "kind": "script",
+   "name": "scripts/style_pairs.py",
+   "path": "scripts/style_pairs.py",
+   "purpose": "StylePair store: draft -> final pairs the user edited, used as few-shot references.",
+   "attrs": {
+    "dir": "scripts",
+    "tests": [
+     "tests/test_schema_check.py",
+     "tests/test_style_pairs.py"
+    ]
+   }
+  },
+  {
+   "id": "script:scripts/textlen.py",
+   "kind": "script",
+   "name": "scripts/textlen.py",
+   "path": "scripts/textlen.py",
+   "purpose": "Count text length the way length-limited deliverables (e.g. synopses) are measured.",
+   "attrs": {
+    "dir": "scripts",
+    "tests": [
+     "tests/test_review_wiring.py",
+     "tests/test_run_evals.py",
+     "tests/test_textlen.py"
+    ]
+   }
+  },
+  {
+   "id": "script:scripts/translation_qa.py",
+   "kind": "script",
+   "name": "scripts/translation_qa.py",
+   "path": "scripts/translation_qa.py",
+   "purpose": "Deterministic QA for a translation (KO<->EN, also KO->KO rewrites): the CAT-tool checks a human reviewer runs.",
+   "attrs": {
+    "dir": "scripts",
+    "tests": [
+     "tests/test_review_wiring.py",
+     "tests/test_translation_qa.py"
+    ]
+   }
+  },
+  {
+   "id": "script:scripts/weekly_report.py",
+   "kind": "script",
+   "name": "scripts/weekly_report.py",
+   "path": "scripts/weekly_report.py",
+   "purpose": "Weekly summary of the event log, per scope, as Markdown (BLUEPRINT.md §4.5, §4.13; librarian review).",
+   "attrs": {
+    "dir": "scripts",
+    "tests": [
+     "tests/test_schema_check.py",
+     "tests/test_scripts.py",
+     "tests/test_step_check.py"
+    ]
+   }
+  },
+  {
+   "id": "rubric:annotation-batch",
+   "kind": "rubric",
+   "name": "annotation-batch",
+   "path": "rubrics/annotation-batch.yaml",
+   "purpose": "A batch of annotation items/responses prepared or checked with annotation-assis…",
+   "attrs": {
+    "status": "active",
+    "version": "0.1.0",
+    "producer_agent": "annotation-assistant"
+   }
+  },
+  {
+   "id": "rubric:asset-package",
+   "kind": "rubric",
+   "name": "asset-package",
+   "path": "rubrics/asset-package.yaml",
+   "purpose": "Decomposition of a digital/art source into component assets plus assets/assets.…",
+   "attrs": {
+    "status": "active",
+    "version": "0.1.0",
+    "producer_agent": "asset-decomposer"
+   }
+  },
+  {
+   "id": "rubric:browser-task",
+   "kind": "rubric",
+   "name": "browser-task",
+   "path": "rubrics/browser-task.yaml",
+   "purpose": "One Chrome task: filling a form or document, navigating a portal, or collecting…",
+   "attrs": {
+    "status": "draft",
+    "version": "0.1.0",
+    "producer_agent": "browser-operator"
+   }
+  },
+  {
+   "id": "rubric:code-change",
+   "kind": "rubric",
+   "name": "code-change",
+   "path": "rubrics/code-change.yaml",
+   "purpose": "Any change to a repository: feature, fix, refactor, script",
+   "attrs": {
+    "status": "active",
+    "version": "0.1.0",
+    "producer_agent": "coder"
+   }
+  },
+  {
+   "id": "rubric:email-scan",
+   "kind": "rubric",
+   "name": "email-scan",
+   "path": "rubrics/email-scan.yaml",
+   "purpose": "One email-scan run: thread classifications, Application record updates and the…",
+   "attrs": {
+    "status": "draft",
+    "version": "0.1.0",
+    "producer_agent": "job-tracker"
+   }
+  },
+  {
+   "id": "rubric:handoff",
+   "kind": "rubric",
+   "name": "handoff",
+   "path": "rubrics/handoff.yaml",
+   "purpose": "Any HANDOFF.md written by the handoff or compact-prep skill (session to session…",
+   "attrs": {
+    "status": "active",
+    "version": "0.1.0",
+    "producer_agent": "main session"
+   }
+  },
+  {
+   "id": "rubric:intake-extraction",
+   "kind": "rubric",
+   "name": "intake-extraction",
+   "path": "rubrics/intake-extraction.yaml",
+   "purpose": "Extraction of PDFs/briefs/emails/links into knowledge/raw, knowledge/wiki, inde…",
+   "attrs": {
+    "status": "active",
+    "version": "0.1.0",
+    "producer_agent": "intake-extractor"
+   }
+  },
+  {
+   "id": "rubric:invoice",
+   "kind": "rubric",
+   "name": "invoice",
+   "path": "rubrics/invoice.yaml",
+   "purpose": "One invoice made by skills/invoice (spec JSON + deliverables/*_invoice_*.md + l…",
+   "attrs": {
+    "status": "draft",
+    "version": "0.1.0",
+    "producer_agent": "main session"
+   }
+  },
+  {
+   "id": "rubric:job-application",
+   "kind": "rubric",
+   "name": "job-application",
+   "path": "rubrics/job-application.yaml",
+   "purpose": "Materials for one Application (org, role): cover letter, tailored CV, form answ…",
+   "attrs": {
+    "status": "active",
+    "version": "0.1.0",
+    "producer_agent": "job-tracker / translator / main session"
+   }
+  },
+  {
+   "id": "rubric:research-report",
+   "kind": "rubric",
+   "name": "research-report",
+   "path": "rubrics/research-report.yaml",
+   "purpose": "Any cited research report or literature/market/tool comparison",
+   "attrs": {
+    "status": "active",
+    "version": "0.1.0",
+    "producer_agent": "web-researcher"
+   }
+  },
+  {
+   "id": "rubric:synopsis",
+   "kind": "rubric",
+   "name": "synopsis",
+   "path": "rubrics/synopsis.yaml",
+   "purpose": "skills/synopsis drafts and the user's final combined synopsis",
+   "attrs": {
+    "status": "active",
+    "version": "0.1.0",
+    "producer_agent": "translator"
+   }
+  },
+  {
+   "id": "rubric:translation",
+   "kind": "rubric",
+   "name": "translation",
+   "path": "rubrics/translation.yaml",
+   "purpose": "Any KO->EN or EN->KO translation or register-aware rewrite (agent: translator)",
+   "attrs": {
+    "status": "active",
+    "version": "0.1.0",
+    "producer_agent": "translator"
+   }
+  },
+  {
+   "id": "eval:annotation",
+   "kind": "eval",
+   "name": "annotation",
+   "path": "evals/annotation/",
+   "purpose": "annotation batch",
+   "attrs": {
+    "template": "evals/annotation/task_template.yaml",
+    "rubric": "annotation-batch",
+    "rubrics": [
+     "annotation-batch"
+    ],
+    "components": [],
+    "repo_tasks": 0
+   }
+  },
+  {
+   "id": "eval:art",
+   "kind": "eval",
+   "name": "art",
+   "path": "evals/art/",
+   "purpose": "asset package (art and digital work)",
+   "attrs": {
+    "template": "evals/art/task_template.yaml",
+    "rubric": "asset-package",
+    "rubrics": [
+     "asset-package"
+    ],
+    "components": [],
+    "repo_tasks": 0
+   }
+  },
+  {
+   "id": "eval:browser",
+   "kind": "eval",
+   "name": "browser",
+   "path": "evals/browser/",
+   "purpose": "browser task",
+   "attrs": {
+    "template": "evals/browser/task_template.yaml",
+    "rubric": "browser-task",
+    "rubrics": [
+     "browser-task"
+    ],
+    "components": [],
+    "repo_tasks": 0
+   }
+  },
+  {
+   "id": "eval:code",
+   "kind": "eval",
+   "name": "code",
+   "path": "evals/code/",
+   "purpose": "code change",
+   "attrs": {
+    "template": "evals/code/task_template.yaml",
+    "rubric": "code-change",
+    "rubrics": [
+     "code-change"
+    ],
+    "components": [],
+    "repo_tasks": 0
+   }
+  },
+  {
+   "id": "eval:email-scan",
+   "kind": "eval",
+   "name": "email-scan",
+   "path": "evals/email-scan/",
+   "purpose": "job-search email scan",
+   "attrs": {
+    "template": "evals/email-scan/task_template.yaml",
+    "rubric": "email-scan",
+    "rubrics": [
+     "email-scan"
+    ],
+    "components": [],
+    "repo_tasks": 0
+   }
+  },
+  {
+   "id": "eval:harness",
+   "kind": "eval",
+   "name": "harness",
+   "path": "evals/harness/",
+   "purpose": "harness self-test (deterministic)",
+   "attrs": {
+    "template": "evals/harness/task_template.yaml",
+    "rubric": "code-change",
+    "rubrics": [
+     "code-change"
+    ],
+    "components": [
+     "scripts/<script>.py",
+     "scripts/textlen.py",
+     "scripts/translation_qa.py",
+     "scripts/glossary.py",
+     "scripts/style_pairs.py",
+     "schema/ontology.yaml",
+     "scripts/kb.py",
+     "scripts/schema_check.py",
+     "scripts/invoice.py",
+     "scripts/claim_check.py",
+     "scripts/eval_gate.py",
+     "scripts/patterns.py",
+     "hooks/verify_gate.py",
+     "hooks/usage_guard.py",
+     "docs/FANOUT.md",
+     "hooks/log_event.py",
+     "hooks/guard_protected.py",
+     "hooks/precompact_snapshot.py",
+     "hooks/postcompact_reinject.py"
+    ],
+    "repo_tasks": 20
+   }
+  },
+  {
+   "id": "eval:intake",
+   "kind": "eval",
+   "name": "intake",
+   "path": "evals/intake/",
+   "purpose": "intake extraction (cross-area; any project's first step)",
+   "attrs": {
+    "template": "evals/intake/task_template.yaml",
+    "rubric": "intake-extraction",
+    "rubrics": [
+     "intake-extraction"
+    ],
+    "components": [],
+    "repo_tasks": 0
+   }
+  },
+  {
+   "id": "eval:invoice",
+   "kind": "eval",
+   "name": "invoice",
+   "path": "evals/invoice/",
+   "purpose": "freelance invoice",
+   "attrs": {
+    "template": "evals/invoice/task_template.yaml",
+    "rubric": "invoice",
+    "rubrics": [
+     "invoice"
+    ],
+    "components": [],
+    "repo_tasks": 0
+   }
+  },
+  {
+   "id": "eval:job-search",
+   "kind": "eval",
+   "name": "job-search",
+   "path": "evals/job-search/",
+   "purpose": "job application materials",
+   "attrs": {
+    "template": "evals/job-search/task_template.yaml",
+    "rubric": "job-application",
+    "rubrics": [
+     "job-application"
+    ],
+    "components": [],
+    "repo_tasks": 0
+   }
+  },
+  {
+   "id": "eval:research",
+   "kind": "eval",
+   "name": "research",
+   "path": "evals/research/",
+   "purpose": "research report",
+   "attrs": {
+    "template": "evals/research/task_template.yaml",
+    "rubric": "research-report",
+    "rubrics": [
+     "research-report"
+    ],
+    "components": [],
+    "repo_tasks": 0
+   }
+  },
+  {
+   "id": "eval:synopsis",
+   "kind": "eval",
+   "name": "synopsis",
+   "path": "evals/synopsis/",
+   "purpose": "length-capped Korean synopsis (KO->KO)",
+   "attrs": {
+    "template": "evals/synopsis/task_template.yaml",
+    "rubric": "synopsis",
+    "rubrics": [
+     "synopsis"
+    ],
+    "components": [],
+    "repo_tasks": 0
+   }
+  },
+  {
+   "id": "eval:translation",
+   "kind": "eval",
+   "name": "translation",
+   "path": "evals/translation/",
+   "purpose": "translation",
+   "attrs": {
+    "template": "evals/translation/task_template.yaml",
+    "rubric": "translation",
+    "rubrics": [
+     "translation"
+    ],
+    "components": [],
+    "repo_tasks": 0
+   }
+  },
+  {
+   "id": "type:Account",
+   "kind": "type",
+   "name": "Account",
+   "path": "schema/ontology.yaml",
+   "purpose": "one mailbox/messaging account the user owns (several Gmail accounts, the Worksp…",
+   "attrs": {
+    "root": "harness-data",
+    "path": "accounts.jsonl",
+    "format": "jsonl",
+    "status": "planned",
+    "writer": "the user / ingest setup (addresses only, no message content)"
+   }
+  },
+  {
+   "id": "type:Application",
+   "kind": "type",
+   "name": "Application",
+   "path": "schema/ontology.yaml",
+   "purpose": "a job/contract application; each status change appends a new line with the same…",
+   "attrs": {
+    "root": "harness-data",
+    "path": "applications.jsonl",
+    "format": "jsonl",
+    "status": "active",
+    "writer": "skills/job-application, skills/email-scan (agents/job-tracker)"
+   }
+  },
+  {
+   "id": "type:Asset",
+   "kind": "type",
+   "name": "Asset",
+   "path": "schema/ontology.yaml",
+   "purpose": "a component extracted from an art/media source (assets/assets.yaml)",
+   "attrs": {
+    "root": "project",
+    "path": "assets/assets.yaml",
+    "format": "yaml",
+    "status": "active",
+    "writer": "scripts/psd_layers.py, scripts/palette.py, skills/asset-decompose"
+   }
+  },
+  {
+   "id": "type:Attachment",
+   "kind": "type",
+   "name": "Attachment",
+   "path": "schema/ontology.yaml",
+   "purpose": "a file attached to a message; bytes stay in the vault",
+   "attrs": {
+    "root": "msg-vault",
+    "path": "<source>/attachments.jsonl",
+    "format": "jsonl",
+    "status": "planned",
+    "writer": "ingest"
+   }
+  },
+  {
+   "id": "type:BackcatalogRow",
+   "kind": "type",
+   "name": "BackcatalogRow",
+   "path": "schema/ontology.yaml",
+   "purpose": "one file found by `kb.py backcatalog` (report csv)",
+   "attrs": {
+    "root": "harness-data",
+    "path": "backcatalog/knowledge/backcatalog*.csv",
+    "format": "csv",
+    "status": "active",
+    "writer": "scripts/kb.py"
+   }
+  },
+  {
+   "id": "type:Client",
+   "kind": "type",
+   "name": "Client",
+   "path": "schema/ontology.yaml",
+   "purpose": "who a project is for (an Organization of kind client, or a person)",
+   "attrs": {
+    "root": "harness-data",
+    "path": "clients.jsonl",
+    "format": "jsonl",
+    "status": "planned",
+    "writer": "none yet (project CLAUDE.md 'Client / owner')"
+   }
+  },
+  {
+   "id": "type:Contact",
+   "kind": "type",
+   "name": "Contact",
+   "path": "schema/ontology.yaml",
+   "purpose": "a person (BLUEPRINT \"Person\"); only derived facts, never message copies",
+   "attrs": {
+    "root": "harness-data",
+    "path": "contacts.jsonl",
+    "format": "jsonl",
+    "status": "planned",
+    "writer": "none yet"
+   }
+  },
+  {
+   "id": "type:Correction",
+   "kind": "type",
+   "name": "Correction",
+   "path": "schema/ontology.yaml",
+   "purpose": "what the agent did vs what the user changed it to, and why",
+   "attrs": {
+    "root": "harness-data",
+    "path": "log/YYYY-MM.jsonl",
+    "format": "event",
+    "status": "active",
+    "writer": "skills/review-week (type correction), scripts/label_events.py (label is_correction)"
+   }
+  },
+  {
+   "id": "type:Decision",
+   "kind": "type",
+   "name": "Decision",
+   "path": "schema/ontology.yaml",
+   "purpose": "a notable choice with reasons, evidence and a checkable prediction (skill `why`)",
+   "attrs": {
+    "root": "project",
+    "path": "decisions.md",
+    "format": "md",
+    "status": "active",
+    "writer": "skills/why"
+   }
+  },
+  {
+   "id": "type:Document",
+   "kind": "type",
+   "name": "Document",
+   "path": "schema/ontology.yaml",
+   "purpose": "a registered source file in knowledge/manifest.json (`sources[]`)",
+   "attrs": {
+    "root": "project",
+    "path": "knowledge/manifest.json",
+    "format": "json",
+    "status": "active",
+    "writer": "scripts/kb.py"
+   }
+  },
+  {
+   "id": "type:Encoding",
+   "kind": "type",
+   "name": "Encoding",
+   "path": "schema/ontology.yaml",
+   "purpose": "\"L3: the artifact that operationalizes 1+ patterns (skill, command, hook, rule,…",
+   "attrs": {
+    "root": "harness-data",
+    "path": "patterns/encodings.jsonl",
+    "format": "jsonl",
+    "status": "active",
+    "writer": "scripts/patterns.py record (skills/pattern-review after approval)"
+   }
+  },
+  {
+   "id": "type:EvalRun",
+   "kind": "type",
+   "name": "EvalRun",
+   "path": "schema/ontology.yaml",
+   "purpose": "result file compared by scripts/eval_gate.py (evals/README.md \"Result file form…",
+   "attrs": {
+    "root": "harness-data",
+    "path": "evals/results/<area>/*.json",
+    "format": "json",
+    "status": "active",
+    "writer": "skills/self-eval (eval runner); read by scripts/eval_gate.py"
+   }
+  },
+  {
+   "id": "type:EvalTask",
+   "kind": "type",
+   "name": "EvalTask",
+   "path": "schema/ontology.yaml",
+   "purpose": "one locked eval task (only the user edits these)",
+   "attrs": {
+    "root": "harness-data",
+    "path": "evals/<area>/tasks/*.yaml",
+    "format": "yaml",
+    "status": "active",
+    "writer": "the user (templates in evals/<area>/task_template.yaml)"
+   }
+  },
+  {
+   "id": "type:Evaluation",
+   "kind": "type",
+   "name": "Evaluation",
+   "path": "schema/ontology.yaml",
+   "purpose": "one task's scores inside an EvalRun (or a one-off rubric judgement)",
+   "attrs": {
+    "root": "harness-data",
+    "path": "evals/results/<area>/*.json",
+    "format": "embedded",
+    "status": "active",
+    "writer": "skills/self-eval (eval runner)"
+   }
+  },
+  {
+   "id": "type:Event",
+   "kind": "type",
+   "name": "Event",
+   "path": "schema/ontology.yaml",
+   "purpose": "one line of the append-only work log (schema/event.md); most other records are…",
+   "attrs": {
+    "root": "harness-data",
+    "path": "log/YYYY-MM.jsonl",
+    "format": "jsonl",
+    "status": "active",
+    "writer": "hooks/log_event.py, hooks/_common.py, scripts/label_events.py, skills"
+   }
+  },
+  {
+   "id": "type:GlossaryTerm",
+   "kind": "type",
+   "name": "GlossaryTerm",
+   "path": "schema/ontology.yaml",
+   "purpose": "one row of a project glossary table (templates/glossary.md)",
+   "attrs": {
+    "root": "project",
+    "path": "knowledge/glossary.md",
+    "format": "md",
+    "status": "active",
+    "writer": "scripts/glossary.py, the user approves rows"
+   }
+  },
+  {
+   "id": "type:Handoff",
+   "kind": "type",
+   "name": "Handoff",
+   "path": "schema/ontology.yaml",
+   "purpose": "HANDOFF.md cold-read-tested resume note; old ones archived under log/handoffs/",
+   "attrs": {
+    "root": "project",
+    "path": "HANDOFF.md",
+    "format": "md",
+    "status": "active",
+    "writer": "skills/handoff, hooks/precompact_snapshot.py (log/handoffs/auto_*.md)"
+   }
+  },
+  {
+   "id": "type:HarnessState",
+   "kind": "type",
+   "name": "HarnessState",
+   "path": "schema/ontology.yaml",
+   "purpose": "status-line / usage-guard cache (context tokens, 5h/7d usage); per machine",
+   "attrs": {
+    "root": "home",
+    "path": ".claude/harness-state.json",
+    "format": "json",
+    "status": "active",
+    "writer": "scripts/statusline.py; read by hooks/usage_guard.py"
+   }
+  },
+  {
+   "id": "type:HarvestRun",
+   "kind": "type",
+   "name": "HarvestRun",
+   "path": "schema/ontology.yaml",
+   "purpose": "one voice-harvest run (sent-mail window, counts, new samples, rules proposed, l…",
+   "attrs": {
+    "root": "harness-data",
+    "path": "voice/harvests.jsonl",
+    "format": "jsonl",
+    "status": "active",
+    "writer": "scripts/voice.py harvest-log (skills/voice-harvest)"
+   }
+  },
+  {
+   "id": "type:IntakeLogEntry",
+   "kind": "type",
+   "name": "IntakeLogEntry",
+   "path": "schema/ontology.yaml",
+   "purpose": "\"verifier line in knowledge/log.md: `- <date> <sha8> verify PASS|FAIL <notes>`\"",
+   "attrs": {
+    "root": "project",
+    "path": "knowledge/log.md",
+    "format": "md",
+    "status": "active",
+    "writer": "agents/verifier; read by scripts/kb.py safe-to-delete"
+   }
+  },
+  {
+   "id": "type:Invoice",
+   "kind": "type",
+   "name": "Invoice",
+   "path": "schema/ontology.yaml",
+   "purpose": "a rendered invoice (Markdown deliverable); its state is the ledger folded by id",
+   "attrs": {
+    "root": "project",
+    "path": "deliverables/*_invoice_*.md",
+    "format": "md",
+    "status": "active",
+    "writer": "scripts/invoice.py make"
+   }
+  },
+  {
+   "id": "type:JobLead",
+   "kind": "type",
+   "name": "JobLead",
+   "path": "schema/ontology.yaml",
+   "purpose": "a posting seen in an alert/board; dedupe on platform:external_id plus a fingerp…",
+   "attrs": {
+    "root": "harness-data",
+    "path": "jobleads.jsonl",
+    "format": "jsonl",
+    "status": "planned",
+    "writer": "email-scan / alert parsing (docs/MESSAGING.md)"
+   }
+  },
+  {
+   "id": "type:LedgerEntry",
+   "kind": "type",
+   "name": "LedgerEntry",
+   "path": "schema/ontology.yaml",
+   "purpose": "one row of finance/ledger.csv (event issued|status); never edit, add a status r…",
+   "attrs": {
+    "root": "harness-data",
+    "path": "finance/ledger.csv",
+    "format": "csv",
+    "status": "active",
+    "writer": "scripts/invoice.py"
+   }
+  },
+  {
+   "id": "type:Lesson",
+   "kind": "type",
+   "name": "Lesson",
+   "path": "schema/ontology.yaml",
+   "purpose": "a reusable statement learned from mishaps/corrections/sessions; proposed until…",
+   "attrs": {
+    "root": "project",
+    "path": "knowledge/wiki/<area>/<project>-lesson.md",
+    "format": "md",
+    "status": "active",
+    "writer": "skills/backcatalog, skills/retro"
+   }
+  },
+  {
+   "id": "type:Message",
+   "kind": "type",
+   "name": "Message",
+   "path": "schema/ontology.yaml",
+   "purpose": "one message from any channel; raw body/attachments stay in ~/msg-vault",
+   "attrs": {
+    "root": "msg-vault",
+    "path": "<source>/messages.jsonl",
+    "format": "jsonl",
+    "status": "planned",
+    "writer": "ingest (docs/MESSAGING.md)"
+   }
+  },
+  {
+   "id": "type:MetaPattern",
+   "kind": "type",
+   "name": "MetaPattern",
+   "path": "schema/ontology.yaml",
+   "purpose": "\"L5: a pattern about the pattern system itself (encodings that fail or decay, h…",
+   "attrs": {
+    "root": "harness-data",
+    "path": "patterns/meta.jsonl",
+    "format": "jsonl",
+    "status": "active",
+    "writer": "scripts/patterns.py record (skills/pattern-review after approval)"
+   }
+  },
+  {
+   "id": "type:Mishap",
+   "kind": "type",
+   "name": "Mishap",
+   "path": "schema/ontology.yaml",
+   "purpose": "a mistake noticed and fixed, with root cause and prevention (skill `mishap`)",
+   "attrs": {
+    "root": "project",
+    "path": "log/mishaps.md",
+    "format": "md",
+    "status": "active",
+    "writer": "skills/mishap"
+   }
+  },
+  {
+   "id": "type:Organization",
+   "kind": "type",
+   "name": "Organization",
+   "path": "schema/ontology.yaml",
+   "purpose": "a company/agency/platform operator",
+   "attrs": {
+    "root": "harness-data",
+    "path": "organizations.jsonl",
+    "format": "jsonl",
+    "status": "planned",
+    "writer": "none yet"
+   }
+  },
+  {
+   "id": "type:Palette",
+   "kind": "type",
+   "name": "Palette",
+   "path": "schema/ontology.yaml",
+   "purpose": "colour palette extracted from an image (assets/palette/<asset id>.json)",
+   "attrs": {
+    "root": "project",
+    "path": "assets/palette/*.json",
+    "format": "json",
+    "status": "active",
+    "writer": "scripts/palette.py"
+   }
+  },
+  {
+   "id": "type:Pattern",
+   "kind": "type",
+   "name": "Pattern",
+   "path": "schema/ontology.yaml",
+   "purpose": "\"L2: a recurring regularity across 2+ episodes (what I keep asking, preferring,…",
+   "attrs": {
+    "root": "harness-data",
+    "path": "patterns/patterns.jsonl",
+    "format": "jsonl",
+    "status": "active",
+    "writer": "scripts/patterns.py record (skills/pattern-review, skills/retro seeds)"
+   }
+  },
+  {
+   "id": "type:Platform",
+   "kind": "type",
+   "name": "Platform",
+   "path": "schema/ontology.yaml",
+   "purpose": "a job board / marketplace / annotation platform the user has an account on",
+   "attrs": {
+    "root": "harness-data",
+    "path": "platforms.jsonl",
+    "format": "jsonl",
+    "status": "planned",
+    "writer": "Gmail backfill (platforms.json shape: {generated, scope, note, platforms: [...]})"
+   }
+  },
+  {
+   "id": "type:Preference",
+   "kind": "type",
+   "name": "Preference",
+   "path": "schema/ontology.yaml",
+   "purpose": "a stored answer to a scope question; newest per (statement topic, scope) wins",
+   "attrs": {
+    "root": "harness-data",
+    "path": "preferences.jsonl",
+    "format": "jsonl",
+    "status": "active",
+    "writer": "skills/interview"
+   }
+  },
+  {
+   "id": "type:Principle",
+   "kind": "type",
+   "name": "Principle",
+   "path": "schema/ontology.yaml",
+   "purpose": "cross-domain principle distilled from 2+ sources (skill `distill-principles`)",
+   "attrs": {
+    "root": "repo",
+    "path": "global/PRINCIPLES.md",
+    "format": "md",
+    "status": "active",
+    "writer": "skills/distill-principles (after approval)"
+   }
+  },
+  {
+   "id": "type:ProgressItem",
+   "kind": "type",
+   "name": "ProgressItem",
+   "path": "schema/ontology.yaml",
+   "purpose": "a task line in PROGRESS.md or an item of tasks.json; verify_gate blocks Stop wh…",
+   "attrs": {
+    "root": "project",
+    "path": "tasks.json",
+    "format": "json",
+    "status": "active",
+    "writer": "agents/orchestrator (workers may change only `passes`)"
+   }
+  },
+  {
+   "id": "type:Project",
+   "kind": "type",
+   "name": "Project",
+   "path": "schema/ontology.yaml",
+   "purpose": "one unit of work under <area>/<project>/ (templates/project)",
+   "attrs": {
+    "root": "project",
+    "path": "CLAUDE.md",
+    "format": "md",
+    "status": "active",
+    "writer": "skills/new-project"
+   }
+  },
+  {
+   "id": "type:Proof",
+   "kind": "type",
+   "name": "Proof",
+   "path": "schema/ontology.yaml",
+   "purpose": "pointer that proves a step or decision",
+   "attrs": {
+    "root": "harness-data",
+    "path": "log/YYYY-MM.jsonl",
+    "format": "embedded",
+    "status": "active",
+    "writer": "skills"
+   }
+  },
+  {
+   "id": "type:ResearchNote",
+   "kind": "type",
+   "name": "ResearchNote",
+   "path": "schema/ontology.yaml",
+   "purpose": "one checked answer to a question (from /check or /web-research), with sources,…",
+   "attrs": {
+    "root": "harness-data",
+    "path": "research/ledger.jsonl",
+    "format": "jsonl",
+    "status": "active",
+    "writer": "skills/check, skills/web-research"
+   }
+  },
+  {
+   "id": "type:ReviewerRule",
+   "kind": "type",
+   "name": "ReviewerRule",
+   "path": "schema/ontology.yaml",
+   "purpose": "\"a client/platform reviewer rule (knowledge/reviewer_rules.md), one per line: R…",
+   "attrs": {
+    "root": "project",
+    "path": "knowledge/reviewer_rules.md",
+    "format": "md",
+    "status": "active",
+    "writer": "skills/synopsis"
+   }
+  },
+  {
+   "id": "type:Rubric",
+   "kind": "type",
+   "name": "Rubric",
+   "path": "schema/ontology.yaml",
+   "purpose": "self-eval sheet per task type",
+   "attrs": {
+    "root": "repo",
+    "path": "rubrics/*.yaml",
+    "format": "yaml",
+    "status": "active",
+    "writer": "the user only"
+   }
+  },
+  {
+   "id": "type:SessionNote",
+   "kind": "type",
+   "name": "SessionNote",
+   "path": "schema/ontology.yaml",
+   "purpose": "end-of-session retro (skill `retro`)",
+   "attrs": {
+    "root": "project",
+    "path": "log/sessions/YYYY-MM-DD_<topic>.md",
+    "format": "md",
+    "status": "active",
+    "writer": "skills/retro"
+   }
+  },
+  {
+   "id": "type:StyleGuide",
+   "kind": "type",
+   "name": "StyleGuide",
+   "path": "schema/ontology.yaml",
+   "purpose": "approved per-register style rules learned from StylePairs (skill `style-guide`)",
+   "attrs": {
+    "root": "harness-data",
+    "path": "style/guide.md",
+    "format": "md",
+    "status": "active",
+    "writer": "skills/style-guide (after approval)"
+   }
+  },
+  {
+   "id": "type:StylePair",
+   "kind": "type",
+   "name": "StylePair",
+   "path": "schema/ontology.yaml",
+   "purpose": "draft -> final pair the user edited; few-shot references (scripts/style_pairs.p…",
+   "attrs": {
+    "root": "harness-data",
+    "path": "style/pairs.jsonl",
+    "format": "jsonl",
+    "status": "active",
+    "writer": "scripts/style_pairs.py"
+   }
+  },
+  {
+   "id": "type:StyleSample",
+   "kind": "type",
+   "name": "StyleSample",
+   "path": "schema/ontology.yaml",
+   "purpose": "a single text the user wrote (no draft), with register; raw excerpts belong in…",
+   "attrs": {
+    "root": "msg-vault",
+    "path": "style/samples.jsonl",
+    "format": "jsonl",
+    "status": "planned",
+    "writer": "Gmail backfill (style_samples.jsonl shape)"
+   }
+  },
+  {
+   "id": "type:SyncCursor",
+   "kind": "type",
+   "name": "SyncCursor",
+   "path": "schema/ontology.yaml",
+   "purpose": "incremental sync position per source/account",
+   "attrs": {
+    "root": "msg-vault",
+    "path": "cursors.json",
+    "format": "json",
+    "status": "active",
+    "writer": "scripts/voice.py cursor (skills/voice-harvest; id cur_<source>_sent_<account>); other ingest later"
+   }
+  },
+  {
+   "id": "type:Task",
+   "kind": "type",
+   "name": "Task",
+   "path": "schema/ontology.yaml",
+   "purpose": "a unit of delegated work; recorded as a `task` Event",
+   "attrs": {
+    "root": "harness-data",
+    "path": "log/YYYY-MM.jsonl",
+    "format": "event",
+    "status": "active",
+    "writer": "agents/orchestrator, skills"
+   }
+  },
+  {
+   "id": "type:Thread",
+   "kind": "type",
+   "name": "Thread",
+   "path": "schema/ontology.yaml",
+   "purpose": "a conversation; links messages to a project or application",
+   "attrs": {
+    "root": "msg-vault",
+    "path": "<source>/threads.jsonl",
+    "format": "jsonl",
+    "status": "planned",
+    "writer": "ingest"
+   }
+  },
+  {
+   "id": "type:VoiceFeatures",
+   "kind": "type",
+   "name": "VoiceFeatures",
+   "path": "schema/ontology.yaml",
+   "purpose": "style features of one text (language, greeting/closing type, sentence stats, Ko…",
+   "attrs": {
+    "root": "msg-vault",
+    "path": "voice/samples.jsonl",
+    "format": "embedded",
+    "status": "active",
+    "writer": "scripts/voice.py features"
+   }
+  },
+  {
+   "id": "type:VoiceProfile",
+   "kind": "type",
+   "name": "VoiceProfile",
+   "path": "schema/ontology.yaml",
+   "purpose": "a versioned snapshot of my email voice (per-segment stats + approved rules) wit…",
+   "attrs": {
+    "root": "harness-data",
+    "path": "voice/profiles.jsonl",
+    "format": "jsonl",
+    "status": "active",
+    "writer": "scripts/voice.py profile"
+   }
+  },
+  {
+   "id": "type:VoiceRule",
+   "kind": "type",
+   "name": "VoiceRule",
+   "path": "schema/ontology.yaml",
+   "purpose": "\"a contrast-mined voice rule ('in ko formal-email to recruiters, use 하십시오체') wi…",
+   "attrs": {
+    "root": "harness-data",
+    "path": "voice/rules.jsonl",
+    "format": "jsonl",
+    "status": "active",
+    "writer": "scripts/voice.py propose-rules|rule (skills/voice-harvest)"
+   }
+  },
+  {
+   "id": "type:VoiceSample",
+   "kind": "type",
+   "name": "VoiceSample",
+   "path": "schema/ontology.yaml",
+   "purpose": "one email the user SENT, with who/why/context and computed features; latest lin…",
+   "attrs": {
+    "root": "msg-vault",
+    "path": "voice/samples.jsonl",
+    "format": "jsonl",
+    "status": "active",
+    "writer": "scripts/voice.py ingest|update (skills/voice-harvest)"
+   }
+  },
+  {
+   "id": "type:WikiPage",
+   "kind": "type",
+   "name": "WikiPage",
+   "path": "schema/ontology.yaml",
+   "purpose": "a cleaned knowledge page with intake frontmatter (knowledge/wiki/*.md)",
+   "attrs": {
+    "root": "project",
+    "path": "knowledge/wiki/*.md",
+    "format": "md",
+    "status": "active",
+    "writer": "skills/intake, skills/backcatalog; linted by scripts/kb.py"
+   }
+  },
+  {
+   "id": "doc:docs/BACKLOG.md",
+   "kind": "doc",
+   "name": "docs/BACKLOG.md",
+   "path": "docs/BACKLOG.md",
+   "purpose": "Harness backlog (from the architecture scout, 2026-10-16)",
+   "attrs": {}
+  },
+  {
+   "id": "doc:docs/BACKUP.md",
+   "kind": "doc",
+   "name": "docs/BACKUP.md",
+   "path": "docs/BACKUP.md",
+   "purpose": "Backup plan: nothing lives only on one laptop",
+   "attrs": {}
+  },
+  {
+   "id": "doc:docs/FANOUT.md",
+   "kind": "doc",
+   "name": "docs/FANOUT.md",
+   "path": "docs/FANOUT.md",
+   "purpose": "Fan-out policy (v1, 2026-10-16)",
+   "attrs": {}
+  },
+  {
+   "id": "doc:docs/INTAKE.md",
+   "kind": "doc",
+   "name": "docs/INTAKE.md",
+   "path": "docs/INTAKE.md",
+   "purpose": "Intake how-to",
+   "attrs": {}
+  },
+  {
+   "id": "doc:docs/LOCAL_ONLY.md",
+   "kind": "doc",
+   "name": "docs/LOCAL_ONLY.md",
+   "path": "docs/LOCAL_ONLY.md",
+   "purpose": "Local-only tools for client text",
+   "attrs": {}
+  },
+  {
+   "id": "doc:docs/MESSAGING.md",
+   "kind": "doc",
+   "name": "docs/MESSAGING.md",
+   "path": "docs/MESSAGING.md",
+   "purpose": "Messaging and email: ingest and triggers",
+   "attrs": {}
+  },
+  {
+   "id": "doc:docs/PATTERNS.md",
+   "kind": "doc",
+   "name": "docs/PATTERNS.md",
+   "path": "docs/PATTERNS.md",
+   "purpose": "Pattern layers (v1, 2026-10-16)",
+   "attrs": {}
+  },
+  {
+   "id": "doc:docs/REGISTERS.md",
+   "kind": "doc",
+   "name": "docs/REGISTERS.md",
+   "path": "docs/REGISTERS.md",
+   "purpose": "Registers / 문체 구분",
+   "attrs": {}
+  },
+  {
+   "id": "doc:docs/SECURITY.md",
+   "kind": "doc",
+   "name": "docs/SECURITY.md",
+   "path": "docs/SECURITY.md",
+   "purpose": "Security",
+   "attrs": {}
+  },
+  {
+   "id": "doc:docs/VERIFICATION.md",
+   "kind": "doc",
+   "name": "docs/VERIFICATION.md",
+   "path": "docs/VERIFICATION.md",
+   "purpose": "Step verification protocol (v1, 2026-10-16)",
+   "attrs": {}
+  },
+  {
+   "id": "doc:docs/VISION.md",
+   "kind": "doc",
+   "name": "docs/VISION.md",
+   "path": "docs/VISION.md",
+   "purpose": "Vision: why this harness exists",
+   "attrs": {}
+  },
+  {
+   "id": "principle:1",
+   "kind": "principle",
+   "name": "1",
+   "path": "global/PRINCIPLES.md",
+   "purpose": "Study before building",
+   "attrs": {}
+  },
+  {
+   "id": "principle:10",
+   "kind": "principle",
+   "name": "10",
+   "path": "global/PRINCIPLES.md",
+   "purpose": "Learn from every mistake",
+   "attrs": {}
+  },
+  {
+   "id": "principle:11",
+   "kind": "principle",
+   "name": "11",
+   "path": "global/PRINCIPLES.md",
+   "purpose": "Never lose context between handoffs",
+   "attrs": {}
+  },
+  {
+   "id": "principle:12",
+   "kind": "principle",
+   "name": "12",
+   "path": "global/PRINCIPLES.md",
+   "purpose": "Nothing lives in only one place",
+   "attrs": {}
+  },
+  {
+   "id": "principle:13",
+   "kind": "principle",
+   "name": "13",
+   "path": "global/PRINCIPLES.md",
+   "purpose": "Break things into parts",
+   "attrs": {}
+  },
+  {
+   "id": "principle:14",
+   "kind": "principle",
+   "name": "14",
+   "path": "global/PRINCIPLES.md",
+   "purpose": "Turn what I say into principles",
+   "attrs": {}
+  },
+  {
+   "id": "principle:15",
+   "kind": "principle",
+   "name": "15",
+   "path": "global/PRINCIPLES.md",
+   "purpose": "Ask first, then act",
+   "attrs": {}
+  },
+  {
+   "id": "principle:16",
+   "kind": "principle",
+   "name": "16",
+   "path": "global/PRINCIPLES.md",
+   "purpose": "Improve on several measures at once",
+   "attrs": {}
+  },
+  {
+   "id": "principle:17",
+   "kind": "principle",
+   "name": "17",
+   "path": "global/PRINCIPLES.md",
+   "purpose": "Never compromise on quality",
+   "attrs": {}
+  },
+  {
+   "id": "principle:18",
+   "kind": "principle",
+   "name": "18",
+   "path": "global/PRINCIPLES.md",
+   "purpose": "Fan out deliberately",
+   "attrs": {}
+  },
+  {
+   "id": "principle:19",
+   "kind": "principle",
+   "name": "19",
+   "path": "global/PRINCIPLES.md",
+   "purpose": "Check, verify, log",
+   "attrs": {}
+  },
+  {
+   "id": "principle:2",
+   "kind": "principle",
+   "name": "2",
+   "path": "global/PRINCIPLES.md",
+   "purpose": "Look in the right places, at the right depth",
+   "attrs": {}
+  },
+  {
+   "id": "principle:20",
+   "kind": "principle",
+   "name": "20",
+   "path": "global/PRINCIPLES.md",
+   "purpose": "Think in layers",
+   "attrs": {}
+  },
+  {
+   "id": "principle:21",
+   "kind": "principle",
+   "name": "21",
+   "path": "global/PRINCIPLES.md",
+   "purpose": "Verify every step",
+   "attrs": {}
+  },
+  {
+   "id": "principle:22",
+   "kind": "principle",
+   "name": "22",
+   "path": "global/PRINCIPLES.md",
+   "purpose": "Every process learns",
+   "attrs": {}
+  },
+  {
+   "id": "principle:3",
+   "kind": "principle",
+   "name": "3",
+   "path": "global/PRINCIPLES.md",
+   "purpose": "Consider adjacent ideas",
+   "attrs": {}
+  },
+  {
+   "id": "principle:4",
+   "kind": "principle",
+   "name": "4",
+   "path": "global/PRINCIPLES.md",
+   "purpose": "Check it's deployable, not just interesting",
+   "attrs": {}
+  },
+  {
+   "id": "principle:5",
+   "kind": "principle",
+   "name": "5",
+   "path": "global/PRINCIPLES.md",
+   "purpose": "Leave room to experiment",
+   "attrs": {}
+  },
+  {
+   "id": "principle:6",
+   "kind": "principle",
+   "name": "6",
+   "path": "global/PRINCIPLES.md",
+   "purpose": "State of the art, as of today",
+   "attrs": {}
+  },
+  {
+   "id": "principle:7",
+   "kind": "principle",
+   "name": "7",
+   "path": "global/PRINCIPLES.md",
+   "purpose": "Intent and context first",
+   "attrs": {}
+  },
+  {
+   "id": "principle:8",
+   "kind": "principle",
+   "name": "8",
+   "path": "global/PRINCIPLES.md",
+   "purpose": "Every step has a justification and proof",
+   "attrs": {}
+  },
+  {
+   "id": "principle:9",
+   "kind": "principle",
+   "name": "9",
+   "path": "global/PRINCIPLES.md",
+   "purpose": "Verify independently",
+   "attrs": {}
+  },
+  {
+   "id": "file:.claude-plugin/marketplace.json",
+   "kind": "file",
+   "name": ".claude-plugin/marketplace.json",
+   "path": ".claude-plugin/marketplace.json",
+   "purpose": "",
+   "attrs": {}
+  },
+  {
+   "id": "file:.claude-plugin/plugin.json",
+   "kind": "file",
+   "name": ".claude-plugin/plugin.json",
+   "path": ".claude-plugin/plugin.json",
+   "purpose": "",
+   "attrs": {}
+  },
+  {
+   "id": "file:BLUEPRINT.md",
+   "kind": "file",
+   "name": "BLUEPRINT.md",
+   "path": "BLUEPRINT.md",
+   "purpose": "",
+   "attrs": {}
+  },
+  {
+   "id": "file:README.md",
+   "kind": "file",
+   "name": "README.md",
+   "path": "README.md",
+   "purpose": "",
+   "attrs": {}
+  },
+  {
+   "id": "file:config/settings.README.md",
+   "kind": "file",
+   "name": "config/settings.README.md",
+   "path": "config/settings.README.md",
+   "purpose": "",
+   "attrs": {}
+  },
+  {
+   "id": "file:config/settings.json",
+   "kind": "file",
+   "name": "config/settings.json",
+   "path": "config/settings.json",
+   "purpose": "",
+   "attrs": {}
+  },
+  {
+   "id": "file:evals/README.md",
+   "kind": "file",
+   "name": "evals/README.md",
+   "path": "evals/README.md",
+   "purpose": "",
+   "attrs": {}
+  },
+  {
+   "id": "file:global/CLAUDE.md",
+   "kind": "file",
+   "name": "global/CLAUDE.md",
+   "path": "global/CLAUDE.md",
+   "purpose": "",
+   "attrs": {}
+  },
+  {
+   "id": "file:global/PRINCIPLES.md",
+   "kind": "file",
+   "name": "global/PRINCIPLES.md",
+   "path": "global/PRINCIPLES.md",
+   "purpose": "",
+   "attrs": {}
+  },
+  {
+   "id": "file:hooks/hooks.json",
+   "kind": "file",
+   "name": "hooks/hooks.json",
+   "path": "hooks/hooks.json",
+   "purpose": "",
+   "attrs": {}
+  },
+  {
+   "id": "file:install.sh",
+   "kind": "file",
+   "name": "install.sh",
+   "path": "install.sh",
+   "purpose": "",
+   "attrs": {}
+  },
+  {
+   "id": "file:mac/Brewfile",
+   "kind": "file",
+   "name": "mac/Brewfile",
+   "path": "mac/Brewfile",
+   "purpose": "",
+   "attrs": {}
+  },
+  {
+   "id": "file:mac/bootstrap.sh",
+   "kind": "file",
+   "name": "mac/bootstrap.sh",
+   "path": "mac/bootstrap.sh",
+   "purpose": "",
+   "attrs": {}
+  },
+  {
+   "id": "file:mac/launchd/com.harness.autocommit.plist",
+   "kind": "file",
+   "name": "mac/launchd/com.harness.autocommit.plist",
+   "path": "mac/launchd/com.harness.autocommit.plist",
+   "purpose": "",
+   "attrs": {}
+  },
+  {
+   "id": "file:mac/launchd/com.harness.remote-control.plist",
+   "kind": "file",
+   "name": "mac/launchd/com.harness.remote-control.plist",
+   "path": "mac/launchd/com.harness.remote-control.plist",
+   "purpose": "",
+   "attrs": {}
+  },
+  {
+   "id": "file:patterns/seed_patterns.jsonl",
+   "kind": "file",
+   "name": "patterns/seed_patterns.jsonl",
+   "path": "patterns/seed_patterns.jsonl",
+   "purpose": "",
+   "attrs": {}
+  },
+  {
+   "id": "file:schema/STORAGE.md",
+   "kind": "file",
+   "name": "schema/STORAGE.md",
+   "path": "schema/STORAGE.md",
+   "purpose": "",
+   "attrs": {}
+  },
+  {
+   "id": "file:schema/event.md",
+   "kind": "file",
+   "name": "schema/event.md",
+   "path": "schema/event.md",
+   "purpose": "",
+   "attrs": {}
+  },
+  {
+   "id": "file:schema/ontology.yaml",
+   "kind": "file",
+   "name": "schema/ontology.yaml",
+   "path": "schema/ontology.yaml",
+   "purpose": "",
+   "attrs": {}
+  },
+  {
+   "id": "file:settings.json",
+   "kind": "file",
+   "name": "settings.json",
+   "path": "settings.json",
+   "purpose": "",
+   "attrs": {}
+  },
+  {
+   "id": "file:templates/glossary.md",
+   "kind": "file",
+   "name": "templates/glossary.md",
+   "path": "templates/glossary.md",
+   "purpose": "",
+   "attrs": {}
+  },
+  {
+   "id": "file:templates/project/CLAUDE.md",
+   "kind": "file",
+   "name": "templates/project/CLAUDE.md",
+   "path": "templates/project/CLAUDE.md",
+   "purpose": "",
+   "attrs": {}
+  },
+  {
+   "id": "file:templates/project/PROGRESS.md",
+   "kind": "file",
+   "name": "templates/project/PROGRESS.md",
+   "path": "templates/project/PROGRESS.md",
+   "purpose": "",
+   "attrs": {}
+  },
+  {
+   "id": "file:templates/project/decisions.md",
+   "kind": "file",
+   "name": "templates/project/decisions.md",
+   "path": "templates/project/decisions.md",
+   "purpose": "",
+   "attrs": {}
+  },
+  {
+   "id": "file:templates/project/knowledge/index.md",
+   "kind": "file",
+   "name": "templates/project/knowledge/index.md",
+   "path": "templates/project/knowledge/index.md",
+   "purpose": "",
+   "attrs": {}
+  },
+  {
+   "id": "file:templates/project/knowledge/log.md",
+   "kind": "file",
+   "name": "templates/project/knowledge/log.md",
+   "path": "templates/project/knowledge/log.md",
+   "purpose": "",
+   "attrs": {}
+  }
+ ],
+ "edges": [
+  {
+   "src": "agent:annotation-assistant",
+   "dst": "eval:annotation",
+   "type": "learning_eval"
+  },
+  {
+   "src": "agent:annotation-assistant",
+   "dst": "rubric:annotation-batch",
+   "type": "learning_eval"
+  },
+  {
+   "src": "agent:annotation-assistant",
+   "dst": "skill:annotation-workflow",
+   "type": "invokes"
+  },
+  {
+   "src": "agent:annotation-assistant",
+   "dst": "skill:annotation-workflow",
+   "type": "preloads"
+  },
+  {
+   "src": "agent:annotation-assistant",
+   "dst": "type:Lesson",
+   "type": "learns_into"
+  },
+  {
+   "src": "agent:annotation-assistant",
+   "dst": "type:StylePair",
+   "type": "learns_into"
+  },
+  {
+   "src": "agent:asset-decomposer",
+   "dst": "eval:art",
+   "type": "learning_eval"
+  },
+  {
+   "src": "agent:asset-decomposer",
+   "dst": "rubric:asset-package",
+   "type": "learning_eval"
+  },
+  {
+   "src": "agent:asset-decomposer",
+   "dst": "skill:asset-decompose",
+   "type": "invokes"
+  },
+  {
+   "src": "agent:asset-decomposer",
+   "dst": "skill:asset-decompose",
+   "type": "preloads"
+  },
+  {
+   "src": "agent:asset-decomposer",
+   "dst": "type:Asset",
+   "type": "logs"
+  },
+  {
+   "src": "agent:asset-decomposer",
+   "dst": "type:Lesson",
+   "type": "learns_into"
+  },
+  {
+   "src": "agent:browser-operator",
+   "dst": "eval:browser",
+   "type": "learning_eval"
+  },
+  {
+   "src": "agent:browser-operator",
+   "dst": "rubric:browser-task",
+   "type": "learning_eval"
+  },
+  {
+   "src": "agent:browser-operator",
+   "dst": "skill:browser-task",
+   "type": "invokes"
+  },
+  {
+   "src": "agent:browser-operator",
+   "dst": "skill:browser-task",
+   "type": "preloads"
+  },
+  {
+   "src": "agent:browser-operator",
+   "dst": "type:Pattern",
+   "type": "learns_into"
+  },
+  {
+   "src": "agent:code-reviewer",
+   "dst": "agent:coder",
+   "type": "routes_to"
+  },
+  {
+   "src": "agent:code-reviewer",
+   "dst": "agent:verifier",
+   "type": "routes_to"
+  },
+  {
+   "src": "agent:code-reviewer",
+   "dst": "eval:code",
+   "type": "learning_eval"
+  },
+  {
+   "src": "agent:code-reviewer",
+   "dst": "rubric:code-change",
+   "type": "learning_eval"
+  },
+  {
+   "src": "agent:code-reviewer",
+   "dst": "skill:coding-standards",
+   "type": "invokes"
+  },
+  {
+   "src": "agent:code-reviewer",
+   "dst": "skill:coding-standards",
+   "type": "preloads"
+  },
+  {
+   "src": "agent:code-reviewer",
+   "dst": "skill:mishap",
+   "type": "invokes"
+  },
+  {
+   "src": "agent:code-reviewer",
+   "dst": "skill:mishap",
+   "type": "preloads"
+  },
+  {
+   "src": "agent:code-reviewer",
+   "dst": "skill:verify",
+   "type": "invokes"
+  },
+  {
+   "src": "agent:code-reviewer",
+   "dst": "type:Pattern",
+   "type": "learns_into"
+  },
+  {
+   "src": "agent:coder",
+   "dst": "agent:code-reviewer",
+   "type": "routes_to"
+  },
+  {
+   "src": "agent:coder",
+   "dst": "doc:docs/VERIFICATION.md",
+   "type": "reads"
+  },
+  {
+   "src": "agent:coder",
+   "dst": "eval:code",
+   "type": "learning_eval"
+  },
+  {
+   "src": "agent:coder",
+   "dst": "rubric:code-change",
+   "type": "learning_eval"
+  },
+  {
+   "src": "agent:coder",
+   "dst": "skill:coding-standards",
+   "type": "invokes"
+  },
+  {
+   "src": "agent:coder",
+   "dst": "skill:coding-standards",
+   "type": "preloads"
+  },
+  {
+   "src": "agent:coder",
+   "dst": "skill:mishap",
+   "type": "invokes"
+  },
+  {
+   "src": "agent:coder",
+   "dst": "skill:mishap",
+   "type": "preloads"
+  },
+  {
+   "src": "agent:coder",
+   "dst": "skill:prior-art",
+   "type": "invokes"
+  },
+  {
+   "src": "agent:coder",
+   "dst": "skill:prior-art",
+   "type": "preloads"
+  },
+  {
+   "src": "agent:coder",
+   "dst": "skill:verify",
+   "type": "invokes"
+  },
+  {
+   "src": "agent:coder",
+   "dst": "type:Lesson",
+   "type": "learns_into"
+  },
+  {
+   "src": "agent:coder",
+   "dst": "type:Pattern",
+   "type": "learns_into"
+  },
+  {
+   "src": "agent:intake-extractor",
+   "dst": "eval:intake",
+   "type": "learning_eval"
+  },
+  {
+   "src": "agent:intake-extractor",
+   "dst": "rubric:intake-extraction",
+   "type": "learning_eval"
+  },
+  {
+   "src": "agent:intake-extractor",
+   "dst": "skill:intake",
+   "type": "invokes"
+  },
+  {
+   "src": "agent:intake-extractor",
+   "dst": "skill:intake",
+   "type": "preloads"
+  },
+  {
+   "src": "agent:intake-extractor",
+   "dst": "type:IntakeLogEntry",
+   "type": "logs"
+  },
+  {
+   "src": "agent:intake-extractor",
+   "dst": "type:Lesson",
+   "type": "learns_into"
+  },
+  {
+   "src": "agent:interviewer",
+   "dst": "skill:interview",
+   "type": "invokes"
+  },
+  {
+   "src": "agent:interviewer",
+   "dst": "skill:interview",
+   "type": "preloads"
+  },
+  {
+   "src": "agent:interviewer",
+   "dst": "type:Preference",
+   "type": "learns_into"
+  },
+  {
+   "src": "agent:interviewer",
+   "dst": "type:Preference",
+   "type": "logs"
+  },
+  {
+   "src": "agent:job-tracker",
+   "dst": "eval:email-scan",
+   "type": "learning_eval"
+  },
+  {
+   "src": "agent:job-tracker",
+   "dst": "rubric:email-scan",
+   "type": "learning_eval"
+  },
+  {
+   "src": "agent:job-tracker",
+   "dst": "skill:email-scan",
+   "type": "invokes"
+  },
+  {
+   "src": "agent:job-tracker",
+   "dst": "skill:email-scan",
+   "type": "preloads"
+  },
+  {
+   "src": "agent:job-tracker",
+   "dst": "type:Application",
+   "type": "logs"
+  },
+  {
+   "src": "agent:job-tracker",
+   "dst": "type:Application",
+   "type": "writes"
+  },
+  {
+   "src": "agent:librarian",
+   "dst": "eval:harness",
+   "type": "learning_eval"
+  },
+  {
+   "src": "agent:librarian",
+   "dst": "script:scripts/patterns.py",
+   "type": "runs"
+  },
+  {
+   "src": "agent:librarian",
+   "dst": "skill:distill-principles",
+   "type": "preloads"
+  },
+  {
+   "src": "agent:librarian",
+   "dst": "skill:pattern-review",
+   "type": "invokes"
+  },
+  {
+   "src": "agent:librarian",
+   "dst": "skill:review-week",
+   "type": "invokes"
+  },
+  {
+   "src": "agent:librarian",
+   "dst": "type:Encoding",
+   "type": "logs"
+  },
+  {
+   "src": "agent:librarian",
+   "dst": "type:Lesson",
+   "type": "learns_into"
+  },
+  {
+   "src": "agent:librarian",
+   "dst": "type:Lesson",
+   "type": "logs"
+  },
+  {
+   "src": "agent:librarian",
+   "dst": "type:MetaPattern",
+   "type": "learns_into"
+  },
+  {
+   "src": "agent:orchestrator",
+   "dst": "agent:annotation-assistant",
+   "type": "routes_to"
+  },
+  {
+   "src": "agent:orchestrator",
+   "dst": "agent:asset-decomposer",
+   "type": "routes_to"
+  },
+  {
+   "src": "agent:orchestrator",
+   "dst": "agent:browser-operator",
+   "type": "routes_to"
+  },
+  {
+   "src": "agent:orchestrator",
+   "dst": "agent:code-reviewer",
+   "type": "routes_to"
+  },
+  {
+   "src": "agent:orchestrator",
+   "dst": "agent:coder",
+   "type": "routes_to"
+  },
+  {
+   "src": "agent:orchestrator",
+   "dst": "agent:intake-extractor",
+   "type": "routes_to"
+  },
+  {
+   "src": "agent:orchestrator",
+   "dst": "agent:job-tracker",
+   "type": "routes_to"
+  },
+  {
+   "src": "agent:orchestrator",
+   "dst": "agent:translator",
+   "type": "routes_to"
+  },
+  {
+   "src": "agent:orchestrator",
+   "dst": "agent:verifier",
+   "type": "routes_to"
+  },
+  {
+   "src": "agent:orchestrator",
+   "dst": "agent:web-researcher",
+   "type": "routes_to"
+  },
+  {
+   "src": "agent:orchestrator",
+   "dst": "doc:docs/FANOUT.md",
+   "type": "reads"
+  },
+  {
+   "src": "agent:orchestrator",
+   "dst": "doc:docs/VERIFICATION.md",
+   "type": "reads"
+  },
+  {
+   "src": "agent:orchestrator",
+   "dst": "eval:harness",
+   "type": "learning_eval"
+  },
+  {
+   "src": "agent:orchestrator",
+   "dst": "skill:check",
+   "type": "invokes"
+  },
+  {
+   "src": "agent:orchestrator",
+   "dst": "skill:coding-standards",
+   "type": "invokes"
+  },
+  {
+   "src": "agent:orchestrator",
+   "dst": "skill:fanout-plan",
+   "type": "invokes"
+  },
+  {
+   "src": "agent:orchestrator",
+   "dst": "skill:fanout-plan",
+   "type": "preloads"
+  },
+  {
+   "src": "agent:orchestrator",
+   "dst": "skill:handoff",
+   "type": "invokes"
+  },
+  {
+   "src": "agent:orchestrator",
+   "dst": "skill:handoff",
+   "type": "preloads"
+  },
+  {
+   "src": "agent:orchestrator",
+   "dst": "skill:interview",
+   "type": "invokes"
+  },
+  {
+   "src": "agent:orchestrator",
+   "dst": "skill:interview",
+   "type": "preloads"
+  },
+  {
+   "src": "agent:orchestrator",
+   "dst": "skill:mishap",
+   "type": "invokes"
+  },
+  {
+   "src": "agent:orchestrator",
+   "dst": "skill:mishap",
+   "type": "preloads"
+  },
+  {
+   "src": "agent:orchestrator",
+   "dst": "skill:verify",
+   "type": "invokes"
+  },
+  {
+   "src": "agent:orchestrator",
+   "dst": "skill:verify",
+   "type": "preloads"
+  },
+  {
+   "src": "agent:orchestrator",
+   "dst": "skill:web-research",
+   "type": "invokes"
+  },
+  {
+   "src": "agent:orchestrator",
+   "dst": "type:Pattern",
+   "type": "learns_into"
+  },
+  {
+   "src": "agent:orchestrator",
+   "dst": "type:ProgressItem",
+   "type": "writes"
+  },
+  {
+   "src": "agent:orchestrator",
+   "dst": "type:Task",
+   "type": "writes"
+  },
+  {
+   "src": "agent:translator",
+   "dst": "eval:synopsis",
+   "type": "learning_eval"
+  },
+  {
+   "src": "agent:translator",
+   "dst": "eval:translation",
+   "type": "learning_eval"
+  },
+  {
+   "src": "agent:translator",
+   "dst": "rubric:synopsis",
+   "type": "learning_eval"
+  },
+  {
+   "src": "agent:translator",
+   "dst": "rubric:translation",
+   "type": "learning_eval"
+  },
+  {
+   "src": "agent:translator",
+   "dst": "skill:style-capture",
+   "type": "preloads"
+  },
+  {
+   "src": "agent:translator",
+   "dst": "skill:synopsis",
+   "type": "preloads"
+  },
+  {
+   "src": "agent:translator",
+   "dst": "skill:translate",
+   "type": "preloads"
+  },
+  {
+   "src": "agent:translator",
+   "dst": "type:GlossaryTerm",
+   "type": "learns_into"
+  },
+  {
+   "src": "agent:translator",
+   "dst": "type:ReviewerRule",
+   "type": "learns_into"
+  },
+  {
+   "src": "agent:translator",
+   "dst": "type:StyleGuide",
+   "type": "learns_into"
+  },
+  {
+   "src": "agent:translator",
+   "dst": "type:StylePair",
+   "type": "learns_into"
+  },
+  {
+   "src": "agent:verifier",
+   "dst": "type:Evaluation",
+   "type": "logs"
+  },
+  {
+   "src": "agent:verifier",
+   "dst": "type:IntakeLogEntry",
+   "type": "writes"
+  },
+  {
+   "src": "agent:web-researcher",
+   "dst": "eval:research",
+   "type": "learning_eval"
+  },
+  {
+   "src": "agent:web-researcher",
+   "dst": "rubric:research-report",
+   "type": "learning_eval"
+  },
+  {
+   "src": "agent:web-researcher",
+   "dst": "type:Pattern",
+   "type": "learns_into"
+  },
+  {
+   "src": "agent:web-researcher",
+   "dst": "type:ResearchNote",
+   "type": "learns_into"
+  },
+  {
+   "src": "agent:web-researcher",
+   "dst": "type:ResearchNote",
+   "type": "logs"
+  },
+  {
+   "src": "doc:docs/BACKLOG.md",
+   "dst": "script:hooks/guard_protected.py",
+   "type": "mentions"
+  },
+  {
+   "src": "doc:docs/BACKLOG.md",
+   "dst": "script:hooks/log_event.py",
+   "type": "mentions"
+  },
+  {
+   "src": "doc:docs/BACKLOG.md",
+   "dst": "script:hooks/verify_gate.py",
+   "type": "mentions"
+  },
+  {
+   "src": "doc:docs/BACKUP.md",
+   "dst": "skill:intake",
+   "type": "mentions"
+  },
+  {
+   "src": "doc:docs/BACKUP.md",
+   "dst": "skill:retro",
+   "type": "mentions"
+  },
+  {
+   "src": "doc:docs/FANOUT.md",
+   "dst": "agent:browser-operator",
+   "type": "mentions"
+  },
+  {
+   "src": "doc:docs/FANOUT.md",
+   "dst": "agent:code-reviewer",
+   "type": "mentions"
+  },
+  {
+   "src": "doc:docs/FANOUT.md",
+   "dst": "agent:coder",
+   "type": "mentions"
+  },
+  {
+   "src": "doc:docs/FANOUT.md",
+   "dst": "agent:orchestrator",
+   "type": "mentions"
+  },
+  {
+   "src": "doc:docs/FANOUT.md",
+   "dst": "agent:verifier",
+   "type": "mentions"
+  },
+  {
+   "src": "doc:docs/FANOUT.md",
+   "dst": "script:hooks/usage_guard.py",
+   "type": "mentions"
+  },
+  {
+   "src": "doc:docs/FANOUT.md",
+   "dst": "skill:coding-standards",
+   "type": "mentions"
+  },
+  {
+   "src": "doc:docs/FANOUT.md",
+   "dst": "skill:fanout-plan",
+   "type": "mentions"
+  },
+  {
+   "src": "doc:docs/FANOUT.md",
+   "dst": "skill:prior-art",
+   "type": "mentions"
+  },
+  {
+   "src": "doc:docs/FANOUT.md",
+   "dst": "skill:verify",
+   "type": "mentions"
+  },
+  {
+   "src": "doc:docs/FANOUT.md",
+   "dst": "skill:web-research",
+   "type": "mentions"
+  },
+  {
+   "src": "doc:docs/INTAKE.md",
+   "dst": "script:scripts/kb.py",
+   "type": "mentions"
+  },
+  {
+   "src": "doc:docs/INTAKE.md",
+   "dst": "skill:backcatalog",
+   "type": "mentions"
+  },
+  {
+   "src": "doc:docs/INTAKE.md",
+   "dst": "skill:intake",
+   "type": "mentions"
+  },
+  {
+   "src": "doc:docs/LOCAL_ONLY.md",
+   "dst": "script:scripts/kb.py",
+   "type": "mentions"
+  },
+  {
+   "src": "doc:docs/LOCAL_ONLY.md",
+   "dst": "skill:intake",
+   "type": "mentions"
+  },
+  {
+   "src": "doc:docs/LOCAL_ONLY.md",
+   "dst": "skill:synopsis",
+   "type": "mentions"
+  },
+  {
+   "src": "doc:docs/LOCAL_ONLY.md",
+   "dst": "skill:translate",
+   "type": "mentions"
+  },
+  {
+   "src": "doc:docs/LOCAL_ONLY.md",
+   "dst": "skill:translation-qa",
+   "type": "mentions"
+  },
+  {
+   "src": "doc:docs/MESSAGING.md",
+   "dst": "skill:email-scan",
+   "type": "mentions"
+  },
+  {
+   "src": "doc:docs/PATTERNS.md",
+   "dst": "script:scripts/patterns.py",
+   "type": "mentions"
+  },
+  {
+   "src": "doc:docs/PATTERNS.md",
+   "dst": "skill:pattern-review",
+   "type": "mentions"
+  },
+  {
+   "src": "doc:docs/PATTERNS.md",
+   "dst": "skill:retro",
+   "type": "mentions"
+  },
+  {
+   "src": "doc:docs/PATTERNS.md",
+   "dst": "skill:review-week",
+   "type": "mentions"
+  },
+  {
+   "src": "doc:docs/REGISTERS.md",
+   "dst": "script:scripts/style_pairs.py",
+   "type": "mentions"
+  },
+  {
+   "src": "doc:docs/REGISTERS.md",
+   "dst": "skill:style-guide",
+   "type": "mentions"
+  },
+  {
+   "src": "doc:docs/SECURITY.md",
+   "dst": "doc:docs/BACKUP.md",
+   "type": "mentions"
+  },
+  {
+   "src": "doc:docs/VERIFICATION.md",
+   "dst": "agent:browser-operator",
+   "type": "mentions"
+  },
+  {
+   "src": "doc:docs/VERIFICATION.md",
+   "dst": "agent:code-reviewer",
+   "type": "mentions"
+  },
+  {
+   "src": "doc:docs/VERIFICATION.md",
+   "dst": "agent:coder",
+   "type": "mentions"
+  },
+  {
+   "src": "doc:docs/VERIFICATION.md",
+   "dst": "agent:intake-extractor",
+   "type": "mentions"
+  },
+  {
+   "src": "doc:docs/VERIFICATION.md",
+   "dst": "agent:translator",
+   "type": "mentions"
+  },
+  {
+   "src": "doc:docs/VERIFICATION.md",
+   "dst": "agent:web-researcher",
+   "type": "mentions"
+  },
+  {
+   "src": "doc:docs/VERIFICATION.md",
+   "dst": "doc:docs/FANOUT.md",
+   "type": "mentions"
+  },
+  {
+   "src": "doc:docs/VERIFICATION.md",
+   "dst": "doc:docs/REGISTERS.md",
+   "type": "mentions"
+  },
+  {
+   "src": "doc:docs/VERIFICATION.md",
+   "dst": "principle:21",
+   "type": "cites"
+  },
+  {
+   "src": "doc:docs/VERIFICATION.md",
+   "dst": "script:hooks/step_check.py",
+   "type": "mentions"
+  },
+  {
+   "src": "doc:docs/VERIFICATION.md",
+   "dst": "script:hooks/verify_gate.py",
+   "type": "mentions"
+  },
+  {
+   "src": "doc:docs/VERIFICATION.md",
+   "dst": "script:scripts/claim_check.py",
+   "type": "mentions"
+  },
+  {
+   "src": "doc:docs/VERIFICATION.md",
+   "dst": "script:scripts/invoice.py",
+   "type": "mentions"
+  },
+  {
+   "src": "doc:docs/VERIFICATION.md",
+   "dst": "script:scripts/kb.py",
+   "type": "mentions"
+  },
+  {
+   "src": "doc:docs/VERIFICATION.md",
+   "dst": "script:scripts/schema_check.py",
+   "type": "mentions"
+  },
+  {
+   "src": "doc:docs/VERIFICATION.md",
+   "dst": "script:scripts/textlen.py",
+   "type": "mentions"
+  },
+  {
+   "src": "doc:docs/VERIFICATION.md",
+   "dst": "script:scripts/translation_qa.py",
+   "type": "mentions"
+  },
+  {
+   "src": "doc:docs/VERIFICATION.md",
+   "dst": "skill:browser-task",
+   "type": "mentions"
+  },
+  {
+   "src": "doc:docs/VERIFICATION.md",
+   "dst": "skill:check",
+   "type": "mentions"
+  },
+  {
+   "src": "doc:docs/VERIFICATION.md",
+   "dst": "skill:coding-standards",
+   "type": "mentions"
+  },
+  {
+   "src": "doc:docs/VERIFICATION.md",
+   "dst": "skill:intake",
+   "type": "mentions"
+  },
+  {
+   "src": "doc:docs/VERIFICATION.md",
+   "dst": "skill:invoice",
+   "type": "mentions"
+  },
+  {
+   "src": "doc:docs/VERIFICATION.md",
+   "dst": "skill:job-application",
+   "type": "mentions"
+  },
+  {
+   "src": "doc:docs/VERIFICATION.md",
+   "dst": "skill:mishap",
+   "type": "mentions"
+  },
+  {
+   "src": "doc:docs/VERIFICATION.md",
+   "dst": "skill:synopsis",
+   "type": "mentions"
+  },
+  {
+   "src": "doc:docs/VERIFICATION.md",
+   "dst": "skill:translation-qa",
+   "type": "mentions"
+  },
+  {
+   "src": "doc:docs/VERIFICATION.md",
+   "dst": "skill:verify",
+   "type": "mentions"
+  },
+  {
+   "src": "doc:docs/VISION.md",
+   "dst": "doc:docs/FANOUT.md",
+   "type": "mentions"
+  },
+  {
+   "src": "doc:docs/VISION.md",
+   "dst": "doc:docs/PATTERNS.md",
+   "type": "mentions"
+  },
+  {
+   "src": "doc:docs/VISION.md",
+   "dst": "principle:17",
+   "type": "cites"
+  },
+  {
+   "src": "eval:harness",
+   "dst": "doc:docs/FANOUT.md",
+   "type": "evaluates"
+  },
+  {
+   "src": "eval:harness",
+   "dst": "file:schema/ontology.yaml",
+   "type": "evaluates"
+  },
+  {
+   "src": "eval:harness",
+   "dst": "script:hooks/guard_protected.py",
+   "type": "evaluates"
+  },
+  {
+   "src": "eval:harness",
+   "dst": "script:hooks/log_event.py",
+   "type": "evaluates"
+  },
+  {
+   "src": "eval:harness",
+   "dst": "script:hooks/postcompact_reinject.py",
+   "type": "evaluates"
+  },
+  {
+   "src": "eval:harness",
+   "dst": "script:hooks/precompact_snapshot.py",
+   "type": "evaluates"
+  },
+  {
+   "src": "eval:harness",
+   "dst": "script:hooks/usage_guard.py",
+   "type": "evaluates"
+  },
+  {
+   "src": "eval:harness",
+   "dst": "script:hooks/verify_gate.py",
+   "type": "evaluates"
+  },
+  {
+   "src": "eval:harness",
+   "dst": "script:scripts/claim_check.py",
+   "type": "evaluates"
+  },
+  {
+   "src": "eval:harness",
+   "dst": "script:scripts/eval_gate.py",
+   "type": "evaluates"
+  },
+  {
+   "src": "eval:harness",
+   "dst": "script:scripts/glossary.py",
+   "type": "evaluates"
+  },
+  {
+   "src": "eval:harness",
+   "dst": "script:scripts/invoice.py",
+   "type": "evaluates"
+  },
+  {
+   "src": "eval:harness",
+   "dst": "script:scripts/kb.py",
+   "type": "evaluates"
+  },
+  {
+   "src": "eval:harness",
+   "dst": "script:scripts/patterns.py",
+   "type": "evaluates"
+  },
+  {
+   "src": "eval:harness",
+   "dst": "script:scripts/schema_check.py",
+   "type": "evaluates"
+  },
+  {
+   "src": "eval:harness",
+   "dst": "script:scripts/style_pairs.py",
+   "type": "evaluates"
+  },
+  {
+   "src": "eval:harness",
+   "dst": "script:scripts/textlen.py",
+   "type": "evaluates"
+  },
+  {
+   "src": "eval:harness",
+   "dst": "script:scripts/translation_qa.py",
+   "type": "evaluates"
+  },
+  {
+   "src": "file:BLUEPRINT.md",
+   "dst": "skill:annotation-workflow",
+   "type": "mentions"
+  },
+  {
+   "src": "file:BLUEPRINT.md",
+   "dst": "skill:asset-decompose",
+   "type": "mentions"
+  },
+  {
+   "src": "file:BLUEPRINT.md",
+   "dst": "skill:coding-standards",
+   "type": "mentions"
+  },
+  {
+   "src": "file:BLUEPRINT.md",
+   "dst": "skill:email-scan",
+   "type": "mentions"
+  },
+  {
+   "src": "file:BLUEPRINT.md",
+   "dst": "skill:handoff",
+   "type": "mentions"
+  },
+  {
+   "src": "file:BLUEPRINT.md",
+   "dst": "skill:interview",
+   "type": "mentions"
+  },
+  {
+   "src": "file:BLUEPRINT.md",
+   "dst": "skill:job-application",
+   "type": "mentions"
+  },
+  {
+   "src": "file:BLUEPRINT.md",
+   "dst": "skill:new-project",
+   "type": "mentions"
+  },
+  {
+   "src": "file:BLUEPRINT.md",
+   "dst": "skill:retro",
+   "type": "mentions"
+  },
+  {
+   "src": "file:BLUEPRINT.md",
+   "dst": "skill:review-week",
+   "type": "mentions"
+  },
+  {
+   "src": "file:BLUEPRINT.md",
+   "dst": "skill:verify",
+   "type": "mentions"
+  },
+  {
+   "src": "file:BLUEPRINT.md",
+   "dst": "skill:web-research",
+   "type": "mentions"
+  },
+  {
+   "src": "file:BLUEPRINT.md",
+   "dst": "skill:why",
+   "type": "mentions"
+  },
+  {
+   "src": "file:README.md",
+   "dst": "doc:docs/VERIFICATION.md",
+   "type": "mentions"
+  },
+  {
+   "src": "file:README.md",
+   "dst": "script:scripts/harness_index.py",
+   "type": "mentions"
+  },
+  {
+   "src": "file:README.md",
+   "dst": "skill:self-eval",
+   "type": "mentions"
+  },
+  {
+   "src": "file:config/settings.README.md",
+   "dst": "agent:verifier",
+   "type": "mentions"
+  },
+  {
+   "src": "file:config/settings.README.md",
+   "dst": "doc:docs/FANOUT.md",
+   "type": "mentions"
+  },
+  {
+   "src": "file:config/settings.README.md",
+   "dst": "script:hooks/usage_guard.py",
+   "type": "mentions"
+  },
+  {
+   "src": "file:config/settings.README.md",
+   "dst": "script:scripts/statusline.py",
+   "type": "mentions"
+  },
+  {
+   "src": "file:config/settings.README.md",
+   "dst": "skill:compact-prep",
+   "type": "mentions"
+  },
+  {
+   "src": "file:config/settings.README.md",
+   "dst": "skill:handoff",
+   "type": "mentions"
+  },
+  {
+   "src": "file:config/settings.README.md",
+   "dst": "skill:retro",
+   "type": "mentions"
+  },
+  {
+   "src": "file:config/settings.README.md",
+   "dst": "skill:verify",
+   "type": "mentions"
+  },
+  {
+   "src": "file:config/settings.README.md",
+   "dst": "skill:why",
+   "type": "mentions"
+  },
+  {
+   "src": "file:config/settings.json",
+   "dst": "script:scripts/statusline.py",
+   "type": "mentions"
+  },
+  {
+   "src": "file:evals/README.md",
+   "dst": "script:scripts/eval_gate.py",
+   "type": "mentions"
+  },
+  {
+   "src": "file:global/CLAUDE.md",
+   "dst": "doc:docs/VERIFICATION.md",
+   "type": "mentions"
+  },
+  {
+   "src": "file:global/CLAUDE.md",
+   "dst": "doc:docs/VISION.md",
+   "type": "mentions"
+  },
+  {
+   "src": "file:global/CLAUDE.md",
+   "dst": "principle:22",
+   "type": "cites"
+  },
+  {
+   "src": "file:global/CLAUDE.md",
+   "dst": "skill:check",
+   "type": "mentions"
+  },
+  {
+   "src": "file:global/CLAUDE.md",
+   "dst": "skill:compact-prep",
+   "type": "mentions"
+  },
+  {
+   "src": "file:global/CLAUDE.md",
+   "dst": "skill:handoff",
+   "type": "mentions"
+  },
+  {
+   "src": "file:global/CLAUDE.md",
+   "dst": "skill:intake",
+   "type": "mentions"
+  },
+  {
+   "src": "file:global/CLAUDE.md",
+   "dst": "skill:mishap",
+   "type": "mentions"
+  },
+  {
+   "src": "file:global/CLAUDE.md",
+   "dst": "skill:pattern-review",
+   "type": "mentions"
+  },
+  {
+   "src": "file:global/CLAUDE.md",
+   "dst": "skill:prior-art",
+   "type": "mentions"
+  },
+  {
+   "src": "file:global/CLAUDE.md",
+   "dst": "skill:retro",
+   "type": "mentions"
+  },
+  {
+   "src": "file:global/PRINCIPLES.md",
+   "dst": "doc:docs/FANOUT.md",
+   "type": "mentions"
+  },
+  {
+   "src": "file:global/PRINCIPLES.md",
+   "dst": "doc:docs/VERIFICATION.md",
+   "type": "mentions"
+  },
+  {
+   "src": "file:global/PRINCIPLES.md",
+   "dst": "skill:distill-principles",
+   "type": "mentions"
+  },
+  {
+   "src": "file:global/PRINCIPLES.md",
+   "dst": "skill:fanout-plan",
+   "type": "mentions"
+  },
+  {
+   "src": "file:hooks/hooks.json",
+   "dst": "hook:PostCompact:0.0",
+   "type": "mentions"
+  },
+  {
+   "src": "file:hooks/hooks.json",
+   "dst": "hook:PostToolUse:0.0",
+   "type": "mentions"
+  },
+  {
+   "src": "file:hooks/hooks.json",
+   "dst": "hook:PreCompact:0.0",
+   "type": "mentions"
+  },
+  {
+   "src": "file:hooks/hooks.json",
+   "dst": "hook:PreToolUse:0.0",
+   "type": "mentions"
+  },
+  {
+   "src": "file:hooks/hooks.json",
+   "dst": "hook:SessionEnd:0.0",
+   "type": "mentions"
+  },
+  {
+   "src": "file:hooks/hooks.json",
+   "dst": "hook:SessionStart:0.0",
+   "type": "mentions"
+  },
+  {
+   "src": "file:hooks/hooks.json",
+   "dst": "hook:Stop:0.0",
+   "type": "mentions"
+  },
+  {
+   "src": "file:hooks/hooks.json",
+   "dst": "hook:UserPromptSubmit:0.0",
+   "type": "mentions"
+  },
+  {
+   "src": "file:hooks/hooks.json",
+   "dst": "hook:UserPromptSubmit:0.1",
+   "type": "mentions"
+  },
+  {
+   "src": "file:mac/Brewfile",
+   "dst": "script:hooks/log_event.py",
+   "type": "mentions"
+  },
+  {
+   "src": "file:mac/bootstrap.sh",
+   "dst": "doc:docs/BACKUP.md",
+   "type": "mentions"
+  },
+  {
+   "src": "file:mac/bootstrap.sh",
+   "dst": "doc:docs/SECURITY.md",
+   "type": "mentions"
+  },
+  {
+   "src": "file:mac/bootstrap.sh",
+   "dst": "script:hooks/log_event.py",
+   "type": "mentions"
+  },
+  {
+   "src": "file:mac/launchd/com.harness.autocommit.plist",
+   "dst": "script:scripts/autocommit_data.sh",
+   "type": "mentions"
+  },
+  {
+   "src": "file:patterns/seed_patterns.jsonl",
+   "dst": "doc:docs/FANOUT.md",
+   "type": "mentions"
+  },
+  {
+   "src": "file:patterns/seed_patterns.jsonl",
+   "dst": "script:hooks/usage_guard.py",
+   "type": "mentions"
+  },
+  {
+   "src": "file:patterns/seed_patterns.jsonl",
+   "dst": "skill:check",
+   "type": "mentions"
+  },
+  {
+   "src": "file:patterns/seed_patterns.jsonl",
+   "dst": "skill:fanout-plan",
+   "type": "mentions"
+  },
+  {
+   "src": "file:patterns/seed_patterns.jsonl",
+   "dst": "skill:pattern-review",
+   "type": "mentions"
+  },
+  {
+   "src": "file:schema/STORAGE.md",
+   "dst": "agent:job-tracker",
+   "type": "mentions"
+  },
+  {
+   "src": "file:schema/STORAGE.md",
+   "dst": "agent:orchestrator",
+   "type": "mentions"
+  },
+  {
+   "src": "file:schema/STORAGE.md",
+   "dst": "agent:verifier",
+   "type": "mentions"
+  },
+  {
+   "src": "file:schema/STORAGE.md",
+   "dst": "doc:docs/LOCAL_ONLY.md",
+   "type": "mentions"
+  },
+  {
+   "src": "file:schema/STORAGE.md",
+   "dst": "doc:docs/MESSAGING.md",
+   "type": "mentions"
+  },
+  {
+   "src": "file:schema/STORAGE.md",
+   "dst": "script:hooks/_common.py",
+   "type": "mentions"
+  },
+  {
+   "src": "file:schema/STORAGE.md",
+   "dst": "script:hooks/log_event.py",
+   "type": "mentions"
+  },
+  {
+   "src": "file:schema/STORAGE.md",
+   "dst": "script:hooks/precompact_snapshot.py",
+   "type": "mentions"
+  },
+  {
+   "src": "file:schema/STORAGE.md",
+   "dst": "script:hooks/usage_guard.py",
+   "type": "mentions"
+  },
+  {
+   "src": "file:schema/STORAGE.md",
+   "dst": "script:scripts/autocommit_data.sh",
+   "type": "mentions"
+  },
+  {
+   "src": "file:schema/STORAGE.md",
+   "dst": "script:scripts/eval_gate.py",
+   "type": "mentions"
+  },
+  {
+   "src": "file:schema/STORAGE.md",
+   "dst": "script:scripts/glossary.py",
+   "type": "mentions"
+  },
+  {
+   "src": "file:schema/STORAGE.md",
+   "dst": "script:scripts/invoice.py",
+   "type": "mentions"
+  },
+  {
+   "src": "file:schema/STORAGE.md",
+   "dst": "script:scripts/kb.py",
+   "type": "mentions"
+  },
+  {
+   "src": "file:schema/STORAGE.md",
+   "dst": "script:scripts/label_events.py",
+   "type": "mentions"
+  },
+  {
+   "src": "file:schema/STORAGE.md",
+   "dst": "script:scripts/palette.py",
+   "type": "mentions"
+  },
+  {
+   "src": "file:schema/STORAGE.md",
+   "dst": "script:scripts/patterns.py",
+   "type": "mentions"
+  },
+  {
+   "src": "file:schema/STORAGE.md",
+   "dst": "script:scripts/psd_layers.py",
+   "type": "mentions"
+  },
+  {
+   "src": "file:schema/STORAGE.md",
+   "dst": "script:scripts/schema_check.py",
+   "type": "mentions"
+  },
+  {
+   "src": "file:schema/STORAGE.md",
+   "dst": "script:scripts/statusline.py",
+   "type": "mentions"
+  },
+  {
+   "src": "file:schema/STORAGE.md",
+   "dst": "script:scripts/style_pairs.py",
+   "type": "mentions"
+  },
+  {
+   "src": "file:schema/STORAGE.md",
+   "dst": "skill:asset-decompose",
+   "type": "mentions"
+  },
+  {
+   "src": "file:schema/STORAGE.md",
+   "dst": "skill:backcatalog",
+   "type": "mentions"
+  },
+  {
+   "src": "file:schema/STORAGE.md",
+   "dst": "skill:check",
+   "type": "mentions"
+  },
+  {
+   "src": "file:schema/STORAGE.md",
+   "dst": "skill:distill-principles",
+   "type": "mentions"
+  },
+  {
+   "src": "file:schema/STORAGE.md",
+   "dst": "skill:email-scan",
+   "type": "mentions"
+  },
+  {
+   "src": "file:schema/STORAGE.md",
+   "dst": "skill:handoff",
+   "type": "mentions"
+  },
+  {
+   "src": "file:schema/STORAGE.md",
+   "dst": "skill:intake",
+   "type": "mentions"
+  },
+  {
+   "src": "file:schema/STORAGE.md",
+   "dst": "skill:interview",
+   "type": "mentions"
+  },
+  {
+   "src": "file:schema/STORAGE.md",
+   "dst": "skill:job-application",
+   "type": "mentions"
+  },
+  {
+   "src": "file:schema/STORAGE.md",
+   "dst": "skill:mishap",
+   "type": "mentions"
+  },
+  {
+   "src": "file:schema/STORAGE.md",
+   "dst": "skill:new-project",
+   "type": "mentions"
+  },
+  {
+   "src": "file:schema/STORAGE.md",
+   "dst": "skill:pattern-review",
+   "type": "mentions"
+  },
+  {
+   "src": "file:schema/STORAGE.md",
+   "dst": "skill:retro",
+   "type": "mentions"
+  },
+  {
+   "src": "file:schema/STORAGE.md",
+   "dst": "skill:review-week",
+   "type": "mentions"
+  },
+  {
+   "src": "file:schema/STORAGE.md",
+   "dst": "skill:style-guide",
+   "type": "mentions"
+  },
+  {
+   "src": "file:schema/STORAGE.md",
+   "dst": "skill:synopsis",
+   "type": "mentions"
+  },
+  {
+   "src": "file:schema/STORAGE.md",
+   "dst": "skill:web-research",
+   "type": "mentions"
+  },
+  {
+   "src": "file:schema/STORAGE.md",
+   "dst": "skill:why",
+   "type": "mentions"
+  },
+  {
+   "src": "file:schema/event.md",
+   "dst": "doc:docs/BACKUP.md",
+   "type": "mentions"
+  },
+  {
+   "src": "file:schema/event.md",
+   "dst": "doc:docs/FANOUT.md",
+   "type": "mentions"
+  },
+  {
+   "src": "file:schema/event.md",
+   "dst": "script:hooks/_common.py",
+   "type": "mentions"
+  },
+  {
+   "src": "file:schema/event.md",
+   "dst": "script:hooks/log_event.py",
+   "type": "mentions"
+  },
+  {
+   "src": "file:schema/event.md",
+   "dst": "script:hooks/precompact_snapshot.py",
+   "type": "mentions"
+  },
+  {
+   "src": "file:schema/event.md",
+   "dst": "script:hooks/step_check.py",
+   "type": "mentions"
+  },
+  {
+   "src": "file:schema/event.md",
+   "dst": "script:hooks/usage_guard.py",
+   "type": "mentions"
+  },
+  {
+   "src": "file:schema/event.md",
+   "dst": "script:hooks/verify_gate.py",
+   "type": "mentions"
+  },
+  {
+   "src": "file:schema/event.md",
+   "dst": "script:scripts/label_events.py",
+   "type": "mentions"
+  },
+  {
+   "src": "file:schema/event.md",
+   "dst": "script:scripts/patterns.py",
+   "type": "mentions"
+  },
+  {
+   "src": "file:schema/event.md",
+   "dst": "script:scripts/schema_check.py",
+   "type": "mentions"
+  },
+  {
+   "src": "file:schema/event.md",
+   "dst": "skill:annotation-workflow",
+   "type": "mentions"
+  },
+  {
+   "src": "file:schema/event.md",
+   "dst": "skill:handoff",
+   "type": "mentions"
+  },
+  {
+   "src": "file:schema/event.md",
+   "dst": "skill:mishap",
+   "type": "mentions"
+  },
+  {
+   "src": "file:schema/event.md",
+   "dst": "skill:pattern-review",
+   "type": "mentions"
+  },
+  {
+   "src": "file:schema/event.md",
+   "dst": "skill:retro",
+   "type": "mentions"
+  },
+  {
+   "src": "file:schema/event.md",
+   "dst": "skill:review-week",
+   "type": "mentions"
+  },
+  {
+   "src": "file:schema/event.md",
+   "dst": "skill:synopsis",
+   "type": "mentions"
+  },
+  {
+   "src": "file:schema/event.md",
+   "dst": "skill:verify",
+   "type": "mentions"
+  },
+  {
+   "src": "file:schema/event.md",
+   "dst": "skill:why",
+   "type": "mentions"
+  },
+  {
+   "src": "file:schema/ontology.yaml",
+   "dst": "agent:job-tracker",
+   "type": "mentions"
+  },
+  {
+   "src": "file:schema/ontology.yaml",
+   "dst": "agent:orchestrator",
+   "type": "mentions"
+  },
+  {
+   "src": "file:schema/ontology.yaml",
+   "dst": "agent:verifier",
+   "type": "mentions"
+  },
+  {
+   "src": "file:schema/ontology.yaml",
+   "dst": "doc:docs/FANOUT.md",
+   "type": "mentions"
+  },
+  {
+   "src": "file:schema/ontology.yaml",
+   "dst": "doc:docs/MESSAGING.md",
+   "type": "mentions"
+  },
+  {
+   "src": "file:schema/ontology.yaml",
+   "dst": "doc:docs/PATTERNS.md",
+   "type": "mentions"
+  },
+  {
+   "src": "file:schema/ontology.yaml",
+   "dst": "script:hooks/_common.py",
+   "type": "mentions"
+  },
+  {
+   "src": "file:schema/ontology.yaml",
+   "dst": "script:hooks/log_event.py",
+   "type": "mentions"
+  },
+  {
+   "src": "file:schema/ontology.yaml",
+   "dst": "script:hooks/precompact_snapshot.py",
+   "type": "mentions"
+  },
+  {
+   "src": "file:schema/ontology.yaml",
+   "dst": "script:hooks/usage_guard.py",
+   "type": "mentions"
+  },
+  {
+   "src": "file:schema/ontology.yaml",
+   "dst": "script:scripts/eval_gate.py",
+   "type": "mentions"
+  },
+  {
+   "src": "file:schema/ontology.yaml",
+   "dst": "script:scripts/glossary.py",
+   "type": "mentions"
+  },
+  {
+   "src": "file:schema/ontology.yaml",
+   "dst": "script:scripts/harness_index.py",
+   "type": "mentions"
+  },
+  {
+   "src": "file:schema/ontology.yaml",
+   "dst": "script:scripts/invoice.py",
+   "type": "mentions"
+  },
+  {
+   "src": "file:schema/ontology.yaml",
+   "dst": "script:scripts/kb.py",
+   "type": "mentions"
+  },
+  {
+   "src": "file:schema/ontology.yaml",
+   "dst": "script:scripts/label_events.py",
+   "type": "mentions"
+  },
+  {
+   "src": "file:schema/ontology.yaml",
+   "dst": "script:scripts/palette.py",
+   "type": "mentions"
+  },
+  {
+   "src": "file:schema/ontology.yaml",
+   "dst": "script:scripts/patterns.py",
+   "type": "mentions"
+  },
+  {
+   "src": "file:schema/ontology.yaml",
+   "dst": "script:scripts/psd_layers.py",
+   "type": "mentions"
+  },
+  {
+   "src": "file:schema/ontology.yaml",
+   "dst": "script:scripts/schema_check.py",
+   "type": "mentions"
+  },
+  {
+   "src": "file:schema/ontology.yaml",
+   "dst": "script:scripts/statusline.py",
+   "type": "mentions"
+  },
+  {
+   "src": "file:schema/ontology.yaml",
+   "dst": "script:scripts/style_pairs.py",
+   "type": "mentions"
+  },
+  {
+   "src": "file:schema/ontology.yaml",
+   "dst": "script:scripts/weekly_report.py",
+   "type": "mentions"
+  },
+  {
+   "src": "file:schema/ontology.yaml",
+   "dst": "skill:asset-decompose",
+   "type": "mentions"
+  },
+  {
+   "src": "file:schema/ontology.yaml",
+   "dst": "skill:backcatalog",
+   "type": "mentions"
+  },
+  {
+   "src": "file:schema/ontology.yaml",
+   "dst": "skill:check",
+   "type": "mentions"
+  },
+  {
+   "src": "file:schema/ontology.yaml",
+   "dst": "skill:distill-principles",
+   "type": "mentions"
+  },
+  {
+   "src": "file:schema/ontology.yaml",
+   "dst": "skill:email-scan",
+   "type": "mentions"
+  },
+  {
+   "src": "file:schema/ontology.yaml",
+   "dst": "skill:handoff",
+   "type": "mentions"
+  },
+  {
+   "src": "file:schema/ontology.yaml",
+   "dst": "skill:intake",
+   "type": "mentions"
+  },
+  {
+   "src": "file:schema/ontology.yaml",
+   "dst": "skill:interview",
+   "type": "mentions"
+  },
+  {
+   "src": "file:schema/ontology.yaml",
+   "dst": "skill:job-application",
+   "type": "mentions"
+  },
+  {
+   "src": "file:schema/ontology.yaml",
+   "dst": "skill:mishap",
+   "type": "mentions"
+  },
+  {
+   "src": "file:schema/ontology.yaml",
+   "dst": "skill:new-project",
+   "type": "mentions"
+  },
+  {
+   "src": "file:schema/ontology.yaml",
+   "dst": "skill:pattern-review",
+   "type": "mentions"
+  },
+  {
+   "src": "file:schema/ontology.yaml",
+   "dst": "skill:retro",
+   "type": "mentions"
+  },
+  {
+   "src": "file:schema/ontology.yaml",
+   "dst": "skill:review-week",
+   "type": "mentions"
+  },
+  {
+   "src": "file:schema/ontology.yaml",
+   "dst": "skill:self-eval",
+   "type": "mentions"
+  },
+  {
+   "src": "file:schema/ontology.yaml",
+   "dst": "skill:style-guide",
+   "type": "mentions"
+  },
+  {
+   "src": "file:schema/ontology.yaml",
+   "dst": "skill:synopsis",
+   "type": "mentions"
+  },
+  {
+   "src": "file:schema/ontology.yaml",
+   "dst": "skill:web-research",
+   "type": "mentions"
+  },
+  {
+   "src": "file:schema/ontology.yaml",
+   "dst": "skill:why",
+   "type": "mentions"
+  },
+  {
+   "src": "file:templates/glossary.md",
+   "dst": "script:scripts/glossary.py",
+   "type": "mentions"
+  },
+  {
+   "src": "file:templates/glossary.md",
+   "dst": "skill:translate",
+   "type": "mentions"
+  },
+  {
+   "src": "file:templates/glossary.md",
+   "dst": "skill:translation-qa",
+   "type": "mentions"
+  },
+  {
+   "src": "file:templates/project/CLAUDE.md",
+   "dst": "skill:retro",
+   "type": "mentions"
+  },
+  {
+   "src": "hook:PostCompact:0.0",
+   "dst": "script:hooks/precompact_snapshot.py",
+   "type": "hook_runs"
+  },
+  {
+   "src": "hook:PostToolUse:0.0",
+   "dst": "script:hooks/step_check.py",
+   "type": "hook_runs"
+  },
+  {
+   "src": "hook:PreCompact:0.0",
+   "dst": "script:hooks/precompact_snapshot.py",
+   "type": "hook_runs"
+  },
+  {
+   "src": "hook:PreToolUse:0.0",
+   "dst": "script:hooks/guard_protected.py",
+   "type": "hook_runs"
+  },
+  {
+   "src": "hook:SessionEnd:0.0",
+   "dst": "script:hooks/log_event.py",
+   "type": "hook_runs"
+  },
+  {
+   "src": "hook:SessionStart:0.0",
+   "dst": "script:hooks/postcompact_reinject.py",
+   "type": "hook_runs"
+  },
+  {
+   "src": "hook:Stop:0.0",
+   "dst": "script:hooks/verify_gate.py",
+   "type": "hook_runs"
+  },
+  {
+   "src": "hook:UserPromptSubmit:0.0",
+   "dst": "script:hooks/log_event.py",
+   "type": "hook_runs"
+  },
+  {
+   "src": "hook:UserPromptSubmit:0.1",
+   "dst": "script:hooks/usage_guard.py",
+   "type": "hook_runs"
+  },
+  {
+   "src": "rubric:annotation-batch",
+   "dst": "agent:annotation-assistant",
+   "type": "produced_by"
+  },
+  {
+   "src": "rubric:annotation-batch",
+   "dst": "eval:annotation",
+   "type": "evaluated_in"
+  },
+  {
+   "src": "rubric:asset-package",
+   "dst": "agent:asset-decomposer",
+   "type": "produced_by"
+  },
+  {
+   "src": "rubric:asset-package",
+   "dst": "eval:art",
+   "type": "evaluated_in"
+  },
+  {
+   "src": "rubric:browser-task",
+   "dst": "agent:browser-operator",
+   "type": "produced_by"
+  },
+  {
+   "src": "rubric:browser-task",
+   "dst": "agent:browser-operator",
+   "type": "routes_to"
+  },
+  {
+   "src": "rubric:browser-task",
+   "dst": "eval:browser",
+   "type": "evaluated_in"
+  },
+  {
+   "src": "rubric:browser-task",
+   "dst": "skill:browser-task",
+   "type": "for_skill"
+  },
+  {
+   "src": "rubric:browser-task",
+   "dst": "skill:browser-task",
+   "type": "invokes"
+  },
+  {
+   "src": "rubric:code-change",
+   "dst": "agent:coder",
+   "type": "produced_by"
+  },
+  {
+   "src": "rubric:code-change",
+   "dst": "eval:code",
+   "type": "evaluated_in"
+  },
+  {
+   "src": "rubric:code-change",
+   "dst": "eval:harness",
+   "type": "evaluated_in"
+  },
+  {
+   "src": "rubric:email-scan",
+   "dst": "agent:job-tracker",
+   "type": "produced_by"
+  },
+  {
+   "src": "rubric:email-scan",
+   "dst": "agent:job-tracker",
+   "type": "routes_to"
+  },
+  {
+   "src": "rubric:email-scan",
+   "dst": "eval:email-scan",
+   "type": "evaluated_in"
+  },
+  {
+   "src": "rubric:email-scan",
+   "dst": "script:scripts/schema_check.py",
+   "type": "runs"
+  },
+  {
+   "src": "rubric:email-scan",
+   "dst": "skill:email-scan",
+   "type": "for_skill"
+  },
+  {
+   "src": "rubric:email-scan",
+   "dst": "skill:email-scan",
+   "type": "invokes"
+  },
+  {
+   "src": "rubric:handoff",
+   "dst": "skill:handoff",
+   "type": "for_skill"
+  },
+  {
+   "src": "rubric:handoff",
+   "dst": "skill:handoff",
+   "type": "invokes"
+  },
+  {
+   "src": "rubric:intake-extraction",
+   "dst": "agent:intake-extractor",
+   "type": "produced_by"
+  },
+  {
+   "src": "rubric:intake-extraction",
+   "dst": "eval:intake",
+   "type": "evaluated_in"
+  },
+  {
+   "src": "rubric:invoice",
+   "dst": "eval:invoice",
+   "type": "evaluated_in"
+  },
+  {
+   "src": "rubric:invoice",
+   "dst": "script:scripts/invoice.py",
+   "type": "runs"
+  },
+  {
+   "src": "rubric:invoice",
+   "dst": "skill:invoice",
+   "type": "for_skill"
+  },
+  {
+   "src": "rubric:invoice",
+   "dst": "skill:invoice",
+   "type": "invokes"
+  },
+  {
+   "src": "rubric:job-application",
+   "dst": "agent:job-tracker",
+   "type": "produced_by"
+  },
+  {
+   "src": "rubric:job-application",
+   "dst": "agent:translator",
+   "type": "produced_by"
+  },
+  {
+   "src": "rubric:job-application",
+   "dst": "eval:job-search",
+   "type": "evaluated_in"
+  },
+  {
+   "src": "rubric:job-application",
+   "dst": "skill:job-application",
+   "type": "for_skill"
+  },
+  {
+   "src": "rubric:research-report",
+   "dst": "agent:web-researcher",
+   "type": "produced_by"
+  },
+  {
+   "src": "rubric:research-report",
+   "dst": "eval:research",
+   "type": "evaluated_in"
+  },
+  {
+   "src": "rubric:synopsis",
+   "dst": "agent:translator",
+   "type": "produced_by"
+  },
+  {
+   "src": "rubric:synopsis",
+   "dst": "eval:synopsis",
+   "type": "evaluated_in"
+  },
+  {
+   "src": "rubric:synopsis",
+   "dst": "script:scripts/textlen.py",
+   "type": "runs"
+  },
+  {
+   "src": "rubric:synopsis",
+   "dst": "skill:synopsis",
+   "type": "for_skill"
+  },
+  {
+   "src": "rubric:synopsis",
+   "dst": "skill:synopsis",
+   "type": "invokes"
+  },
+  {
+   "src": "rubric:translation",
+   "dst": "agent:translator",
+   "type": "produced_by"
+  },
+  {
+   "src": "rubric:translation",
+   "dst": "eval:translation",
+   "type": "evaluated_in"
+  },
+  {
+   "src": "script:hooks/_common.py",
+   "dst": "type:Event",
+   "type": "writes"
+  },
+  {
+   "src": "script:hooks/_common.py",
+   "dst": "type:Handoff",
+   "type": "touches"
+  },
+  {
+   "src": "script:hooks/_common.py",
+   "dst": "type:HarnessState",
+   "type": "touches"
+  },
+  {
+   "src": "script:hooks/guard_protected.py",
+   "dst": "eval:harness",
+   "type": "learning_eval"
+  },
+  {
+   "src": "script:hooks/log_event.py",
+   "dst": "eval:harness",
+   "type": "learning_eval"
+  },
+  {
+   "src": "script:hooks/log_event.py",
+   "dst": "type:Event",
+   "type": "writes"
+  },
+  {
+   "src": "script:hooks/postcompact_reinject.py",
+   "dst": "type:Decision",
+   "type": "touches"
+  },
+  {
+   "src": "script:hooks/postcompact_reinject.py",
+   "dst": "type:Handoff",
+   "type": "touches"
+  },
+  {
+   "src": "script:hooks/postcompact_reinject.py",
+   "dst": "type:Project",
+   "type": "touches"
+  },
+  {
+   "src": "script:hooks/precompact_snapshot.py",
+   "dst": "rubric:handoff",
+   "type": "learning_eval"
+  },
+  {
+   "src": "script:hooks/precompact_snapshot.py",
+   "dst": "type:Handoff",
+   "type": "logs"
+  },
+  {
+   "src": "script:hooks/precompact_snapshot.py",
+   "dst": "type:Handoff",
+   "type": "touches"
+  },
+  {
+   "src": "script:hooks/precompact_snapshot.py",
+   "dst": "type:Handoff",
+   "type": "writes"
+  },
+  {
+   "src": "script:hooks/step_check.py",
+   "dst": "doc:docs/VERIFICATION.md",
+   "type": "reads"
+  },
+  {
+   "src": "script:hooks/step_check.py",
+   "dst": "eval:harness",
+   "type": "learning_eval"
+  },
+  {
+   "src": "script:hooks/step_check.py",
+   "dst": "script:hooks/verify_gate.py",
+   "type": "runs"
+  },
+  {
+   "src": "script:hooks/step_check.py",
+   "dst": "type:Pattern",
+   "type": "learns_into"
+  },
+  {
+   "src": "script:hooks/usage_guard.py",
+   "dst": "doc:docs/FANOUT.md",
+   "type": "reads"
+  },
+  {
+   "src": "script:hooks/usage_guard.py",
+   "dst": "script:scripts/statusline.py",
+   "type": "runs"
+  },
+  {
+   "src": "script:hooks/usage_guard.py",
+   "dst": "skill:compact-prep",
+   "type": "invokes"
+  },
+  {
+   "src": "script:hooks/usage_guard.py",
+   "dst": "skill:handoff",
+   "type": "invokes"
+  },
+  {
+   "src": "script:hooks/usage_guard.py",
+   "dst": "type:Handoff",
+   "type": "touches"
+  },
+  {
+   "src": "script:hooks/usage_guard.py",
+   "dst": "type:HarnessState",
+   "type": "logs"
+  },
+  {
+   "src": "script:hooks/usage_guard.py",
+   "dst": "type:HarnessState",
+   "type": "reads_store"
+  },
+  {
+   "src": "script:hooks/usage_guard.py",
+   "dst": "type:HarnessState",
+   "type": "touches"
+  },
+  {
+   "src": "script:hooks/verify_gate.py",
+   "dst": "eval:harness",
+   "type": "learning_eval"
+  },
+  {
+   "src": "script:hooks/verify_gate.py",
+   "dst": "script:hooks/step_check.py",
+   "type": "runs"
+  },
+  {
+   "src": "script:hooks/verify_gate.py",
+   "dst": "type:ProgressItem",
+   "type": "touches"
+  },
+  {
+   "src": "script:scripts/eval_gate.py",
+   "dst": "eval:harness",
+   "type": "learning_eval"
+  },
+  {
+   "src": "script:scripts/eval_gate.py",
+   "dst": "type:EvalRun",
+   "type": "logs"
+  },
+  {
+   "src": "script:scripts/eval_gate.py",
+   "dst": "type:EvalRun",
+   "type": "reads_store"
+  },
+  {
+   "src": "script:scripts/glossary.py",
+   "dst": "type:GlossaryTerm",
+   "type": "touches"
+  },
+  {
+   "src": "script:scripts/glossary.py",
+   "dst": "type:GlossaryTerm",
+   "type": "writes"
+  },
+  {
+   "src": "script:scripts/invoice.py",
+   "dst": "script:scripts/textlen.py",
+   "type": "runs"
+  },
+  {
+   "src": "script:scripts/invoice.py",
+   "dst": "type:Invoice",
+   "type": "writes"
+  },
+  {
+   "src": "script:scripts/invoice.py",
+   "dst": "type:LedgerEntry",
+   "type": "touches"
+  },
+  {
+   "src": "script:scripts/invoice.py",
+   "dst": "type:LedgerEntry",
+   "type": "writes"
+  },
+  {
+   "src": "script:scripts/kb.py",
+   "dst": "doc:docs/INTAKE.md",
+   "type": "reads"
+  },
+  {
+   "src": "script:scripts/kb.py",
+   "dst": "doc:docs/LOCAL_ONLY.md",
+   "type": "reads"
+  },
+  {
+   "src": "script:scripts/kb.py",
+   "dst": "type:BackcatalogRow",
+   "type": "writes"
+  },
+  {
+   "src": "script:scripts/kb.py",
+   "dst": "type:Document",
+   "type": "touches"
+  },
+  {
+   "src": "script:scripts/kb.py",
+   "dst": "type:Document",
+   "type": "writes"
+  },
+  {
+   "src": "script:scripts/kb.py",
+   "dst": "type:IntakeLogEntry",
+   "type": "reads_store"
+  },
+  {
+   "src": "script:scripts/kb.py",
+   "dst": "type:IntakeLogEntry",
+   "type": "touches"
+  },
+  {
+   "src": "script:scripts/kb.py",
+   "dst": "type:WikiPage",
+   "type": "writes"
+  },
+  {
+   "src": "script:scripts/label_events.py",
+   "dst": "eval:harness",
+   "type": "learning_eval"
+  },
+  {
+   "src": "script:scripts/label_events.py",
+   "dst": "type:Correction",
+   "type": "logs"
+  },
+  {
+   "src": "script:scripts/label_events.py",
+   "dst": "type:Correction",
+   "type": "writes"
+  },
+  {
+   "src": "script:scripts/label_events.py",
+   "dst": "type:Event",
+   "type": "writes"
+  },
+  {
+   "src": "script:scripts/palette.py",
+   "dst": "type:Asset",
+   "type": "touches"
+  },
+  {
+   "src": "script:scripts/palette.py",
+   "dst": "type:Asset",
+   "type": "writes"
+  },
+  {
+   "src": "script:scripts/palette.py",
+   "dst": "type:Palette",
+   "type": "writes"
+  },
+  {
+   "src": "script:scripts/patterns.py",
+   "dst": "doc:docs/PATTERNS.md",
+   "type": "reads"
+  },
+  {
+   "src": "script:scripts/patterns.py",
+   "dst": "eval:harness",
+   "type": "learning_eval"
+  },
+  {
+   "src": "script:scripts/patterns.py",
+   "dst": "script:scripts/eval_gate.py",
+   "type": "runs"
+  },
+  {
+   "src": "script:scripts/patterns.py",
+   "dst": "script:scripts/label_events.py",
+   "type": "runs"
+  },
+  {
+   "src": "script:scripts/patterns.py",
+   "dst": "type:Decision",
+   "type": "touches"
+  },
+  {
+   "src": "script:scripts/patterns.py",
+   "dst": "type:Encoding",
+   "type": "logs"
+  },
+  {
+   "src": "script:scripts/patterns.py",
+   "dst": "type:Encoding",
+   "type": "touches"
+  },
+  {
+   "src": "script:scripts/patterns.py",
+   "dst": "type:Encoding",
+   "type": "writes"
+  },
+  {
+   "src": "script:scripts/patterns.py",
+   "dst": "type:MetaPattern",
+   "type": "logs"
+  },
+  {
+   "src": "script:scripts/patterns.py",
+   "dst": "type:MetaPattern",
+   "type": "touches"
+  },
+  {
+   "src": "script:scripts/patterns.py",
+   "dst": "type:MetaPattern",
+   "type": "writes"
+  },
+  {
+   "src": "script:scripts/patterns.py",
+   "dst": "type:Mishap",
+   "type": "touches"
+  },
+  {
+   "src": "script:scripts/patterns.py",
+   "dst": "type:Pattern",
+   "type": "logs"
+  },
+  {
+   "src": "script:scripts/patterns.py",
+   "dst": "type:Pattern",
+   "type": "touches"
+  },
+  {
+   "src": "script:scripts/patterns.py",
+   "dst": "type:Pattern",
+   "type": "writes"
+  },
+  {
+   "src": "script:scripts/patterns.py",
+   "dst": "type:Principle",
+   "type": "touches"
+  },
+  {
+   "src": "script:scripts/patterns.py",
+   "dst": "type:Project",
+   "type": "touches"
+  },
+  {
+   "src": "script:scripts/psd_layers.py",
+   "dst": "skill:asset-decompose",
+   "type": "invokes"
+  },
+  {
+   "src": "script:scripts/psd_layers.py",
+   "dst": "type:Asset",
+   "type": "touches"
+  },
+  {
+   "src": "script:scripts/psd_layers.py",
+   "dst": "type:Asset",
+   "type": "writes"
+  },
+  {
+   "src": "script:scripts/run_evals.py",
+   "dst": "eval:harness",
+   "type": "learning_eval"
+  },
+  {
+   "src": "script:scripts/run_evals.py",
+   "dst": "script:scripts/eval_gate.py",
+   "type": "runs"
+  },
+  {
+   "src": "script:scripts/run_evals.py",
+   "dst": "type:EvalRun",
+   "type": "logs"
+  },
+  {
+   "src": "script:scripts/run_evals.py",
+   "dst": "type:HarnessState",
+   "type": "touches"
+  },
+  {
+   "src": "script:scripts/schema_check.py",
+   "dst": "type:Application",
+   "type": "touches"
+  },
+  {
+   "src": "script:scripts/statusline.py",
+   "dst": "type:HarnessState",
+   "type": "touches"
+  },
+  {
+   "src": "script:scripts/statusline.py",
+   "dst": "type:HarnessState",
+   "type": "writes"
+  },
+  {
+   "src": "script:scripts/style_pairs.py",
+   "dst": "type:StylePair",
+   "type": "touches"
+  },
+  {
+   "src": "script:scripts/style_pairs.py",
+   "dst": "type:StylePair",
+   "type": "writes"
+  },
+  {
+   "src": "script:scripts/translation_qa.py",
+   "dst": "doc:docs/LOCAL_ONLY.md",
+   "type": "reads"
+  },
+  {
+   "src": "script:scripts/translation_qa.py",
+   "dst": "script:scripts/textlen.py",
+   "type": "runs"
+  },
+  {
+   "src": "script:scripts/translation_qa.py",
+   "dst": "type:GlossaryTerm",
+   "type": "touches"
+  },
+  {
+   "src": "script:scripts/weekly_report.py",
+   "dst": "script:scripts/label_events.py",
+   "type": "runs"
+  },
+  {
+   "src": "skill:annotation-workflow",
+   "dst": "eval:annotation",
+   "type": "learning_eval"
+  },
+  {
+   "src": "skill:annotation-workflow",
+   "dst": "rubric:annotation-batch",
+   "type": "learning_eval"
+  },
+  {
+   "src": "skill:annotation-workflow",
+   "dst": "rubric:annotation-batch",
+   "type": "scored_by"
+  },
+  {
+   "src": "skill:annotation-workflow",
+   "dst": "skill:intake",
+   "type": "invokes"
+  },
+  {
+   "src": "skill:annotation-workflow",
+   "dst": "skill:verify",
+   "type": "invokes"
+  },
+  {
+   "src": "skill:annotation-workflow",
+   "dst": "type:Lesson",
+   "type": "learns_into"
+  },
+  {
+   "src": "skill:annotation-workflow",
+   "dst": "type:StylePair",
+   "type": "learns_into"
+  },
+  {
+   "src": "skill:asset-decompose",
+   "dst": "eval:art",
+   "type": "learning_eval"
+  },
+  {
+   "src": "skill:asset-decompose",
+   "dst": "rubric:asset-package",
+   "type": "learning_eval"
+  },
+  {
+   "src": "skill:asset-decompose",
+   "dst": "rubric:asset-package",
+   "type": "scored_by"
+  },
+  {
+   "src": "skill:asset-decompose",
+   "dst": "script:scripts/palette.py",
+   "type": "runs"
+  },
+  {
+   "src": "skill:asset-decompose",
+   "dst": "script:scripts/psd_layers.py",
+   "type": "runs"
+  },
+  {
+   "src": "skill:asset-decompose",
+   "dst": "skill:verify",
+   "type": "invokes"
+  },
+  {
+   "src": "skill:asset-decompose",
+   "dst": "type:Asset",
+   "type": "logs"
+  },
+  {
+   "src": "skill:asset-decompose",
+   "dst": "type:Asset",
+   "type": "writes"
+  },
+  {
+   "src": "skill:asset-decompose",
+   "dst": "type:Lesson",
+   "type": "learns_into"
+  },
+  {
+   "src": "skill:backcatalog",
+   "dst": "agent:intake-extractor",
+   "type": "routes_to"
+  },
+  {
+   "src": "skill:backcatalog",
+   "dst": "agent:verifier",
+   "type": "routes_to"
+  },
+  {
+   "src": "skill:backcatalog",
+   "dst": "skill:distill-principles",
+   "type": "invokes"
+  },
+  {
+   "src": "skill:backcatalog",
+   "dst": "skill:retro",
+   "type": "invokes"
+  },
+  {
+   "src": "skill:backcatalog",
+   "dst": "type:BackcatalogRow",
+   "type": "logs"
+  },
+  {
+   "src": "skill:backcatalog",
+   "dst": "type:Lesson",
+   "type": "learns_into"
+  },
+  {
+   "src": "skill:backcatalog",
+   "dst": "type:Lesson",
+   "type": "writes"
+  },
+  {
+   "src": "skill:backcatalog",
+   "dst": "type:Pattern",
+   "type": "learns_into"
+  },
+  {
+   "src": "skill:backcatalog",
+   "dst": "type:Principle",
+   "type": "learns_into"
+  },
+  {
+   "src": "skill:backcatalog",
+   "dst": "type:StylePair",
+   "type": "learns_into"
+  },
+  {
+   "src": "skill:backcatalog",
+   "dst": "type:WikiPage",
+   "type": "writes"
+  },
+  {
+   "src": "skill:browser-task",
+   "dst": "eval:browser",
+   "type": "learning_eval"
+  },
+  {
+   "src": "skill:browser-task",
+   "dst": "rubric:browser-task",
+   "type": "learning_eval"
+  },
+  {
+   "src": "skill:browser-task",
+   "dst": "skill:mishap",
+   "type": "invokes"
+  },
+  {
+   "src": "skill:browser-task",
+   "dst": "skill:verify",
+   "type": "invokes"
+  },
+  {
+   "src": "skill:browser-task",
+   "dst": "type:Pattern",
+   "type": "learns_into"
+  },
+  {
+   "src": "skill:check",
+   "dst": "doc:docs/FANOUT.md",
+   "type": "reads"
+  },
+  {
+   "src": "skill:check",
+   "dst": "eval:research",
+   "type": "learning_eval"
+  },
+  {
+   "src": "skill:check",
+   "dst": "rubric:research-report",
+   "type": "learning_eval"
+  },
+  {
+   "src": "skill:check",
+   "dst": "skill:verify",
+   "type": "invokes"
+  },
+  {
+   "src": "skill:check",
+   "dst": "skill:web-research",
+   "type": "invokes"
+  },
+  {
+   "src": "skill:check",
+   "dst": "type:ResearchNote",
+   "type": "learns_into"
+  },
+  {
+   "src": "skill:check",
+   "dst": "type:ResearchNote",
+   "type": "logs"
+  },
+  {
+   "src": "skill:check",
+   "dst": "type:ResearchNote",
+   "type": "writes"
+  },
+  {
+   "src": "skill:coding-standards",
+   "dst": "agent:code-reviewer",
+   "type": "routes_to"
+  },
+  {
+   "src": "skill:coding-standards",
+   "dst": "agent:coder",
+   "type": "routes_to"
+  },
+  {
+   "src": "skill:coding-standards",
+   "dst": "doc:docs/VERIFICATION.md",
+   "type": "reads"
+  },
+  {
+   "src": "skill:coding-standards",
+   "dst": "eval:code",
+   "type": "learning_eval"
+  },
+  {
+   "src": "skill:coding-standards",
+   "dst": "rubric:code-change",
+   "type": "learning_eval"
+  },
+  {
+   "src": "skill:coding-standards",
+   "dst": "script:hooks/guard_protected.py",
+   "type": "runs"
+  },
+  {
+   "src": "skill:compact-prep",
+   "dst": "rubric:handoff",
+   "type": "learning_eval"
+  },
+  {
+   "src": "skill:compact-prep",
+   "dst": "skill:handoff",
+   "type": "invokes"
+  },
+  {
+   "src": "skill:compact-prep",
+   "dst": "skill:mishap",
+   "type": "invokes"
+  },
+  {
+   "src": "skill:distill-principles",
+   "dst": "principle:1",
+   "type": "cites"
+  },
+  {
+   "src": "skill:distill-principles",
+   "dst": "script:scripts/patterns.py",
+   "type": "runs"
+  },
+  {
+   "src": "skill:distill-principles",
+   "dst": "skill:retro",
+   "type": "invokes"
+  },
+  {
+   "src": "skill:distill-principles",
+   "dst": "type:Principle",
+   "type": "learns_into"
+  },
+  {
+   "src": "skill:distill-principles",
+   "dst": "type:Principle",
+   "type": "logs"
+  },
+  {
+   "src": "skill:distill-principles",
+   "dst": "type:Principle",
+   "type": "writes"
+  },
+  {
+   "src": "skill:email-scan",
+   "dst": "eval:email-scan",
+   "type": "learning_eval"
+  },
+  {
+   "src": "skill:email-scan",
+   "dst": "rubric:email-scan",
+   "type": "learning_eval"
+  },
+  {
+   "src": "skill:email-scan",
+   "dst": "skill:verify",
+   "type": "invokes"
+  },
+  {
+   "src": "skill:email-scan",
+   "dst": "type:Application",
+   "type": "logs"
+  },
+  {
+   "src": "skill:email-scan",
+   "dst": "type:Application",
+   "type": "writes"
+  },
+  {
+   "src": "skill:fanout-plan",
+   "dst": "doc:docs/FANOUT.md",
+   "type": "reads"
+  },
+  {
+   "src": "skill:fanout-plan",
+   "dst": "script:hooks/usage_guard.py",
+   "type": "runs"
+  },
+  {
+   "src": "skill:fanout-plan",
+   "dst": "skill:verify",
+   "type": "invokes"
+  },
+  {
+   "src": "skill:handoff",
+   "dst": "rubric:handoff",
+   "type": "learning_eval"
+  },
+  {
+   "src": "skill:handoff",
+   "dst": "rubric:handoff",
+   "type": "scored_by"
+  },
+  {
+   "src": "skill:handoff",
+   "dst": "skill:compact-prep",
+   "type": "invokes"
+  },
+  {
+   "src": "skill:handoff",
+   "dst": "skill:mishap",
+   "type": "invokes"
+  },
+  {
+   "src": "skill:handoff",
+   "dst": "type:Handoff",
+   "type": "logs"
+  },
+  {
+   "src": "skill:handoff",
+   "dst": "type:Handoff",
+   "type": "writes"
+  },
+  {
+   "src": "skill:handoff",
+   "dst": "type:Pattern",
+   "type": "learns_into"
+  },
+  {
+   "src": "skill:intake",
+   "dst": "doc:docs/INTAKE.md",
+   "type": "reads"
+  },
+  {
+   "src": "skill:intake",
+   "dst": "doc:docs/LOCAL_ONLY.md",
+   "type": "reads"
+  },
+  {
+   "src": "skill:intake",
+   "dst": "eval:intake",
+   "type": "learning_eval"
+  },
+  {
+   "src": "skill:intake",
+   "dst": "rubric:intake-extraction",
+   "type": "learning_eval"
+  },
+  {
+   "src": "skill:intake",
+   "dst": "type:Document",
+   "type": "logs"
+  },
+  {
+   "src": "skill:intake",
+   "dst": "type:IntakeLogEntry",
+   "type": "logs"
+  },
+  {
+   "src": "skill:intake",
+   "dst": "type:Lesson",
+   "type": "learns_into"
+  },
+  {
+   "src": "skill:intake",
+   "dst": "type:WikiPage",
+   "type": "logs"
+  },
+  {
+   "src": "skill:intake",
+   "dst": "type:WikiPage",
+   "type": "writes"
+  },
+  {
+   "src": "skill:interview",
+   "dst": "type:Preference",
+   "type": "learns_into"
+  },
+  {
+   "src": "skill:interview",
+   "dst": "type:Preference",
+   "type": "logs"
+  },
+  {
+   "src": "skill:interview",
+   "dst": "type:Preference",
+   "type": "writes"
+  },
+  {
+   "src": "skill:invoice",
+   "dst": "doc:docs/FANOUT.md",
+   "type": "reads"
+  },
+  {
+   "src": "skill:invoice",
+   "dst": "eval:harness",
+   "type": "learning_eval"
+  },
+  {
+   "src": "skill:invoice",
+   "dst": "eval:invoice",
+   "type": "learning_eval"
+  },
+  {
+   "src": "skill:invoice",
+   "dst": "rubric:invoice",
+   "type": "learning_eval"
+  },
+  {
+   "src": "skill:invoice",
+   "dst": "script:scripts/invoice.py",
+   "type": "runs"
+  },
+  {
+   "src": "skill:invoice",
+   "dst": "skill:review-week",
+   "type": "invokes"
+  },
+  {
+   "src": "skill:invoice",
+   "dst": "skill:verify",
+   "type": "invokes"
+  },
+  {
+   "src": "skill:invoice",
+   "dst": "type:Invoice",
+   "type": "logs"
+  },
+  {
+   "src": "skill:invoice",
+   "dst": "type:LedgerEntry",
+   "type": "logs"
+  },
+  {
+   "src": "skill:job-application",
+   "dst": "doc:docs/FANOUT.md",
+   "type": "reads"
+  },
+  {
+   "src": "skill:job-application",
+   "dst": "eval:job-search",
+   "type": "learning_eval"
+  },
+  {
+   "src": "skill:job-application",
+   "dst": "rubric:job-application",
+   "type": "learning_eval"
+  },
+  {
+   "src": "skill:job-application",
+   "dst": "rubric:job-application",
+   "type": "scored_by"
+  },
+  {
+   "src": "skill:job-application",
+   "dst": "script:scripts/claim_check.py",
+   "type": "runs"
+  },
+  {
+   "src": "skill:job-application",
+   "dst": "skill:new-project",
+   "type": "invokes"
+  },
+  {
+   "src": "skill:job-application",
+   "dst": "skill:verify",
+   "type": "invokes"
+  },
+  {
+   "src": "skill:job-application",
+   "dst": "type:Application",
+   "type": "logs"
+  },
+  {
+   "src": "skill:job-application",
+   "dst": "type:Application",
+   "type": "writes"
+  },
+  {
+   "src": "skill:job-application",
+   "dst": "type:StylePair",
+   "type": "learns_into"
+  },
+  {
+   "src": "skill:job-application",
+   "dst": "type:StylePair",
+   "type": "logs"
+  },
+  {
+   "src": "skill:mishap",
+   "dst": "skill:retro",
+   "type": "invokes"
+  },
+  {
+   "src": "skill:mishap",
+   "dst": "type:Mishap",
+   "type": "logs"
+  },
+  {
+   "src": "skill:mishap",
+   "dst": "type:Mishap",
+   "type": "writes"
+  },
+  {
+   "src": "skill:mishap",
+   "dst": "type:Pattern",
+   "type": "learns_into"
+  },
+  {
+   "src": "skill:new-project",
+   "dst": "skill:intake",
+   "type": "invokes"
+  },
+  {
+   "src": "skill:new-project",
+   "dst": "skill:interview",
+   "type": "invokes"
+  },
+  {
+   "src": "skill:new-project",
+   "dst": "skill:verify",
+   "type": "invokes"
+  },
+  {
+   "src": "skill:new-project",
+   "dst": "type:Project",
+   "type": "logs"
+  },
+  {
+   "src": "skill:new-project",
+   "dst": "type:Project",
+   "type": "writes"
+  },
+  {
+   "src": "skill:pattern-review",
+   "dst": "doc:docs/PATTERNS.md",
+   "type": "reads"
+  },
+  {
+   "src": "skill:pattern-review",
+   "dst": "eval:harness",
+   "type": "learning_eval"
+  },
+  {
+   "src": "skill:pattern-review",
+   "dst": "script:scripts/eval_gate.py",
+   "type": "runs"
+  },
+  {
+   "src": "skill:pattern-review",
+   "dst": "script:scripts/label_events.py",
+   "type": "runs"
+  },
+  {
+   "src": "skill:pattern-review",
+   "dst": "script:scripts/patterns.py",
+   "type": "runs"
+  },
+  {
+   "src": "skill:pattern-review",
+   "dst": "script:scripts/schema_check.py",
+   "type": "runs"
+  },
+  {
+   "src": "skill:pattern-review",
+   "dst": "skill:distill-principles",
+   "type": "invokes"
+  },
+  {
+   "src": "skill:pattern-review",
+   "dst": "skill:review-week",
+   "type": "invokes"
+  },
+  {
+   "src": "skill:pattern-review",
+   "dst": "skill:verify",
+   "type": "invokes"
+  },
+  {
+   "src": "skill:pattern-review",
+   "dst": "type:Encoding",
+   "type": "learns_into"
+  },
+  {
+   "src": "skill:pattern-review",
+   "dst": "type:Encoding",
+   "type": "writes"
+  },
+  {
+   "src": "skill:pattern-review",
+   "dst": "type:MetaPattern",
+   "type": "learns_into"
+  },
+  {
+   "src": "skill:pattern-review",
+   "dst": "type:MetaPattern",
+   "type": "logs"
+  },
+  {
+   "src": "skill:pattern-review",
+   "dst": "type:MetaPattern",
+   "type": "writes"
+  },
+  {
+   "src": "skill:pattern-review",
+   "dst": "type:Pattern",
+   "type": "learns_into"
+  },
+  {
+   "src": "skill:pattern-review",
+   "dst": "type:Pattern",
+   "type": "writes"
+  },
+  {
+   "src": "skill:prior-art",
+   "dst": "agent:web-researcher",
+   "type": "routes_to"
+  },
+  {
+   "src": "skill:prior-art",
+   "dst": "doc:docs/FANOUT.md",
+   "type": "reads"
+  },
+  {
+   "src": "skill:prior-art",
+   "dst": "eval:research",
+   "type": "learning_eval"
+  },
+  {
+   "src": "skill:prior-art",
+   "dst": "rubric:research-report",
+   "type": "learning_eval"
+  },
+  {
+   "src": "skill:prior-art",
+   "dst": "skill:distill-principles",
+   "type": "invokes"
+  },
+  {
+   "src": "skill:prior-art",
+   "dst": "skill:fanout-plan",
+   "type": "invokes"
+  },
+  {
+   "src": "skill:prior-art",
+   "dst": "skill:why",
+   "type": "invokes"
+  },
+  {
+   "src": "skill:prior-art",
+   "dst": "type:Decision",
+   "type": "learns_into"
+  },
+  {
+   "src": "skill:prior-art",
+   "dst": "type:ResearchNote",
+   "type": "learns_into"
+  },
+  {
+   "src": "skill:retro",
+   "dst": "script:scripts/patterns.py",
+   "type": "runs"
+  },
+  {
+   "src": "skill:retro",
+   "dst": "type:Lesson",
+   "type": "learns_into"
+  },
+  {
+   "src": "skill:retro",
+   "dst": "type:Lesson",
+   "type": "writes"
+  },
+  {
+   "src": "skill:retro",
+   "dst": "type:Pattern",
+   "type": "learns_into"
+  },
+  {
+   "src": "skill:retro",
+   "dst": "type:Pattern",
+   "type": "writes"
+  },
+  {
+   "src": "skill:retro",
+   "dst": "type:SessionNote",
+   "type": "logs"
+  },
+  {
+   "src": "skill:retro",
+   "dst": "type:SessionNote",
+   "type": "writes"
+  },
+  {
+   "src": "skill:review-week",
+   "dst": "eval:harness",
+   "type": "learning_eval"
+  },
+  {
+   "src": "skill:review-week",
+   "dst": "script:scripts/harness_index.py",
+   "type": "runs"
+  },
+  {
+   "src": "skill:review-week",
+   "dst": "skill:distill-principles",
+   "type": "invokes"
+  },
+  {
+   "src": "skill:review-week",
+   "dst": "skill:pattern-review",
+   "type": "invokes"
+  },
+  {
+   "src": "skill:review-week",
+   "dst": "skill:verify",
+   "type": "invokes"
+  },
+  {
+   "src": "skill:review-week",
+   "dst": "type:Correction",
+   "type": "logs"
+  },
+  {
+   "src": "skill:review-week",
+   "dst": "type:Correction",
+   "type": "writes"
+  },
+  {
+   "src": "skill:review-week",
+   "dst": "type:Lesson",
+   "type": "learns_into"
+  },
+  {
+   "src": "skill:self-eval",
+   "dst": "agent:verifier",
+   "type": "routes_to"
+  },
+  {
+   "src": "skill:self-eval",
+   "dst": "eval:harness",
+   "type": "learning_eval"
+  },
+  {
+   "src": "skill:self-eval",
+   "dst": "script:scripts/eval_gate.py",
+   "type": "runs"
+  },
+  {
+   "src": "skill:self-eval",
+   "dst": "script:scripts/harness_index.py",
+   "type": "runs"
+  },
+  {
+   "src": "skill:self-eval",
+   "dst": "script:scripts/schema_check.py",
+   "type": "runs"
+  },
+  {
+   "src": "skill:self-eval",
+   "dst": "skill:fanout-plan",
+   "type": "invokes"
+  },
+  {
+   "src": "skill:self-eval",
+   "dst": "skill:verify",
+   "type": "invokes"
+  },
+  {
+   "src": "skill:self-eval",
+   "dst": "type:EvalRun",
+   "type": "logs"
+  },
+  {
+   "src": "skill:self-eval",
+   "dst": "type:EvalRun",
+   "type": "writes"
+  },
+  {
+   "src": "skill:self-eval",
+   "dst": "type:Evaluation",
+   "type": "writes"
+  },
+  {
+   "src": "skill:style-capture",
+   "dst": "doc:docs/REGISTERS.md",
+   "type": "reads"
+  },
+  {
+   "src": "skill:style-capture",
+   "dst": "eval:translation",
+   "type": "learning_eval"
+  },
+  {
+   "src": "skill:style-capture",
+   "dst": "script:scripts/style_pairs.py",
+   "type": "runs"
+  },
+  {
+   "src": "skill:style-capture",
+   "dst": "skill:mishap",
+   "type": "invokes"
+  },
+  {
+   "src": "skill:style-capture",
+   "dst": "skill:style-guide",
+   "type": "invokes"
+  },
+  {
+   "src": "skill:style-capture",
+   "dst": "type:StylePair",
+   "type": "learns_into"
+  },
+  {
+   "src": "skill:style-guide",
+   "dst": "eval:translation",
+   "type": "learning_eval"
+  },
+  {
+   "src": "skill:style-guide",
+   "dst": "script:scripts/style_pairs.py",
+   "type": "runs"
+  },
+  {
+   "src": "skill:style-guide",
+   "dst": "skill:distill-principles",
+   "type": "invokes"
+  },
+  {
+   "src": "skill:style-guide",
+   "dst": "type:Lesson",
+   "type": "logs"
+  },
+  {
+   "src": "skill:style-guide",
+   "dst": "type:StyleGuide",
+   "type": "learns_into"
+  },
+  {
+   "src": "skill:style-guide",
+   "dst": "type:StyleGuide",
+   "type": "logs"
+  },
+  {
+   "src": "skill:style-guide",
+   "dst": "type:StyleGuide",
+   "type": "writes"
+  },
+  {
+   "src": "skill:synopsis",
+   "dst": "doc:docs/FANOUT.md",
+   "type": "reads"
+  },
+  {
+   "src": "skill:synopsis",
+   "dst": "eval:synopsis",
+   "type": "learning_eval"
+  },
+  {
+   "src": "skill:synopsis",
+   "dst": "rubric:synopsis",
+   "type": "learning_eval"
+  },
+  {
+   "src": "skill:synopsis",
+   "dst": "rubric:synopsis",
+   "type": "scored_by"
+  },
+  {
+   "src": "skill:synopsis",
+   "dst": "script:scripts/textlen.py",
+   "type": "runs"
+  },
+  {
+   "src": "skill:synopsis",
+   "dst": "skill:retro",
+   "type": "invokes"
+  },
+  {
+   "src": "skill:synopsis",
+   "dst": "skill:style-capture",
+   "type": "invokes"
+  },
+  {
+   "src": "skill:synopsis",
+   "dst": "skill:translation-qa",
+   "type": "invokes"
+  },
+  {
+   "src": "skill:synopsis",
+   "dst": "skill:verify",
+   "type": "invokes"
+  },
+  {
+   "src": "skill:synopsis",
+   "dst": "type:ReviewerRule",
+   "type": "learns_into"
+  },
+  {
+   "src": "skill:synopsis",
+   "dst": "type:ReviewerRule",
+   "type": "logs"
+  },
+  {
+   "src": "skill:synopsis",
+   "dst": "type:ReviewerRule",
+   "type": "writes"
+  },
+  {
+   "src": "skill:synopsis",
+   "dst": "type:StylePair",
+   "type": "learns_into"
+  },
+  {
+   "src": "skill:translate",
+   "dst": "doc:docs/FANOUT.md",
+   "type": "reads"
+  },
+  {
+   "src": "skill:translate",
+   "dst": "doc:docs/REGISTERS.md",
+   "type": "reads"
+  },
+  {
+   "src": "skill:translate",
+   "dst": "eval:translation",
+   "type": "learning_eval"
+  },
+  {
+   "src": "skill:translate",
+   "dst": "rubric:translation",
+   "type": "learning_eval"
+  },
+  {
+   "src": "skill:translate",
+   "dst": "rubric:translation",
+   "type": "scored_by"
+  },
+  {
+   "src": "skill:translate",
+   "dst": "script:scripts/style_pairs.py",
+   "type": "runs"
+  },
+  {
+   "src": "skill:translate",
+   "dst": "script:scripts/translation_qa.py",
+   "type": "runs"
+  },
+  {
+   "src": "skill:translate",
+   "dst": "skill:style-capture",
+   "type": "invokes"
+  },
+  {
+   "src": "skill:translate",
+   "dst": "skill:translation-qa",
+   "type": "invokes"
+  },
+  {
+   "src": "skill:translate",
+   "dst": "skill:verify",
+   "type": "invokes"
+  },
+  {
+   "src": "skill:translate",
+   "dst": "type:GlossaryTerm",
+   "type": "learns_into"
+  },
+  {
+   "src": "skill:translate",
+   "dst": "type:StyleGuide",
+   "type": "learns_into"
+  },
+  {
+   "src": "skill:translate",
+   "dst": "type:StylePair",
+   "type": "learns_into"
+  },
+  {
+   "src": "skill:translate",
+   "dst": "type:StylePair",
+   "type": "logs"
+  },
+  {
+   "src": "skill:translation-qa",
+   "dst": "agent:verifier",
+   "type": "routes_to"
+  },
+  {
+   "src": "skill:translation-qa",
+   "dst": "doc:docs/LOCAL_ONLY.md",
+   "type": "reads"
+  },
+  {
+   "src": "skill:translation-qa",
+   "dst": "eval:harness",
+   "type": "learning_eval"
+  },
+  {
+   "src": "skill:translation-qa",
+   "dst": "eval:synopsis",
+   "type": "learning_eval"
+  },
+  {
+   "src": "skill:translation-qa",
+   "dst": "eval:translation",
+   "type": "learning_eval"
+  },
+  {
+   "src": "skill:translation-qa",
+   "dst": "script:scripts/translation_qa.py",
+   "type": "runs"
+  },
+  {
+   "src": "skill:translation-qa",
+   "dst": "skill:synopsis",
+   "type": "invokes"
+  },
+  {
+   "src": "skill:translation-qa",
+   "dst": "skill:translate",
+   "type": "invokes"
+  },
+  {
+   "src": "skill:translation-qa",
+   "dst": "skill:verify",
+   "type": "invokes"
+  },
+  {
+   "src": "skill:translation-qa",
+   "dst": "type:GlossaryTerm",
+   "type": "learns_into"
+  },
+  {
+   "src": "skill:verify",
+   "dst": "agent:verifier",
+   "type": "routes_to"
+  },
+  {
+   "src": "skill:verify",
+   "dst": "agent:verifier",
+   "type": "runs_in"
+  },
+  {
+   "src": "skill:verify",
+   "dst": "doc:docs/FANOUT.md",
+   "type": "reads"
+  },
+  {
+   "src": "skill:verify",
+   "dst": "script:hooks/verify_gate.py",
+   "type": "runs"
+  },
+  {
+   "src": "skill:web-research",
+   "dst": "agent:web-researcher",
+   "type": "routes_to"
+  },
+  {
+   "src": "skill:web-research",
+   "dst": "doc:docs/FANOUT.md",
+   "type": "reads"
+  },
+  {
+   "src": "skill:web-research",
+   "dst": "eval:research",
+   "type": "learning_eval"
+  },
+  {
+   "src": "skill:web-research",
+   "dst": "rubric:research-report",
+   "type": "learning_eval"
+  },
+  {
+   "src": "skill:web-research",
+   "dst": "skill:fanout-plan",
+   "type": "invokes"
+  },
+  {
+   "src": "skill:web-research",
+   "dst": "skill:verify",
+   "type": "invokes"
+  },
+  {
+   "src": "skill:web-research",
+   "dst": "type:ResearchNote",
+   "type": "learns_into"
+  },
+  {
+   "src": "skill:web-research",
+   "dst": "type:ResearchNote",
+   "type": "writes"
+  },
+  {
+   "src": "skill:why",
+   "dst": "type:Decision",
+   "type": "learns_into"
+  },
+  {
+   "src": "skill:why",
+   "dst": "type:Decision",
+   "type": "logs"
+  },
+  {
+   "src": "skill:why",
+   "dst": "type:Decision",
+   "type": "writes"
+  },
+  {
+   "src": "skill:why",
+   "dst": "type:Lesson",
+   "type": "learns_into"
+  }
+ ]
+}

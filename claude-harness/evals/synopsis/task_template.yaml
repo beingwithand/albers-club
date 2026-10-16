@@ -1,0 +1,35 @@
+# Eval task template: length-capped Korean synopsis (KO->KO). Copy to tasks/synopsis-NNN.yaml. See evals/README.md.
+# Source synopses are confidential: keep real tasks in the private data repo ($HARNESS_DATA/evals/synopsis/tasks/).
+id: synopsis-000
+area: synopsis
+rubric: rubrics/synopsis.yaml
+split: train
+locked: true
+source_event: evt_...
+difficulty: routine
+
+input:
+  source_file: tasks/fixtures/synopsis-000.src.txt
+  source_sha256: "<sha256>"
+  limit: 110
+  unit: chars                  # characters including spaces (confirmed by the user)
+  lrt_title: "<exact LRT title>"
+  reviewer_rules: tasks/fixtures/synopsis-000.reviewer_rules.md   # frozen copy of knowledge/reviewer_rules.md
+  siblings_dir: tasks/fixtures/synopsis-000.siblings/            # optional
+
+criteria: []
+
+expected_checks:
+  - id: length_cap
+    kind: command
+    command: "python3 -I scripts/textlen.py --limit 110 --unit chars $OUT"
+    expect: exit_0
+  - id: lrt_title_exact
+    kind: contains
+    values: ["<exact LRT title>"]
+  - id: banned_phrases
+    kind: not_contains
+    values: ["<phrase a reviewer rule bans>"]
+
+reference_output: tasks/fixtures/synopsis-000.final.txt   # the user's approved final
+human_scores: {}

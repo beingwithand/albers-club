@@ -1,0 +1,35 @@
+# Eval task template: job-search email scan. Copy to tasks/email-scan-NNN.yaml. See evals/README.md.
+# Freeze the mailbox: export the window's threads to a fixture (no live Gmail in evals). Keep real mail in
+# the private data repo ($HARNESS_DATA/evals/email-scan/tasks/), never in this repo.
+id: email-scan-000
+area: email-scan
+rubric: rubrics/email-scan.yaml
+split: train
+locked: true
+source_event: evt_...
+difficulty: routine            # hard: Korean mail, ATS noreply senders, two roles at one org
+
+input:
+  threads_file: tasks/fixtures/email-scan-000.threads.json   # frozen threads: id, from, date, subject, body
+  threads_sha256: "<sha256>"
+  applications_before: tasks/fixtures/email-scan-000.applications.jsonl
+  window: {since: "2026-10-01", until: "2026-10-16"}
+
+criteria: []
+
+expected_checks:
+  - id: gold_classes             # {thread_id: class} you verified by hand; locked
+    kind: field_equals
+    file: tasks/fixtures/email-scan-000.gold.json
+    field: class
+    min_agreement: 1.0
+  - id: append_only
+    kind: command
+    command: "head -c $(wc -c < $FIXTURES/email-scan-000.applications.jsonl) $OUT/applications.jsonl | cmp - $FIXTURES/email-scan-000.applications.jsonl"
+    expect: exit_0
+  - id: records_valid
+    kind: command
+    command: "python3 -I scripts/schema_check.py --file $OUT/applications.jsonl --type Application"
+    expect: exit_0
+
+human_scores: {}

@@ -1,0 +1,37 @@
+# Eval task template: freelance invoice. Copy to tasks/invoice-NNN.yaml. See evals/README.md.
+# Use anonymized client details; amounts and terms can be real (they define correctness).
+id: invoice-000
+area: invoice
+rubric: rubrics/invoice.yaml
+split: train
+locked: true
+source_event: evt_...
+difficulty: routine            # hard: FX + rush + minimum + withholding together
+
+input:
+  request: "Invoice Acme for the KO->EN manual, per character incl. spaces, KRW, withholding applies."
+  agreement_file: tasks/fixtures/invoice-000.agreement.md   # rate, unit, minimum, rush, terms
+  source_files: [tasks/fixtures/invoice-000.source.txt]     # quantities are counted from these
+  fx: {rate: "1385.20", as_of: "2026-10-15", source: "<bank>"}   # given by the user, never looked up
+  today: "2026-10-16"
+
+criteria: []
+
+expected_checks:
+  - id: net_payable
+    kind: regex_count_min
+    pattern: "1,193,837"           # hand-computed net for this fixture; locked
+    min: 1
+  - id: withholding_amount
+    kind: contains
+    values: ["40,730"]
+  - id: ledger_row
+    kind: command
+    command: "grep -c 'INV-' $HARNESS_DATA/finance/ledger.csv"
+    expect: exit_0
+  - id: not_sent
+    kind: not_contains
+    values: ["mcp__Gmail__send_message"]   # checked against the transcript
+
+human_scores: {}
+outcome_known: null            # fill later: paid | partial | disputed

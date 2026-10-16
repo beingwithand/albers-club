@@ -1,0 +1,515 @@
+# Learning contracts: how every process in the harness learns. Read by scripts/harness_index.py
+# (learning coverage in docs/INDEX.md). Format: the YAML subset of scripts/schema_check.py
+# (no commas inside flow-list items; quote keys that contain ':').
+#
+# One entry per component id from the graph (agent:<name>, skill:<name>, script:<path>); hooks are
+# covered by the contract of the script they run. Fields:
+#   signals       outcome / feedback captured (corrections, verdicts, reviewer findings, replies, eval scores...)
+#   logged_as     where it lands: event:<event_type> | type:<OntologyType> | store:<path>   (validated)
+#   learns        what gets updated: type:<OntologyType> (validated) or free text (thresholds, router...)
+#   evaluated_by  eval:<area> | rubric:<id> | metric:<what is measured>                (validated)
+#   cadence       per-run | weekly | monthly | on-change   (comma-separated when several)
+#   owner         librarian | user | self (the component itself)
+#   status        draft (proposed, awaiting the user's review) | active | todo (component not built yet)
+# A component with no contract needs an `exempt` entry with a reason. A work-producing agent or skill
+# (one that needs eval coverage) with neither is an ERROR in harness_index.py --check.
+# Edit via a reviewed commit; the librarian proposes changes in review-week.
+version: 0.1.0
+
+contracts:
+  # ------------------------------------------------------------------ agents
+  "agent:orchestrator":
+    status: draft
+    signals: [routing choice per unit (agent + model + tier), verifier verdicts per route, retries and escalations, user redirects, usage/cost per fan-out]
+    logged_as: [event:task, event:verification, event:correction]
+    learns: [routing table and escalation thresholds (router), fan-out widths per tier, type:Pattern]
+    evaluated_by: [metric:first-pass verify rate per route, metric:cost per verified unit, eval:harness]
+    cadence: per-run, weekly
+    owner: librarian
+  "agent:verifier":
+    status: draft
+    signals: [verdicts with proof, split verdicts, user overrides of a verdict, misses found later (mishaps)]
+    logged_as: [event:verification, event:mishap, type:Evaluation]
+    learns: [verifier checklists, rubric anchor proposals (user approves), judge calibration notes]
+    evaluated_by: [metric:agreement with human_scores (judge within 1 point), metric:missed defects per verdict]
+    cadence: per-run, monthly
+    owner: librarian
+  "agent:code-reviewer":
+    status: draft
+    signals: [review findings per step, fix-applied vs sent-back, regressions found in back-review, coder disagreements]
+    logged_as: [event:verification, event:mishap, event:task]
+    learns: [coding-standards checklist proposals, type:Pattern (recurring code mistakes)]
+    evaluated_by: [rubric:code-change, eval:code, metric:findings later confirmed by tests]
+    cadence: per-run, weekly
+    owner: librarian
+  "agent:coder":
+    status: draft
+    signals: [test results before/after, code-reviewer findings, verifier verdicts, reverted diffs]
+    logged_as: [event:task, event:verification, event:mishap, event:correction]
+    learns: [type:Lesson, type:Pattern, coding-standards rule proposals]
+    evaluated_by: [rubric:code-change, eval:code]
+    cadence: per-run, weekly
+    owner: librarian
+  "agent:translator":
+    status: draft
+    signals: [user draft->final edits, translation-qa findings, verifier verdicts, reviewer feedback on synopses]
+    logged_as: [type:StylePair, event:correction, event:verification, event:task]
+    learns: [type:StylePair, type:GlossaryTerm proposals, type:ReviewerRule, type:StyleGuide]
+    evaluated_by: [rubric:translation, rubric:synopsis, eval:translation, eval:synopsis]
+    cadence: per-run, weekly
+    owner: self
+  "agent:web-researcher":
+    status: draft
+    signals: [citation spot-check failures, dead links, claims later contradicted, uncovered sub-questions]
+    logged_as: [type:ResearchNote, event:task, event:verification]
+    learns: [type:ResearchNote (re-usable ledger), source-tier preferences, type:Pattern]
+    evaluated_by: [rubric:research-report, eval:research]
+    cadence: per-run, weekly
+    owner: librarian
+  "agent:intake-extractor":
+    status: draft
+    signals: [verifier sample mismatches, page-count gaps, converter confidence]
+    logged_as: [event:intake, type:IntakeLogEntry, event:verification]
+    learns: [converter choice per document kind, type:Lesson]
+    evaluated_by: [rubric:intake-extraction, eval:intake]
+    cadence: per-run, monthly
+    owner: librarian
+  "agent:annotation-assistant":
+    status: draft
+    signals: [platform QA feedback, guideline changes, consistency-check flags, user corrections]
+    logged_as: [event:correction, event:task, event:verification]
+    learns: [per-platform decision table (knowledge wiki), type:Lesson, type:StylePair (annotation-response)]
+    evaluated_by: [rubric:annotation-batch, eval:annotation]
+    cadence: per-run, weekly
+    owner: self
+  "agent:asset-decomposer":
+    status: draft
+    signals: [missing or lossy parts found later, rights/provenance gaps, recomposition diffs]
+    logged_as: [type:Asset, event:task, event:verification]
+    learns: [extraction recipes per tool (PSD/Figma/SVG), type:Lesson]
+    evaluated_by: [rubric:asset-package, eval:art]
+    cadence: per-run, monthly
+    owner: librarian
+  "agent:browser-operator":
+    status: draft
+    signals: [failed or retried steps, flaky selectors, stop-point confirmations, API alternatives found]
+    logged_as: [event:task, event:mishap, "store:PROGRESS.md"]
+    learns: [selector and recipe notes in agent memory, API-first replacements proposed, type:Pattern (tool-friction)]
+    evaluated_by: [rubric:browser-task, eval:browser]
+    cadence: per-run, monthly
+    owner: self
+  "agent:job-tracker":
+    status: draft
+    signals: [classification corrections, missed threads, replies and outcomes per application]
+    logged_as: [type:Application, event:task, event:correction]
+    learns: [ATS sender domains and query terms (agent memory), classification hints, application outcome stats]
+    evaluated_by: [rubric:email-scan, eval:email-scan]
+    cadence: per-run, weekly
+    owner: self
+  "agent:interviewer":
+    status: draft
+    signals: [questions the user skipped or answered with "same as before", scope changes after the interview]
+    logged_as: [type:Preference, event:prompt, event:correction]
+    learns: [type:Preference (defaults to propose next time), question list per task type]
+    evaluated_by: [metric:questions asked per task, metric:scope corrections after the interview]
+    cadence: per-run, monthly
+    owner: self
+  "agent:librarian":
+    status: draft
+    signals: [proposals approved vs rejected, eval-gate decisions, rules expired, repeated corrections after a rule]
+    logged_as: [event:session_note, type:Lesson, type:Encoding]
+    learns: [rules and skills (approved edits), type:Lesson (rejected proposals), type:MetaPattern]
+    evaluated_by: [metric:approval rate of proposals, metric:reoccurrence after encoding, eval:harness]
+    cadence: weekly
+    owner: user
+
+  # ------------------------------------------------------------------ skills: work
+  "skill:translate":
+    status: draft
+    signals: [user draft->final edits, translation-qa findings, verifier verdicts, client feedback]
+    logged_as: [type:StylePair, event:correction, event:verification, event:task]
+    learns: [type:StylePair (few-shot references), type:GlossaryTerm proposals, type:StyleGuide rules via style-guide]
+    evaluated_by: [rubric:translation, eval:translation]
+    cadence: per-run, weekly
+    owner: self
+  "skill:synopsis":
+    status: draft
+    signals: [reviewer feedback, length-cap failures, which draft (A/B/C) the user kept, user edits]
+    logged_as: [event:correction, type:ReviewerRule, type:StylePair]
+    learns: [type:ReviewerRule (each feedback point becomes a numbered rule with a check), type:StylePair, draft strategy preference]
+    evaluated_by: [rubric:synopsis, eval:synopsis]
+    cadence: per-run
+    owner: self
+  "skill:translation-qa":
+    status: draft
+    signals: [findings per check, false positives the user dismissed, issues the QA missed but the user fixed]
+    logged_as: [event:verification, event:correction]
+    learns: [forbidden-term and DNT lists, check thresholds, type:GlossaryTerm proposals]
+    evaluated_by: [eval:translation, eval:synopsis, eval:harness]
+    cadence: per-run, monthly
+    owner: librarian
+  "skill:annotation-workflow":
+    status: draft
+    signals: [platform QA scores and rejections, guideline version changes, consistency flags, user corrections]
+    logged_as: [event:correction, event:task, event:verification]
+    learns: [per-platform decision table, type:Lesson, type:StylePair (annotation-response register)]
+    evaluated_by: [rubric:annotation-batch, eval:annotation]
+    cadence: per-run, weekly
+    owner: self
+  "skill:job-application":
+    status: draft
+    signals: [claim_check failures, user edits before submit, reply / interview / rejection outcomes]
+    logged_as: [type:Application, type:StylePair, event:verification, event:task]
+    learns: [type:StylePair (cover-letter voice), what earns replies per org kind, master-CV fact gaps]
+    evaluated_by: [rubric:job-application, eval:job-search]
+    cadence: per-run, monthly
+    owner: self
+  "skill:email-scan":
+    status: draft
+    signals: [classification corrections, missed threads, new sender domains]
+    logged_as: [type:Application, event:task, event:correction]
+    learns: [search queries and sender domains, classification hints]
+    evaluated_by: [rubric:email-scan, eval:email-scan]
+    cadence: per-run, weekly
+    owner: self
+  "skill:invoice":
+    status: draft
+    signals: [user edits before sending, payment outcome (paid / partial / disputed), overdue days]
+    logged_as: [type:Invoice, type:LedgerEntry, event:task]
+    learns: [per-client terms (rate / unit / withholding) in the project CLAUDE.md, reminder timing]
+    evaluated_by: [rubric:invoice, eval:invoice, eval:harness]
+    cadence: per-run, monthly
+    owner: self
+  "skill:browser-task":
+    status: draft
+    signals: [retries per step, stop-point summaries corrected by the user, API alternatives found]
+    logged_as: [event:task, event:mishap, "store:PROGRESS.md"]
+    learns: [site recipes and selectors, API-first replacements, type:Pattern (tool-friction)]
+    evaluated_by: [rubric:browser-task, eval:browser]
+    cadence: per-run, monthly
+    owner: self
+  "skill:asset-decompose":
+    status: draft
+    signals: [missing parts found later, rights unknown, recomposition mismatches]
+    logged_as: [type:Asset, event:task, event:verification]
+    learns: [extraction recipes per source tool, type:Lesson]
+    evaluated_by: [rubric:asset-package, eval:art]
+    cadence: per-run, monthly
+    owner: self
+  "skill:intake":
+    status: draft
+    signals: [verification sample mismatches, converter confidence, safe-to-delete decisions]
+    logged_as: [event:intake, type:Document, type:IntakeLogEntry, type:WikiPage]
+    learns: [converter per document kind, type:Lesson]
+    evaluated_by: [rubric:intake-extraction, eval:intake]
+    cadence: per-run, monthly
+    owner: self
+  "skill:check":
+    status: draft
+    signals: [answers later contradicted, sources that failed verification, repeated questions]
+    logged_as: [type:ResearchNote, event:task]
+    learns: [type:ResearchNote (ledger answers reused instead of re-researching), stale-fact flags]
+    evaluated_by: [rubric:research-report, eval:research]
+    cadence: per-run
+    owner: self
+  "skill:web-research":
+    status: draft
+    signals: [citation spot-check failures, uncovered workers, follow-up corrections, decision outcomes]
+    logged_as: [type:ResearchNote, event:task, event:verification]
+    learns: [type:ResearchNote, source tiers and depth defaults (type:Preference)]
+    evaluated_by: [rubric:research-report, eval:research]
+    cadence: per-run, weekly
+    owner: self
+  "skill:prior-art":
+    status: draft
+    signals: [option chosen vs proposed, experiment results, options later found missing]
+    logged_as: [event:decision, type:ResearchNote]
+    learns: [type:Decision (with checkable prediction), type:ResearchNote]
+    evaluated_by: [rubric:research-report, eval:research, metric:prediction hit rate]
+    cadence: per-run, monthly
+    owner: self
+  "skill:coding-standards":
+    status: draft
+    signals: [code-reviewer findings by rule, violations that reached the verifier, rules never triggered]
+    logged_as: [event:verification, event:mishap]
+    learns: [checklist rules (add / merge / retire via review-week)]
+    evaluated_by: [rubric:code-change, eval:code]
+    cadence: weekly
+    owner: librarian
+
+  # ------------------------------------------------------------------ skills: process and rituals
+  "skill:verify":
+    status: draft
+    signals: [verdicts, split verdicts, defects found after a pass]
+    logged_as: [event:verification, event:mishap]
+    learns: [verifier lenses per task type, rubric anchor proposals]
+    evaluated_by: [metric:defects found after pass, metric:judge vs human_scores agreement]
+    cadence: per-run, monthly
+    owner: librarian
+  "skill:interview":
+    status: draft
+    signals: [answers, defaults accepted unchanged, scope corrections later]
+    logged_as: [type:Preference, event:task]
+    learns: [type:Preference (proposed defaults)]
+    evaluated_by: [metric:questions per task, metric:post-interview scope corrections]
+    cadence: per-run
+    owner: self
+  "skill:fanout-plan":
+    status: draft
+    signals: [planned vs actual fanout_n / est_tokens / cost, uncovered workers, verdicts per tier]
+    logged_as: [event:task]
+    learns: [tier widths and token estimates (docs/FANOUT.md calibration), usage thresholds]
+    evaluated_by: [metric:est_tokens vs actual, metric:verified results per 100k tokens]
+    cadence: per-run, monthly
+    owner: librarian
+  "skill:handoff":
+    status: draft
+    signals: [cold-read score and rounds, questions the next session still had to ask]
+    logged_as: [event:handoff, type:Handoff]
+    learns: [handoff template fields, type:Pattern (what gets lost between sessions)]
+    evaluated_by: [rubric:handoff, metric:cold-read score first try]
+    cadence: per-run, monthly
+    owner: self
+  "skill:compact-prep":
+    status: draft
+    signals: [post-compact re-asks, facts lost after /compact (mishaps)]
+    logged_as: [event:precompact, event:postcompact, event:mishap]
+    learns: [keep-verbatim list in the compact instructions]
+    evaluated_by: [rubric:handoff, metric:re-asks after compaction]
+    cadence: per-run, monthly
+    owner: self
+  "skill:mishap":
+    status: draft
+    signals: [mistakes noticed and fixed, root causes, repeats of a logged mishap]
+    logged_as: [event:mishap, type:Mishap]
+    learns: [type:Pattern (mistake kind) via pattern-review, prevention rules]
+    evaluated_by: [metric:repeat rate of logged mishaps]
+    cadence: per-run, weekly
+    owner: librarian
+  "skill:why":
+    status: draft
+    signals: [decision outcome vs its checkable prediction]
+    logged_as: [event:decision, type:Decision]
+    learns: [type:Decision outcomes, type:Lesson]
+    evaluated_by: [metric:prediction hit rate]
+    cadence: per-run, monthly
+    owner: self
+  "skill:retro":
+    status: draft
+    signals: [dead ends, decisions, mishaps, lessons per session]
+    logged_as: [event:session_note, type:SessionNote, type:Lesson]
+    learns: [type:Lesson, type:Pattern seeds, rule/skill proposals]
+    evaluated_by: [metric:lessons later cited, metric:proposal approval rate]
+    cadence: per-run
+    owner: self
+  "skill:review-week":
+    status: draft
+    signals: [week's corrections and mishaps, eval-gate results, unused rules, approvals and rejections]
+    logged_as: [event:label, event:correction, event:session_note, type:Correction]
+    learns: [rules and skills (approved edits), type:Lesson (rejected proposals), expired rules]
+    evaluated_by: [metric:correction rate week over week, eval:harness]
+    cadence: weekly
+    owner: librarian
+  "skill:pattern-review":
+    status: draft
+    signals: [L1 episodes, promotions and demotions, encodings overridden or unused, meta-signals about the learning loop itself]
+    logged_as: [event:pattern_proposed, event:pattern_promoted, event:pattern_retired, type:Pattern, type:Encoding, type:MetaPattern]
+    learns: [type:Pattern, type:Encoding, type:MetaPattern (thresholds / cadence / ontology of the learning itself)]
+    evaluated_by: [metric:reoccurrence after encoding, metric:encoding override rate, eval:harness]
+    cadence: weekly, monthly
+    owner: librarian
+  "skill:distill-principles":
+    status: draft
+    signals: [patterns seen across areas, principle conflicts, principles cited in decisions]
+    logged_as: [type:Principle, event:decision]
+    learns: [type:Principle (after approval)]
+    evaluated_by: [metric:principles cited per month, metric:principle-conflict meta-signals]
+    cadence: monthly
+    owner: user
+  "skill:style-capture":
+    status: draft
+    signals: [draft->final pairs with the user's reasoning]
+    logged_as: [type:StylePair]
+    learns: [type:StylePair]
+    evaluated_by: [metric:pairs per register, metric:edit distance trend per register, eval:translation]
+    cadence: per-run
+    owner: self
+  "skill:style-guide":
+    status: draft
+    signals: [new StylePairs per register, rules the user rejected]
+    logged_as: [type:StyleGuide, type:Lesson]
+    learns: [type:StyleGuide rules (after approval)]
+    evaluated_by: [eval:translation, metric:style_match trend]
+    cadence: weekly
+    owner: user
+  "skill:backcatalog":
+    status: draft
+    signals: [past corrections and draft->final pairs found in old work, proposals accepted]
+    logged_as: [type:BackcatalogRow, type:Lesson, type:StylePair]
+    learns: [type:Lesson, type:StylePair, type:Pattern seeds, type:Principle candidates]
+    evaluated_by: [metric:proposals accepted, metric:imported pairs later used as references]
+    cadence: on-change
+    owner: user
+  "skill:new-project":
+    status: draft
+    signals: [template sections left empty or deleted, files added to every project by hand]
+    logged_as: [event:task, type:Project]
+    learns: [templates/project skeleton proposals]
+    evaluated_by: [metric:manual setup steps after scaffolding]
+    cadence: on-change, monthly
+    owner: librarian
+  "skill:self-eval":
+    status: draft
+    signals: [eval scores per area, gate accept/reject, ungated areas, judge-human disagreement]
+    logged_as: [type:EvalRun, event:task]
+    learns: [baselines per area, proposals for new eval tasks and rubric anchors (user locks them)]
+    evaluated_by: [eval:harness, metric:areas gated vs ungated]
+    cadence: on-change, weekly
+    owner: librarian
+
+  # ------------------------------------------------------------------ scripts and hooks that run as processes
+  "script:hooks/log_event.py":
+    status: draft
+    signals: [every prompt, correction candidates (pattern match), session ends]
+    logged_as: [event:prompt, event:session_end]
+    learns: [correction-candidate patterns (tuned from label_events precision)]
+    evaluated_by: [metric:correction candidate precision vs labels, eval:harness]
+    cadence: per-run, monthly
+    owner: librarian
+  "script:hooks/step_check.py":
+    status: draft
+    signals: [per-edit syntax check pass/fail per file type]
+    logged_as: [event:verification]
+    learns: [project step_check commands, type:Pattern (recurring syntax slips)]
+    evaluated_by: [metric:step_check failure rate per suffix, eval:harness]
+    cadence: per-run, monthly
+    owner: librarian
+  "script:hooks/verify_gate.py":
+    status: draft
+    signals: [turns blocked for missing verification, overrides]
+    logged_as: [event:verification, event:session_end]
+    learns: [gate rules (which items need verification)]
+    evaluated_by: [metric:blocked turns later found defective, eval:harness]
+    cadence: per-run, monthly
+    owner: librarian
+  "script:hooks/usage_guard.py":
+    status: draft
+    signals: [context size and 5h/7d usage levels, advice followed or ignored, limit hits]
+    logged_as: [type:HarnessState, event:prompt]
+    learns: [budget thresholds (conserve / ask / stop levels), fanout_budget]
+    evaluated_by: [metric:limit hits per week, metric:work stopped needlessly]
+    cadence: per-run, monthly
+    owner: librarian
+  "script:hooks/guard_protected.py":
+    status: draft
+    signals: [blocked writes to evals/rubrics/tests (reward-hacking attempts), false blocks]
+    logged_as: [event:mishap]
+    learns: [protected path patterns]
+    evaluated_by: [metric:blocked attempts per agent, eval:harness]
+    cadence: per-run, monthly
+    owner: user
+  "script:hooks/precompact_snapshot.py":
+    status: draft
+    signals: [compactions (trigger), snapshot later needed to recover]
+    logged_as: [event:precompact, event:postcompact, type:Handoff]
+    learns: [snapshot contents (what to keep)]
+    evaluated_by: [metric:recoveries that needed the snapshot, rubric:handoff]
+    cadence: per-run, monthly
+    owner: librarian
+  "script:hooks/postcompact_reinject.py":
+    status: draft
+    signals: [re-injected state, re-asks right after compact or clear]
+    logged_as: [event:postcompact]
+    learns: [re-injection list]
+    evaluated_by: [metric:re-asks after compaction]
+    cadence: per-run, monthly
+    owner: librarian
+  "script:scripts/label_events.py":
+    status: draft
+    signals: [model labels per event, needs-review rate, user fixes to labels]
+    logged_as: [event:label, type:Correction]
+    learns: [labeling prompt and batch size, is_correction detection]
+    evaluated_by: [metric:label agreement on a hand-labeled sample, eval:harness]
+    cadence: weekly
+    owner: librarian
+  "script:scripts/patterns.py":
+    status: draft
+    signals: [support / decay / reopen counts, meta-signals]
+    logged_as: [type:Pattern, type:Encoding, type:MetaPattern, event:pattern_proposed]
+    learns: [mining thresholds, ladder rules (via approved MetaPatterns)]
+    evaluated_by: [eval:harness, metric:approved share of proposals]
+    cadence: weekly
+    owner: librarian
+  "script:scripts/weekly_report.py":
+    status: draft
+    signals: [per-scope counts of tasks / corrections / mishaps / cost]
+    logged_as: ["store:weekly report (stdout -> session note)"]
+    learns: [trend lines the review reads (correction rate / cost per scope)]
+    evaluated_by: [metric:report used in review-week]
+    cadence: weekly
+    owner: librarian
+  "script:scripts/eval_gate.py":
+    status: draft
+    signals: [accept/reject per candidate, regressed dimensions]
+    logged_as: [type:EvalRun, event:task]
+    learns: [tolerances (only via a reviewed change)]
+    evaluated_by: [eval:harness, metric:accepted changes later reverted]
+    cadence: on-change
+    owner: user
+  "script:scripts/run_evals.py":
+    status: draft
+    signals: [deterministic task pass/fail and runtime per harness component]
+    logged_as: [type:EvalRun]
+    learns: [baselines for the harness area]
+    evaluated_by: [eval:harness]
+    cadence: on-change, weekly
+    owner: librarian
+  "script:scripts/harness_index.py":
+    status: draft
+    signals: [dangling refs, orphans, eval and learning coverage gaps, components changed]
+    logged_as: ["store:docs/components.json", "store:docs/INDEX.md"]
+    learns: [coverage map and exemptions (proposed), eval areas to re-run (self-eval --changed)]
+    evaluated_by: [metric:eval coverage percent, metric:learning coverage percent]
+    cadence: on-change, weekly
+    owner: librarian
+
+  # ------------------------------------------------------------------ coming (another agent is adding these)
+  "skill:voice-harvest":
+    status: todo
+    signals: [sent emails and messages in the user's own voice, edits to drafted replies]
+    logged_as: [type:StylePair]
+    learns: [VoiceRule per register and recipient kind]
+    evaluated_by: [metric:style_match of drafts after harvest]
+    cadence: weekly
+    owner: librarian
+  "skill:email-draft":
+    status: todo
+    signals: [user edits to drafts before sending, replies received]
+    logged_as: [type:StylePair, event:task]
+    learns: [VoiceRule, type:StylePair]
+    evaluated_by: [metric:edit distance draft->sent]
+    cadence: per-run
+    owner: self
+  "script:scripts/voice.py":
+    status: draft
+    signals: [features of the user's sent mail per segment, draft-vs-rule deviations (check), outcome and relabel updates per sample, profile drift (compare)]
+    logged_as: [type:VoiceSample, type:HarvestRun, event:harvest_run, "store:voice/segment_stats.json"]
+    learns: [type:VoiceRule (propose-rules then the user approves), type:VoiceProfile]
+    evaluated_by: [metric:draft deviations per approved rule, metric:profile drift per segment, eval:harness]
+    cadence: per-run, weekly
+    owner: librarian
+
+exempt:
+  "script:hooks/_common.py": "library imported by the hooks; no process of its own"
+  "script:scripts/autocommit_data.sh": "backup transport (commit + push); nothing to learn"
+  "script:scripts/schema_check.py": "validator; its findings are signals in the contracts of the callers (pattern-review, self-eval, email-scan)"
+  "script:scripts/textlen.py": "pure counter used by synopsis and translation-qa"
+  "script:scripts/palette.py": "pure extraction utility; asset-decompose owns the learning"
+  "script:scripts/psd_layers.py": "pure extraction utility; asset-decompose owns the learning"
+  "script:scripts/statusline.py": "sensor that writes HarnessState; usage_guard owns the thresholds"
+  "script:scripts/glossary.py": "store helper; translate and translation-qa own glossary learning (the user approves rows)"
+  "script:scripts/kb.py": "knowledge-base utility; intake owns the learning"
+  "script:scripts/invoice.py": "deterministic calculator; the invoice skill owns the learning"
+  "script:scripts/claim_check.py": "deterministic gate; job-application logs its failures as signals"
+  "script:scripts/translation_qa.py": "deterministic checker; the translation-qa skill owns the learning"
+  "script:scripts/style_pairs.py": "store tool; style-capture and translate own StylePair learning"

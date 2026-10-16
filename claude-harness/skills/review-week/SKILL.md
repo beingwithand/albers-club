@@ -24,6 +24,15 @@ candidates and L5 meta-patterns, and it answers the layers lens. Its L3 proposal
 and its approvals happen in step 6 in the same numbered list. Follow its L5 proposals that target cadence or
 thresholds next week.
 
+## 2c. Email voice
+- **Weekly:** if no `harvest_run` event happened in the window, run `voice-harvest` (incremental) via the `correspondent` agent. Add its proposed VoiceRules and weakened approved rules to step 6's list. VoiceRules need no eval gate when the area has no eval set: mark them `ungated`.
+- **Monthly** (first review of the month): run `python3 -I ${CLAUDE_PLUGIN_ROOT}/scripts/voice.py compare --from previous --to latest` and `... compare --from latest --to current`.
+  - Report drift per segment: dominant feature changes, share shifts, numeric shifts and rule changes.
+  - Report the reply and positive rates per segment from `segment_stats.json`.
+  - Propose retiring approved rules that have been weakened for two months in a row.
+  - If anything was approved since the last profile, run `voice.py profile`.
+  - Only ids and feature names go in the report. Never quote mail.
+
 ## 3. Propose (sonnet)
 Cluster corrections and mishaps that pattern-review did not already cover. For each cluster with 2+ occurrences draft **one small itemized edit**:
 - target: global `CLAUDE.md` | project `CLAUDE.md` | `.claude/rules/<topic>.md` | a skill | a hook | a verifier check
@@ -35,11 +44,13 @@ Use `distill-principles` for cross-domain patterns.
 ## 4. Eval gate
 For each proposal, run the area's eval set (`$HARNESS_DATA/evals/<area>/`, about 20 tasks) with and without the edit; a judge on a **different model** scores it. Keep a proposal only if no dimension (correctness, corrections, cost, time, style) gets worse on held-out tasks. Never edit eval sets or rubrics. No eval set for the area → mark the proposal `ungated` and say so.
 
+Before proposing, run `python3 -I ${CLAUDE_PLUGIN_ROOT}/scripts/harness_index.py --check` (fix dangling refs, list coverage gaps) and `self-eval --changed <files changed this week>` so every affected area is re-gated.
+
 ## 5. Expire
 List rules and lessons not used or cited in the last 6 weeks (search the log for their IDs). Propose deleting or archiving each one. Include the ladder's `decay`, `decay-encoding` and `retire` proposals (from step 2b), and `/skill-doctor`'s never-invoked skills.
 
 ## 6. Approve and apply
-Show one numbered list: proposal | target | diff | evidence | eval before→after. Apply **only** the ones the user approves, one commit each with its justification. Record rejected ones with the reason as `Lesson` `status: rejected`, so they aren't re-proposed.
+Show one numbered list: proposal | target | diff | evidence | eval before→after. Approved VoiceRules are applied with `voice.py rule --id vr_… --status approved`, not by editing files. Apply **only** the ones the user approves, one commit each with its justification. Record rejected ones with the reason as `Lesson` `status: rejected`, so they aren't re-proposed.
 
 ## 7. Finish
 1. Run `verify` with criteria: every applied edit was approved, its eval did not regress, each `CLAUDE.md` is under 200 lines.

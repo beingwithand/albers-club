@@ -26,6 +26,7 @@ git clone https://github.com/beingwithand/claude-harness ~/code/claude-harness
 | `schema/` | Ontology plus the event/decision/mishap record formats |
 | `templates/project/` | Standard skeleton for every new project |
 | `rubrics/` | Self-eval sheets for each task type |
+| `docs/INDEX.md` | Generated map of every component (who uses what, eval coverage, warnings): `python3 -I scripts/harness_index.py --write`; the `self-eval` skill re-runs the affected eval areas after a change |
 
 ## Data (separate from code)
 

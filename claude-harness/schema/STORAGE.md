@@ -9,8 +9,8 @@ short table with `python3 -I scripts/schema_check.py --stores`; validate data wi
 
 | Root | Where | Synced to | Privacy value | What may go there |
 |---|---|---|---|---|
-| `harness-data` | `$HARNESS_DATA` (default `~/harness-data`) | private GitHub repo, auto-pushed hourly (`scripts/autocommit_data.sh`) | `harness-data` | Logs, labels, style memory, preferences, eval results, and *derived* job/contact records that point to the vault by id. Never a copy of a message body or attachment. |
-| `msg-vault` | `~/msg-vault/` (mode 700, FileVault) | **nothing**: never a git remote, never synced | `vault` | Raw messages, threads, attachments, sync cursors, raw text excerpts (StyleSample). Other people's personal data and NDA content. |
+| `harness-data` | `$HARNESS_DATA` (default `~/harness-data`) | private GitHub repo, auto-pushed hourly (`scripts/autocommit_data.sh`) | `harness-data` | Logs, labels, style memory (incl. voice rules, profiles and harvest runs: features and vs_ ids only), preferences, eval results, and *derived* job/contact records that point to the vault by id. Never a copy of a message body or attachment. |
+| `msg-vault` | `~/msg-vault/` (mode 700, FileVault) | **nothing**: never a git remote, never synced | `vault` | Raw messages, threads, attachments, sync cursors, raw text excerpts (StyleSample), sent-mail voice samples with their context (VoiceSample). Other people's personal data and NDA content. |
 | `project` | `<area>/<project>/` (from `templates/project`) | the project's own git repo; originals archived to the project Drive folder | `repo` | Project knowledge, assets, decisions, mishaps, session notes, handoffs, invoices. Client content stays local-only for processing (`docs/LOCAL_ONLY.md`). |
 | `repo` | this harness (`claude-harness`) | GitHub `claude-harness` (private) | `repo` | Ontology, rubrics, principles, skills, agents. No personal data. |
 | `home` | `~/.claude/` | not synced | `local` | Per-machine runtime state (status line / usage guard cache). |
@@ -55,6 +55,11 @@ a `label` event, a ledger `status` row, or a later Application line with the sam
 | StylePair | harness-data | `style/pairs.jsonl` | jsonl | yes | harness-data | active | sp_ | scripts/style_pairs.py |
 | StyleSample | msg-vault | `style/samples.jsonl` | jsonl | yes | vault | planned | ss_ | Gmail backfill (style_samples.jsonl shape) |
 | StyleGuide | harness-data | `style/guide.md` | md | no | harness-data | active | — | skills/style-guide (after approval) |
+| VoiceSample | msg-vault | `voice/samples.jsonl` (+ redacted own text in `voice/text/<id>.txt`) | jsonl | yes (newest per id wins) | vault | active | vs_ | scripts/voice.py ingest\|update (skills/voice-harvest) |
+| VoiceFeatures | msg-vault | `voice/samples.jsonl` | embedded | yes | vault | active | — | scripts/voice.py features |
+| VoiceRule | harness-data | `voice/rules.jsonl` | jsonl | yes (newest per id wins) | harness-data | active | vr_ | scripts/voice.py propose-rules\|rule (skills/voice-harvest) |
+| VoiceProfile | harness-data | `voice/profiles.jsonl` | jsonl | yes | harness-data | active | vp_ | scripts/voice.py profile |
+| HarvestRun | harness-data | `voice/harvests.jsonl` | jsonl | yes | harness-data | active | hr_ | scripts/voice.py harvest-log (skills/voice-harvest) |
 | Application | harness-data | `applications.jsonl` | jsonl | yes | harness-data | active | app- | skills/job-application, skills/email-scan (agents/job-tracker) |
 | JobLead | harness-data | `jobleads.jsonl` | jsonl | yes | harness-data | planned | jl- | email-scan / alert parsing (docs/MESSAGING.md) |
 | Platform | harness-data | `platforms.jsonl` | jsonl | yes | harness-data | planned | plat- | Gmail backfill (platforms.json shape: {generated, scope, note, platforms: [...]}) |
@@ -64,7 +69,7 @@ a `label` event, a ledger `status` row, or a later Application line with the sam
 | Message | msg-vault | `<source>/messages.jsonl` | jsonl | yes | vault | planned | msg_ | ingest (docs/MESSAGING.md) |
 | Thread | msg-vault | `<source>/threads.jsonl` | jsonl | yes | vault | planned | thr_ | ingest |
 | Attachment | msg-vault | `<source>/attachments.jsonl` | jsonl | yes | vault | planned | att_ | ingest |
-| SyncCursor | msg-vault | `cursors.json` | json | no | vault | planned | cur_ | ingest |
+| SyncCursor | msg-vault | `cursors.json` | json | no | vault | active | cur_ | scripts/voice.py cursor (skills/voice-harvest); other ingest later |
 | Invoice | project | `deliverables/*_invoice_*.md` | md | no | repo | active | INV- | scripts/invoice.py make |
 | LedgerEntry | harness-data | `finance/ledger.csv` | csv | yes | harness-data | active | invoice_id: INV- | scripts/invoice.py |
 | HarnessState | home | `.claude/harness-state.json` | json | no | local | active | — | scripts/statusline.py; read by hooks/usage_guard.py |
@@ -73,6 +78,7 @@ Untyped files in `harness-data` (not records; not validated):
 - `labels/batch_<from>_<to>[_partNN].jsonl`, `labels/*.labels.jsonl`, `labels/label_prompt.md`: transient batches from `scripts/label_events.py` (they copy prompt text, so they are as private as the log).
 - `backcatalog/knowledge/` (`manifest.json`, `raw/`, `wiki/`, `log.md`): a knowledge folder with the `project` layout, so check it with `--project $HARNESS_DATA/backcatalog`.
 - `.autocommit.log`, `.gitattributes` (union merge for `*.jsonl`).
+- `voice/segment_stats.json`: the latest `scripts/voice.py segment-stats` output (per-segment feature shares and counts, vs_ ids only; overwritten each harvest, snapshotted into VoiceProfile).
 - `patterns/config.json`: thresholds for `scripts/patterns.py ladder|meta` (missing keys fall back to the defaults in the script; `patterns.py config` prints the merged values).
 
 Pattern seeds that ship with the harness (no personal data, evidence as session-note pointers) live in the **repo** at `patterns/seed_patterns.jsonl` (Pattern, Encoding and MetaPattern lines mixed, told apart by id prefix). `patterns.py` reads them next to the harness-data stores until `pattern-review` imports them with `patterns.py record`.
@@ -81,4 +87,5 @@ Pattern seeds that ship with the harness (no personal data, evidence as session-
 - ~~`finance/ledger.csv` is not union-merged~~ **Fixed:** `autocommit_data.sh` now sets `finance/*.csv merge=union`. Note that the ledger puts amounts and client names in the GitHub-synced repo, which is by design but worth knowing.
 - **Session notes have two homes.** `skills/retro` writes `<project>/log/sessions/`, while the header of `autocommit_data.sh` lists `sessions/` as part of `$HARNESS_DATA`. Pick one (the ontology records the project path, which is what the skill does).
 - **Gmail backfill outputs are not yet placed.** If they are persisted: `applications.jsonl` and `platforms.json` go to `harness-data` *after* dropping message subjects/quotes (keep thread ids only); `style_samples.jsonl` (subjects and excerpts) and the `reviewer_feedback` quotes in `clients_projects.jsonl` go to `msg-vault`. `clients_projects.jsonl` mixes Client and Project records (`client-…` / `proj-…` ids) and should be split.
-- **Planned stores** (`status: planned`) have no writer yet: Client, JobLead, Platform, Organization, Contact, Account, Message, Thread, Attachment, SyncCursor, StyleSample.
+- **Planned stores** (`status: planned`) have no writer yet: Client, JobLead, Platform, Organization, Contact, Account, Message, Thread, Attachment, StyleSample (for email, `voice.py ingest --from-backfill` turns a `style_samples.jsonl` backfill into VoiceSamples).
+- **Email voice privacy split** (`skills/voice-harvest/SKILL.md`): VoiceSample (context, subject, recipient domain, redacted own text) stays in the vault; `voice.py` refuses to write harness-data output containing an address, phone number, long digit run or a raw-text field, and refuses a vault path inside a git work tree or `$HARNESS_DATA`. `audience_party` waits for the Party registry (`pty_`, information_organization §4.2); until then it holds a `ct-`/`org-`/`client-` id, never a name.

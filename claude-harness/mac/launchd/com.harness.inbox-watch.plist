@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!--
+  com.harness.inbox-watch.<project>: out-of-session guarantee for new inbox documents (docs/PIPELINES.md).
+
+  TEMPLATE. launchd WatchPaths takes literal paths only (no globs such as ~/projects/*/inbox), so one plist is
+  generated per project by scripts/install_watchers.py, which fills the placeholders:
+    __LABEL__        com.harness.inbox-watch.<project-slug>
+    __HOME__         $HOME (launchd does not expand ~ or $HOME)
+    __PROJECT__      absolute project dir (holds inbox/ and PROGRESS.md)
+    __HARNESS__      the harness checkout (default ~/code/claude-harness)
+    __HARNESS_DATA__ $HARNESS_DATA (default ~/harness-data)
+
+    python3 -I ~/code/claude-harness/scripts/install_watchers.py list               # projects found
+    python3 -I ~/code/claude-harness/scripts/install_watchers.py install --dry-run  # show what it writes
+    python3 -I ~/code/claude-harness/scripts/install_watchers.py install            # write + launchctl bootstrap
+    python3 -I ~/code/claude-harness/scripts/install_watchers.py uninstall
+
+  What it does when something in inbox/ changes: `pipeline.py queue scan <project> --source launchd`, which
+  appends one entry per unregistered file to $HARNESS_DATA/queue/inbox.jsonl and logs `inbox_file_detected`.
+  It NEVER runs claude: client files are processed only in a session the user starts (hooks/watch_inbox.py
+  surfaces the queue at SessionStart). Logs: ~/Library/Logs/harness/inbox-watch.{out,err}.log
+-->
+<plist version="1.0">
+<dict>
+  <key>Label</key>
+  <string>__LABEL__</string>
+
+  <key>ProgramArguments</key>
+  <array>
+    <string>/bin/zsh</string>
+    <string>-lc</string>
+    <string>exec python3 -I "__HARNESS__/scripts/pipeline.py" queue scan "__PROJECT__" --source launchd</string>
+  </array>
+
+  <key>EnvironmentVariables</key>
+  <dict>
+    <key>HARNESS_DATA</key>
+    <string>__HARNESS_DATA__</string>
+  </dict>
+
+  <key>WatchPaths</key>
+  <array>
+    <string>__PROJECT__/inbox</string>
+  </array>
+
+  <!-- Coalesce bursts (a folder of files dropped at once). -->
+  <key>ThrottleInterval</key>
+  <integer>15</integer>
+  <key>RunAtLoad</key>
+  <true/>
+
+  <key>StandardOutPath</key>
+  <string>__HOME__/Library/Logs/harness/inbox-watch.out.log</string>
+  <key>StandardErrorPath</key>
+  <string>__HOME__/Library/Logs/harness/inbox-watch.err.log</string>
+
+  <key>ProcessType</key>
+  <string>Background</string>
+  <key>LowPriorityIO</key>
+  <true/>
+</dict>
+</plist>
