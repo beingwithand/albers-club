@@ -20,6 +20,8 @@ Feature or problem: $ARGUMENTS
 ## 2. Fan out
 Use `web-researcher` agents, one track each:
 1. **Who already does this well.** Real apps and sites: how they appear to implement it. Use public code, network behavior, bundles, docs, engineering blogs and talks, reading only what's publicly available, legitimately. Record what the user experiences and how it works under the hood.
+   - **Tool: REA (Reverse Engineer Anything)**, from github.com/morluto/rea, the MCP version `npx rea-agents setup`. Install only from the official repo, rea.tools or the `rea-agents` npm package, because there are trojanized copies. REA inspects websites (browser observation), JS/Electron apps, native binaries (via Ghidra, Hopper or IDA), .NET and Android, and its results carry evidence. Use it to understand *how* a feature works, then build our own version.
+   - **Ethics:** REA is for understanding and interoperability only. Never copy proprietary code or assets, bypass DRM, license checks or auth, or analyze anything we aren't allowed to. Follow REA's DISCLAIMER.md and the target's terms.
 2. **Open-source implementations.** GitHub repos and libraries ranked by recent activity, issue health, license and adoption (stars are inflated, so don't rely on them). Read the actual code paths, not just the README.
 3. **State of the art.** Recent papers, standards, browser and platform capabilities, and what changed in the last 6–12 months.
 4. **Adjacent ideas.** Techniques from neighboring fields or other products that aren't obvious matches but could combine into something better. Mark these clearly as speculative.
