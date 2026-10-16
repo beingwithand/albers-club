@@ -1,0 +1,18 @@
+---
+name: distill-principles
+description: Decompose what the user says, decides and corrects into short, reusable principles that apply across domains (code, translation, annotation, design, research). Use in /retro, the weekly review, or when the user explains how they think.
+---
+
+# Distill principles
+
+1. Read the source material: the session transcript, corrections, decision records, or the user's explanation.
+2. Extract candidate principles. Each one must have:
+   - **Statement:** at most one sentence, imperative, and independent of any domain where possible.
+   - **Intent:** the underlying value it serves.
+   - **Evidence:** quotes or event IDs where the user expressed it, ideally from two or more occasions.
+   - **Applies to:** global, or the specific areas it covers.
+   - **Example:** one concrete application, and if possible one in a different domain (e.g. code → design).
+3. Merge it with an existing principle in `global/PRINCIPLES.md` if it overlaps. Don't create near-duplicates.
+4. Propose the additions or edits to the user as a numbered list. Write only the approved ones.
+
+Principles are about **how the user thinks**. Project facts go in project files, not here.

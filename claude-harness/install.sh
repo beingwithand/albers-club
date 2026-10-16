@@ -11,6 +11,7 @@ if [ -e "$HOME/.claude/CLAUDE.md" ] && [ ! -L "$HOME/.claude/CLAUDE.md" ]; then
   mv "$HOME/.claude/CLAUDE.md" "$HOME/.claude/CLAUDE.md.bak.$(date +%s)"
 fi
 ln -sfn "$HERE/global/CLAUDE.md" "$HOME/.claude/CLAUDE.md"
+ln -sfn "$HERE/global/PRINCIPLES.md" "$HOME/.claude/PRINCIPLES.md"
 
 # 2. Data directory (its own private git repo, e.g. beingwithand/harness-data)
 mkdir -p "$DATA"/{log,style,sessions}

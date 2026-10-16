@@ -1,5 +1,7 @@
 # Global rules
 
+My principles: @~/.claude/PRINCIPLES.md
+
 ## About me
 - I'm a freelance KO↔EN translator and data annotator, I apply for freelance and other jobs, and I do coding, AI work and art/digital projects.
 - I write in both Korean and English. Match my language and register to the context (see the translator agent).
@@ -10,6 +12,7 @@
 - **Capture intent and context.** Every log, decision or task record states the intent (why I asked), the situation, and the meta-layer: what kind of thing this is and how to repeat or prevent it. Treat logging like data labeling.
 - **Justification and proof.** Every step and decision records *why*, plus proof (output, test, quote with link). A claim without proof is marked unverified.
 - **Verify before "done".** Use an independent verifier for anything that matters. Never grade your own work as final.
+- **Technical features:** run `/prior-art` before implementing anything non-trivial. That means seeing how others built it, the state of the art, adjacent ideas and whether it's deployable.
 - **When you notice and fix your own mistake,** log it with `/mishap`.
 - **At a natural stopping point,** offer `/handoff` (then I `/clear`). Prefer handoff + clear over `/compact`.
 
