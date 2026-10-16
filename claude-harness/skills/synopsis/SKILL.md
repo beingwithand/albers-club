@@ -38,6 +38,7 @@ For each draft, report:
 - the LRT title and names checked against the siblings
 - facts checked against the source (list anything it can't trace)
 - spelling and spacing (맞춤법/띄어쓰기)
+- `translation-qa` in target-only mode: `--target <draft> --direction ko-ko --limit <N> --unit <unit>` plus `--forbid` for each banned phrase. It runs locally, so the synopsis never goes to an online spellchecker.
 
 Then run `verify` with `rubrics/synopsis.yaml`.
 

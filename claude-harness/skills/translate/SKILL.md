@@ -35,6 +35,7 @@ Go segment by segment and fix anything that fails:
 - [ ] **Omissions and additions:** every source sentence has a counterpart; nothing added that the source doesn't support. Count sentences or bullets on both sides.
 - [ ] **Register:** honorific level and sentence endings are consistent (no 해요체 slipping into a 하십시오체 email; no stiff "Dear Sir" in chat).
 - [ ] **Format:** line breaks, lists, tags and length limits preserved.
+- [ ] **Run `translation-qa`** (`scripts/translation_qa.py` with the glossary and any length limit) and fix every blocking finding before showing the user.
 
 ## 5. Back-translation spot check (risky segments only)
 Pick the segments most likely to be wrong: negations, conditionals, legal/financial obligations, numbers in prose, idioms, and anything with a `[TN]`. Back-translate each one literally into the source language **without looking at the source**, then compare. If meaning drifted, revise and note what changed. Report which segments you checked.

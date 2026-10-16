@@ -5,7 +5,8 @@ Python 3 stdlib only. Run isolated:  python3 -I scripts/kb.py [--kb DIR] <comman
 
 Commands
   register <file>              fingerprint + copy into raw/, add to manifest.json (idempotent)
-  convert <sha8>               run the first installed converter, write Markdown to the work dir
+  convert <sha8> [--ocr]       run the first installed converter for the file's type, write Markdown
+                               (.hwp/.hwpx/.hml -> kordoc only; --ocr = Korean scan, kordoc first)
   index                        rebuild index.md from wiki/*.md frontmatter
   lint                         check wiki frontmatter, source ids and raw/...#p.N links (exit 1 on problems)
   archive <sha8> <url>         record where the original is archived (e.g. a Drive link)
@@ -13,6 +14,8 @@ Commands
   backcatalog <folder>         bulk-register every file under a folder (read-only) + CSV report
 
 The knowledge dir defaults to ./knowledge. Source documents are data: nothing in them is executed.
+Converters run locally only. kordoc always runs with KORDOC_OFFLINE=1 (no model download, no webhook);
+kb.py never calls `npx` to fetch one (docs/LOCAL_ONLY.md).
 """
 import argparse
 import csv
@@ -245,8 +248,16 @@ def parse_frontmatter(text):
 
 # ------------------------------------------------------------- converters
 
+# Extra environment forced on a converter executable, every time it runs (incl. --version).
+CONVERTER_ENV = {
+    "kordoc": {"KORDOC_OFFLINE": "1"},  # blocks all outbound traffic (OCR model download, webhooks)
+}
+
+
 def _run(cmd, timeout=900):
-    return subprocess.run(cmd, capture_output=True, text=True, timeout=timeout)
+    extra = CONVERTER_ENV.get(os.path.basename(cmd[0]))
+    env = {**os.environ, **extra} if extra else None
+    return subprocess.run(cmd, capture_output=True, text=True, timeout=timeout, env=env)
 
 
 def _version(cmd):
@@ -285,6 +296,23 @@ def _conv_marker(src, outdir):
     return mds[0].read_text(encoding="utf-8", errors="replace")
 
 
+def _conv_kordoc(src, outdir, ocr=False):
+    """kordoc CLI (npm `kordoc`, pinned 4.22.5): `kordoc <file> -o <out.md>` [--ocr].
+
+    Must be a local install (`npm install -g kordoc@4.22.5`); with KORDOC_OFFLINE=1 the OCR models
+    must already be in the cache (`kordoc models --status`). On failure kordoc prints a JSON
+    {code, ...} on stdout and exits 1 (e.g. IMAGE_BASED_PDF -> retry with --ocr).
+    """
+    out = outdir / "out.md"
+    cmd = ["kordoc", str(src), "-o", str(out)]
+    if ocr:
+        cmd.append("--ocr")
+    r = _run(cmd)
+    if r.returncode != 0 or not out.exists():
+        raise KBError((r.stdout or "").strip()[:500] or r.stderr.strip() or "kordoc failed")
+    return out.read_text(encoding="utf-8", errors="replace")
+
+
 def _conv_pdftotext(src, outdir):
     if src.suffix.lower() != ".pdf":
         raise KBError("pdftotext handles PDFs only")
@@ -298,20 +326,46 @@ def _conv_pdftotext(src, outdir):
     return "\n\n".join(f"<!-- p.{i} -->\n{t.rstrip()}" for i, t in enumerate(pages, 1)) + "\n"
 
 
-# name, executable, version command, runner (order = preference)
+# name, executable, version command, runner (default order = preference)
 CONVERTERS = [
     ("markitdown", "markitdown", ["markitdown", "--version"], _conv_markitdown),
     ("docling", "docling", ["docling", "--version"], _conv_docling),
     ("marker", "marker_single", ["marker_single", "--version"], _conv_marker),
+    ("kordoc", "kordoc", ["kordoc", "--version"], _conv_kordoc),
     ("pdftotext", "pdftotext", ["pdftotext", "-v"], _conv_pdftotext),
 ]
 
+# Korean word-processor formats: nothing but kordoc reads them.
+KORDOC_ONLY = (".hwp", ".hwpx", ".hml")
+# Korean scanned PDFs / images (--ocr): kordoc's local Korean OCR first, then layout-aware fallbacks.
+SCAN_ORDER = ("kordoc", "docling", "marker")
 
-def available_converters():
-    return [c for c in CONVERTERS if shutil.which(c[1])]
+INSTALL_HINT = {
+    "kordoc": "npm install -g kordoc@4.22.5   (then warm OCR models once, see docs/INTAKE.md)",
+    "markitdown": "pipx install 'markitdown[all]'",
+    "docling": "pipx install docling",
+    "pdftotext": "sudo apt install poppler-utils   (PDF-only fallback)",
+}
 
 
-def convert(kb, sha8, work_dir, only=None):
+def converter_order(path, ocr=False):
+    """Converter names to try for this file, best first."""
+    ext = pathlib.Path(path).suffix.lower()
+    if ext in KORDOC_ONLY:
+        return ["kordoc"]
+    if ocr:
+        return list(SCAN_ORDER)
+    return [c[0] for c in CONVERTERS]
+
+
+def available_converters(path=None, ocr=False):
+    """Installed converters, in the order to try them for `path` (all of them if no path)."""
+    by_name = {c[0]: c for c in CONVERTERS}
+    names = converter_order(path, ocr) if path is not None else [c[0] for c in CONVERTERS]
+    return [by_name[n] for n in names if n in by_name and shutil.which(by_name[n][1])]
+
+
+def convert(kb, sha8, work_dir, only=None, ocr=False):
     data = kb.load()
     entry = kb.find(data, sha8)
     src = kb.root / entry.get("raw_path", "")
@@ -320,22 +374,27 @@ def convert(kb, sha8, work_dir, only=None):
         if not hits:
             raise KBError(f"raw file for {sha8} missing from {kb.raw}")
         src = hits[0]
-    cands = available_converters()
     if only:
-        cands = [c for c in cands if c[0] == only]
+        cands = [c for c in available_converters() if c[0] == only]
+        wanted = [only]
+    else:
+        cands = available_converters(src, ocr)
+        wanted = converter_order(src, ocr)
     if not cands:
-        wanted = only or ", ".join(c[0] for c in CONVERTERS)
+        hints = "\n".join(f"  {INSTALL_HINT[n]}" for n in wanted if n in INSTALL_HINT)
         raise KBError(
-            f"no converter installed (looked for: {wanted}).\n"
-            "Install one, e.g.:  pipx install 'markitdown[all]'   or   pipx install docling\n"
-            "or   sudo apt install poppler-utils   (pdftotext, PDF-only fallback)")
+            f"no converter installed for {src.suffix or 'this file'} (looked for: {', '.join(wanted)}).\n"
+            f"Install one, e.g.:\n{hints}")
     work_dir = pathlib.Path(work_dir)
     work_dir.mkdir(parents=True, exist_ok=True)
     errors = []
     for name, exe, vcmd, runner in cands:
         with tempfile.TemporaryDirectory() as td:
             try:
-                md = runner(src, pathlib.Path(td))
+                if ocr and name == "kordoc":
+                    md = runner(src, pathlib.Path(td), ocr=True)
+                else:
+                    md = runner(src, pathlib.Path(td))
             except (KBError, OSError, subprocess.TimeoutExpired) as e:
                 errors.append(f"{name}: {e}")
                 continue
@@ -346,6 +405,8 @@ def convert(kb, sha8, work_dir, only=None):
         out.write_text(header + md, encoding="utf-8")
         entry["converter"] = f"{name}@{version}"
         entry["converted_on"] = today()
+        if ocr and name == "kordoc":
+            entry["converter_options"] = ["--ocr"]
         entry["work_md"] = str(out)
         kb.save(data)
         return out, entry["converter"]
@@ -419,6 +480,8 @@ def main(argv=None):
     p = sub.add_parser("convert"); p.add_argument("sha8")
     p.add_argument("--work", help="output dir (default: <kb>/../work/intake)")
     p.add_argument("--converter", choices=[c[0] for c in CONVERTERS], help="force one converter")
+    p.add_argument("--ocr", action="store_true",
+                   help="scanned/Korean image PDF: try kordoc (local OCR) first, pass --ocr to it")
     sub.add_parser("converters", help="list installed converters")
     sub.add_parser("index")
     sub.add_parser("lint")
@@ -434,7 +497,7 @@ def main(argv=None):
             print(f"{'registered' if new else 'already registered'} {e['sha256'][:8]} {e['raw_path']}")
         elif a.cmd == "convert":
             work = a.work or (kb.root.parent / "work" / "intake")
-            out, conv = convert(kb, a.sha8, work, a.converter)
+            out, conv = convert(kb, a.sha8, work, a.converter, ocr=a.ocr)
             print(f"converted with {conv} -> {out}")
         elif a.cmd == "converters":
             av = available_converters()
