@@ -39,7 +39,7 @@ registers: [formal-email, office, friendly, chat, client-deliverable, annotation
 scope_grammar: '^(global|task:[a-z0-9-]+|<area>(/[^/\s]+)?)$'
 
 enums:
-  event_type: [prompt, session_end, decision, correction, mishap, handoff, session_note, verification, intake, task, label, precompact, postcompact, drill, unknown]
+  event_type: [prompt, session_end, decision, correction, mishap, handoff, session_note, verification, intake, task, label, precompact, postcompact, drill, pattern_proposed, pattern_promoted, pattern_retired, unknown]
   actor_kind: [me, harness, agent]            # actor = me | harness | agent:<name>
   outcome: [pending, worked, failed, reverted]
   fanout_tier: ['0', '1', '2', '3', V, S]   # docs/FANOUT.md
@@ -70,6 +70,23 @@ enums:
   project_status: [active, paused, pending, completed, cancelled, archived]
   eval_split: [train, holdout]
   eval_difficulty: [routine, hard, known-failure]
+  # Multi-layer pattern system (docs/PATTERNS.md, scripts/patterns.py). The ladder:
+  #   L0 observation (Event) -> L1 episode (Event + its label) -> L2 pattern (Pattern) -> L3 encoding (Encoding)
+  #   -> L4 principle (Principle, global/PRINCIPLES.md) -> L5 meta-pattern (MetaPattern, about the system itself).
+  # `pattern_level` is the ladder rung only; a separate `abstraction_level` axis may be added later, orthogonal to it.
+  pattern_level: [L0, L1, L2, L3, L4, L5]
+  pattern_kind: [request, preference, workflow, mistake, success, correction, temporal, domain-analogy, tool-friction]
+  # candidate (mined, not shown) -> proposed (shown to me) -> approved (I agree it is real) -> encoded (an active
+  # Encoding operationalizes it) ; any -> decaying (no support / unused) -> retired ; encoded -> reopened (encoding
+  # failed or was overridden) -> proposed/encoded again. Encodings and meta-patterns use the same lifecycle.
+  pattern_status: [candidate, proposed, approved, encoded, decaying, retired, reopened]
+  encoding_kind: [skill, command, hook, rule, agent, rubric-criterion, eval-task, default-setting, saved-workflow]
+  # Where a piece of evidence came from. insights/usage/skill-doctor/auto-memory are Claude Code built-ins
+  # (/insights report, /usage, /skill-doctor, ~/.claude/projects/*/memory feedback notes); see docs/PATTERNS.md.
+  evidence_source: [log, label, mishap, decision, insights, usage, skill-doctor, auto-memory, session-note]
+  meta_signal: [reoccurrence-after-encoding, encoding-overridden, encoding-unused, correction-hotspot, preference-drift, blind-spot, principle-conflict, kind-concentration, unclassified-share, label-gap]
+  meta_target: [ontology, mining, thresholds, cadence, encoding, principle, pattern]
+  gate_verdict: [accept, reject, ungated, pending]
 
 renamed:          # BLUEPRINT §5 names -> v0.2 names
   Person: Contact
@@ -84,9 +101,9 @@ types:
     id_prefix: evt_
     id_pattern: '^evt_\d{8}_\d{4,6}_[0-9a-f]{4}$'
     unique_id: true
-    fields: [id, ts, actor, model, agent, scope, scope_hint, session_id, transcript_path, type, intent, situation, content, meta, justification, proof, labels, parent_event, pointers, outcome, cost_usd, corrects, end_reason, correction_candidate, correction_confidence, correction_patterns, labels_for, is_correction, source_batch, verdict, items, cold_read, trigger, custom_instructions, claim, summary, result, project_dir, cwd, fanout_tier, fanout_n, est_tokens, fanout_pattern, fanout_uncovered, usage_level]
+    fields: [id, ts, actor, model, agent, scope, scope_hint, session_id, transcript_path, type, intent, situation, content, meta, justification, proof, labels, parent_event, pointers, outcome, cost_usd, corrects, end_reason, patterns, pattern_status, correction_candidate, correction_confidence, correction_patterns, labels_for, is_correction, source_batch, verdict, items, cold_read, trigger, custom_instructions, claim, summary, result, project_dir, cwd, fanout_tier, fanout_n, est_tokens, fanout_pattern, fanout_uncovered, usage_level]
     required: [id, ts, type, actor]
-    enums: {type: event_type, outcome: outcome, verdict: verdict, model: model, fanout_tier: fanout_tier, usage_level: usage_level}
+    enums: {type: event_type, outcome: outcome, verdict: verdict, model: model, fanout_tier: fanout_tier, usage_level: usage_level, pattern_status: pattern_status}
     value_aliases: {verdict: {passed: pass, ok: pass, failed: fail, needs_human: needs-human}}
     formats: {ts: datetime, scope: scope}
     expected_when:
@@ -97,6 +114,9 @@ types:
       verification: [verdict]
       label: [labels_for]
       handoff: [pointers]
+      pattern_proposed: [patterns]
+      pattern_promoted: [patterns]
+      pattern_retired: [patterns]
     coverage: {provenance: [actor, model, session_id, transcript_path, source_batch, parent_event], intent: intent, meta: meta}
 
   Proof:       # embedded in Event.proof / Mishap.proof, not stored on its own
@@ -189,9 +209,55 @@ types:
   Principle:
     desc: cross-domain principle distilled from 2+ sources (skill `distill-principles`)
     store: {root: repo, path: global/PRINCIPLES.md, format: md, append_only: false, privacy: repo, status: active, writer: "skills/distill-principles (after approval)"}
-    fields: [id, statement, evidence, approved_on]
+    id_pattern: '^P\d+$'
+    fields: [id, statement, evidence, patterns, areas, approved_on]
     required: [statement, evidence]
-    coverage: {provenance: [evidence], intent: null, meta: null}
+    refs: {patterns: Pattern}
+    enums: {areas: areas}
+    coverage: {provenance: [evidence, patterns], intent: null, meta: [areas]}
+
+  # ------------------------------------------------------------------ multi-layer patterns (docs/PATTERNS.md)
+  # Append-only, event-sourced: a status change appends a new line with the same id; the newest line per id wins.
+  # Every promotion is a proposal I approve (skill `pattern-review`); L3 proposals also pass scripts/eval_gate.py
+  # when the area has an eval set. Room is left for `abstraction_level` and `convergence` refs (not yet declared).
+  Pattern:
+    desc: "L2: a recurring regularity across 2+ episodes (what I keep asking, preferring, doing, getting wrong or right)"
+    store: {root: harness-data, path: patterns/patterns.jsonl, format: jsonl, append_only: true, privacy: harness-data, status: active, writer: "scripts/patterns.py record (skills/pattern-review, skills/retro seeds)"}
+    id_prefix: pat_
+    id_pattern: '^pat_[a-z0-9_-]+$'
+    unique_id: false
+    fields: [id, ts, pattern_level, kind, title, statement, status, scope, areas, evidence, sources, support, sessions, first_seen, last_seen, confidence, signals, encoded_by, principles, supersedes, origin, approved_on, review_by, intent, situation, meta, notes]
+    required: [id, ts, pattern_level, kind, statement, status, evidence]
+    enums: {pattern_level: [L2], kind: pattern_kind, status: pattern_status, areas: areas, sources: evidence_source, origin: [mine, retro, seed, manual, insights]}
+    refs: {encoded_by: Encoding, supersedes: Pattern}
+    formats: {ts: datetime, scope: scope, first_seen: datetime, last_seen: datetime, approved_on: date, review_by: date}
+    coverage: {provenance: [evidence, sources, origin], intent: intent, meta: [kind, signals, meta]}
+
+  Encoding:
+    desc: "L3: the artifact that operationalizes 1+ patterns (skill, command, hook, rule, agent change, rubric criterion, eval task, default, saved workflow)"
+    store: {root: harness-data, path: patterns/encodings.jsonl, format: jsonl, append_only: true, privacy: harness-data, status: active, writer: "scripts/patterns.py record (skills/pattern-review after approval)"}
+    id_prefix: enc_
+    id_pattern: '^enc_[a-z0-9_-]+$'
+    unique_id: false
+    fields: [id, ts, pattern_level, kind, target, encodes, status, scope, eval_set, gate, gate_report, overrides, override_events, invocations, last_used, supersedes, approved_on, notes, intent, meta]
+    required: [id, ts, pattern_level, kind, target, encodes, status]
+    enums: {pattern_level: [L3], kind: encoding_kind, status: pattern_status, gate: gate_verdict}
+    refs: {encodes: Pattern, supersedes: Encoding}
+    formats: {ts: datetime, scope: scope, last_used: datetime, approved_on: date}
+    coverage: {provenance: [encodes, gate_report, override_events], intent: intent, meta: [kind, meta]}
+
+  MetaPattern:
+    desc: "L5: a pattern about the pattern system itself (encodings that fail or decay, hotspots, drift, blind spots, conflicts); proposes process changes"
+    store: {root: harness-data, path: patterns/meta.jsonl, format: jsonl, append_only: true, privacy: harness-data, status: active, writer: "scripts/patterns.py record (skills/pattern-review after approval)"}
+    id_prefix: mp_
+    id_pattern: '^mp_[a-z0-9_-]+$'
+    unique_id: false
+    fields: [id, ts, pattern_level, signal, statement, about, evidence, metrics, target, proposal, status, supersedes, approved_on, notes, intent, meta]
+    required: [id, ts, pattern_level, signal, statement, status]
+    enums: {pattern_level: [L5], signal: meta_signal, target: meta_target, status: pattern_status}
+    refs: {supersedes: MetaPattern}
+    formats: {ts: datetime, approved_on: date}
+    coverage: {provenance: [evidence, about, metrics], intent: intent, meta: [signal, target]}
 
   # ------------------------------------------------------------------ evaluation
   Evaluation:
@@ -511,9 +577,9 @@ relations:
   - {name: for_client,    domain: [Project, Invoice, LedgerEntry, StylePair, GlossaryTerm], range: [Client], via: "Project.client, Invoice.client, LedgerEntry.client, StylePair.client, GlossaryTerm.client"}
   - {name: produced_by,   domain: [Event, Task, Asset, Evaluation, Document], range: [agent+model], via: "Event.actor+model, Task.agent+model, Asset.provenance.extracted_by, Evaluation.judge_model, Document.converter"}
   - {name: derived_from,  domain: [WikiPage, StylePair, Lesson, Asset, Application, JobLead], range: [Document, Message, Thread], via: "WikiPage.source_id/derived_from, StylePair.derived_from, Asset.provenance.from_sha256, Application.source_thread, JobLead.source_message"}
-  - {name: evidence_for,  domain: [Proof, Event, StylePair], range: [Decision, Lesson, StyleGuide, Principle], via: "Decision.evidence, StyleGuide.evidence, Principle.evidence (ids)"}
+  - {name: evidence_for,  domain: [Proof, Event, StylePair, Mishap, Decision, SessionNote], range: [Decision, Lesson, StyleGuide, Principle, Pattern, MetaPattern], via: "Decision.evidence, StyleGuide.evidence, Principle.evidence, Pattern.evidence, MetaPattern.evidence (ids or pointers)"}
   - {name: proven_by,     domain: [Event, Mishap, Decision], range: [Proof], via: "Event.proof, Mishap.proof, Decision.evidence"}
-  - {name: supersedes,    domain: [StylePair, Preference, Lesson], range: [StylePair, Preference, Lesson], via: "StylePair.supersedes, Preference.supersedes, Lesson.supersedes"}
+  - {name: supersedes,    domain: [StylePair, Preference, Lesson, Pattern, Encoding, MetaPattern], range: [StylePair, Preference, Lesson, Pattern, Encoding, MetaPattern], via: "<type>.supersedes (same type)"}
   - {name: corrects,      domain: [Event, Correction], range: [Event], via: "Event.corrects, Correction.corrects; label events use labels_for/parent_event"}
   - {name: prevents,      domain: [Lesson, Principle], range: [Mishap], via: "Lesson.prevents"}
   - {name: learned_from,  domain: [Lesson], range: [Mishap, Correction, SessionNote], via: "Lesson.learned_from"}
@@ -524,3 +590,6 @@ relations:
   - {name: applies_to,    domain: [Application], range: [JobLead, Organization], via: "Application.joblead, Application.org (name, not id)"}
   - {name: received_via,  domain: [Message, Thread, Attachment, SyncCursor, Application, JobLead], range: [Account], via: "<type>.account (Account.id, acct_...)"}
   - {name: forwards_to,   domain: [Account], range: [Account], via: "Account.forwards_to"}
+  - {name: encodes,       domain: [Encoding], range: [Pattern], via: "Encoding.encodes (Pattern.encoded_by mirrors it)"}
+  - {name: generalizes,   domain: [Principle], range: [Pattern, Encoding], via: "Principle.patterns (Pattern.principles mirrors it)"}
+  - {name: about,         domain: [MetaPattern], range: [Pattern, Encoding, Principle, "type"], via: "MetaPattern.about (ids, P<n>, or an ontology type/area name)"}

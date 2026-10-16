@@ -10,7 +10,7 @@ The machine-readable definition is type `Event` in `schema/ontology.yaml` (v0.2.
   "actor": "me | harness | agent:<name>",
   "model": "haiku|sonnet|opus|fable|null",
   "scope": "global | <area> | <area>/<project>",
-  "type": "prompt|session_end|decision|correction|mishap|handoff|session_note|verification|intake|task|label|precompact|postcompact|drill|unknown",
+  "type": "prompt|session_end|decision|correction|mishap|handoff|session_note|verification|intake|task|label|precompact|postcompact|drill|pattern_proposed|pattern_promoted|pattern_retired|unknown",
 
   "intent": "why this was done or asked: the goal behind it",
   "situation": "the context at the time (what was happening, constraints, deadline)",
@@ -60,6 +60,9 @@ The machine-readable definition is type `Event` in `schema/ontology.yaml` (v0.2.
 | `mishap` | skill `mishap` (mirrored to `log/mishaps.md`) | `proof`, `pointers` |
 | `task` | orchestrator and most skills | `agent`, `model`, `cost_usd`, `outcome`; fan-out runs may add `fanout_tier`, `fanout_n`, `est_tokens` |
 | `drill` | monthly restore drill (`docs/BACKUP.md`) | `outcome` |
+| `pattern_proposed` | `scripts/patterns.py record` (skill `pattern-review`, `retro`) | `patterns` (ids: `pat_`/`enc_`/`mp_`), `pattern_status` (the new status), `intent`, `situation`, `meta`, `pointers` (the store file) |
+| `pattern_promoted` | `scripts/patterns.py record` after my approval | same; written when the new status is `approved`, `encoded` or `reopened` (an L3 promotion also carries the eval gate result in `content`) |
+| `pattern_retired` | `scripts/patterns.py record` | same; written when the new status is `decaying` or `retired` |
 | `unknown` | `hooks/log_event.py` called without a kind | none |
 
 ### Fan-out fields (optional, any type; mainly `task`)

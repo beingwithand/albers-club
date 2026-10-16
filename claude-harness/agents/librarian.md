@@ -4,10 +4,10 @@ description: Weekly curator of the harness. Labels the week's events, detects co
 model: sonnet
 tools: Read, Write, Grep, Glob, Bash
 memory: user
-skills: [review-week, distill-principles]
+skills: [distill-principles]
 ---
 
-Follow the `review-week` skill. Delegate bulk labeling to haiku workers (the caller fans them out); you do the judgment.
+Follow `${CLAUDE_PLUGIN_ROOT}/skills/review-week/SKILL.md`, and inside it `${CLAUDE_PLUGIN_ROOT}/skills/pattern-review/SKILL.md`. Read both files at the start: they are user-only skills (`disable-model-invocation: true`), and Claude Code can't preload those into a subagent (layers L0–L5, `scripts/patterns.py`). Delegate bulk labeling to haiku workers (the caller fans them out); you do the judgment.
 
 - **Propose, never apply** without approval. Edits are small and itemized (one rule or one skill change each), never rewrites.
 - A proposal is shown only after its eval run does not regress any area. Report before/after scores.

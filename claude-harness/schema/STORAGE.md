@@ -33,7 +33,10 @@ a `label` event, a ledger `status` row, or a later Application line with the sam
 | ProgressItem | project | `tasks.json` | json | no | repo | active | — | agents/orchestrator (workers may change only `passes`) |
 | Preference | harness-data | `preferences.jsonl` | jsonl | yes | harness-data | active | pref_ | skills/interview |
 | ResearchNote | harness-data | `research/ledger.jsonl` | jsonl | yes | harness-data | active | rn_ | skills/check, skills/web-research |
-| Principle | repo | `global/PRINCIPLES.md` | md | no | repo | active | — | skills/distill-principles (after approval) |
+| Principle | repo | `global/PRINCIPLES.md` | md | no | repo | active | `P<n>` | skills/distill-principles (after approval) |
+| Pattern | harness-data | `patterns/patterns.jsonl` | jsonl | yes (newest per id wins) | harness-data | active | pat_ | scripts/patterns.py record (skills/pattern-review, skills/retro seeds) |
+| Encoding | harness-data | `patterns/encodings.jsonl` | jsonl | yes (newest per id wins) | harness-data | active | enc_ | scripts/patterns.py record (skills/pattern-review after approval) |
+| MetaPattern | harness-data | `patterns/meta.jsonl` | jsonl | yes (newest per id wins) | harness-data | active | mp_ | scripts/patterns.py record (skills/pattern-review after approval) |
 | Evaluation | harness-data | `evals/results/<area>/*.json` | embedded | yes | harness-data | active | — | eval runner |
 | EvalRun | harness-data | `evals/results/<area>/*.json` | json | yes | harness-data | active | — | eval runner; read by scripts/eval_gate.py |
 | EvalTask | harness-data | `evals/<area>/tasks/*.yaml` | yaml | no | harness-data | active | `^[a-z-]+-\d{3}$` | the user (templates in evals/<area>/task_template.yaml) |
@@ -70,6 +73,9 @@ Untyped files in `harness-data` (not records; not validated):
 - `labels/batch_<from>_<to>[_partNN].jsonl`, `labels/*.labels.jsonl`, `labels/label_prompt.md`: transient batches from `scripts/label_events.py` (they copy prompt text, so they are as private as the log).
 - `backcatalog/knowledge/` (`manifest.json`, `raw/`, `wiki/`, `log.md`): a knowledge folder with the `project` layout, so check it with `--project $HARNESS_DATA/backcatalog`.
 - `.autocommit.log`, `.gitattributes` (union merge for `*.jsonl`).
+- `patterns/config.json`: thresholds for `scripts/patterns.py ladder|meta` (missing keys fall back to the defaults in the script; `patterns.py config` prints the merged values).
+
+Pattern seeds that ship with the harness (no personal data, evidence as session-note pointers) live in the **repo** at `patterns/seed_patterns.jsonl` (Pattern, Encoding and MetaPattern lines mixed, told apart by id prefix). `patterns.py` reads them next to the harness-data stores until `pattern-review` imports them with `patterns.py record`.
 
 ## Known gaps (v0.2.0)
 - ~~`finance/ledger.csv` is not union-merged~~ **Fixed:** `autocommit_data.sh` now sets `finance/*.csv merge=union`. Note that the ledger puts amounts and client names in the GitHub-synced repo, which is by design but worth knowing.

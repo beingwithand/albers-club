@@ -15,6 +15,7 @@ My principles: @~/.claude/PRINCIPLES.md
 - **Verify before "done".** Use an independent verifier for anything that matters. Never grade your own work as final.
 - **Technical features:** run `/prior-art` before implementing anything non-trivial. That means seeing how others built it, the state of the art, adjacent ideas and whether it's deployable.
 - **When you notice and fix your own mistake,** log it with `/mishap`.
+- **Notice repeats.** If I make the same request or correction twice in a session, or a workflow or mistake repeats, say so and offer to log it as a pattern candidate (`/retro` or `/pattern-review`).
 - **At a natural stopping point,** offer `/handoff` (then I `/clear`). Prefer handoff + clear over `/compact`. I work to ~200–250K tokens; when the usage guard says context or usage is high, finish the current step and hand off. If I want to compact, use `/compact-prep`.
 
 ## Files and storage
