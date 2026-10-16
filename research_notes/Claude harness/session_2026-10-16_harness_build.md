@@ -46,6 +46,12 @@ Session: https://claude.ai/code/session_01TsbW2R32y5VMMxyaYoyyZh
 - **D12: Organization (user-confirmed).** Projects use flat `~/projects/<slug>/` plus a project registry, with fields kept in metadata rather than folder paths. Clients, organizations, contacts and platforms merge into one **Party** registry.
 - **D13: Coder plus code-reviewer pair, and verification at every step (user requirement).** Both agents share one coding-rules skill (surgical, minimal fixes). The reviewer reviews each step as it happens and back-reviews earlier work, and may make surgical fixes. Verification between every step applies everywhere, not only to code.
 
+- **D14: Data decisions (user, 2026-10-16).**
+  - Q5: local embeddings over vault text are OK.
+  - Q6: tax and finance records are kept 7 years at minimum; the default is set to 10 ("7 or more").
+  - Q4: the number of Macs is undecided. Design for one writer Mac now, with per-host log files so a second machine is a no-op later. The vault is single-machine for now, with encrypted (age/restic) offsite backup; a second-machine vault is optional later.
+  - Q3: the answer was ambiguous ("client text can't go into the vault"), so it needs confirmation.
+
 ## Mishaps
 - **M1:** Research notes were saved inside an unrelated repo (albers-club) without asking first.
   - Root cause: the deep-research default location.
