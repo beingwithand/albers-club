@@ -92,7 +92,10 @@ These are set for every Claude Code session.
 - **`HARNESS_CTX_BUDGET`:** your working context budget for the status line and usage guard (see `statusLine`).
 - **`HARNESS_DATA`:** where the logging hooks write (`~/harness-data`). `__HOME__` is filled in at install, because settings values are not shell-expanded.
 - **`CLAUDE_CODE_SUBAGENT_MODEL: "sonnet"`:** subagents with no `model:` use Sonnet instead of the expensive main model. Per BLUEPRINT §0.5, each agent file should still set `model:`.
-- **`CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH: "2"`:** limits how deep subagents can nest, to avoid runaway fan-out and cost. The default is 3 levels.
+- **`CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH: "2"`:** limits how deep subagents can nest, to avoid runaway fan-out and cost. The default has been 3 levels since v2.1.219; `1` turns nesting off.
+  - The main thread (or the orchestrator) is level 0 and fan-out workers are level 1.
+  - Level 2 is kept only so that a worker can run a forked skill (e.g. `verify` → `verifier`, which has no `Agent` tool).
+  - By policy (`docs/FANOUT.md` §6), fan-out workers never spawn agents themselves: worker agent files leave `Agent` out of `tools:`, or list it in `disallowedTools`.
 - **Do not set `CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC`.** It turns off Remote Control and auto-updates.
 - Optional privacy settings. Set each one individually if you want it:
   - `"DISABLE_TELEMETRY": "1"`

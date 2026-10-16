@@ -41,7 +41,7 @@ Go segment by segment and fix anything that fails:
 Pick the segments most likely to be wrong: negations, conditionals, legal/financial obligations, numbers in prose, idioms, and anything with a `[TN]`. Back-translate each one literally into the source language **without looking at the source**, then compare. If meaning drifted, revise and note what changed. Report which segments you checked.
 
 ## 6. Verify
-Run the `verify` skill against the translation rubric (`rubrics/translation.yaml` if present) or the criteria agreed in step 1. Present the result with the verdict, the `[TN]` notes, and the back-translation findings. Don't call it done before verification passes or the user accepts a `needs-human` verdict.
+Run the `verify` skill against the translation rubric (`rubrics/translation.yaml` if present) or the criteria agreed in step 1. **If the reader is a client or employer** (`client-deliverable`, or a `formal-email` to one), **tier V verification fan-out is mandatory:** 2–3 lens verifiers (fidelity, terminology/rules, register/language), `translation-qa` first, a judge ≥ the producer, and any split goes to the user (`docs/FANOUT.md` §4). Present the result with the verdict, the `[TN]` notes, and the back-translation findings. Don't call it done before verification passes or the user accepts a `needs-human` verdict.
 
 ## 7. Capture the user's final edit
 When the user returns their edited version (or approves yours unchanged), run the `style-capture` skill with:

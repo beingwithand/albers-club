@@ -46,7 +46,7 @@ python3 -I ${CLAUDE_PLUGIN_ROOT}/scripts/claim_check.py <draft.txt|md> --facts j
 - Save the report next to the drafts (`..._claimcheck_v1.txt`) and cite it as proof in `verify`.
 
 ## 5. Finish
-1. Run `verify` against `rubrics/job-application.yaml` (or, if missing, the match table plus: claim check passed, correct names, posting still open, deadline met, format as requested).
+1. Run `verify` as **tier V, which is mandatory here** (employer-bound): 2–3 lens verifiers (fidelity to `facts.md`, posting requirements, language). The claim-check report is first-line proof, the judge must be ≥ the producer, and a split goes to the user (`docs/FANOUT.md` §4). Verify against `rubrics/job-application.yaml` (or, if missing, the match table plus: claim check passed, correct names, posting still open, deadline met, format as requested).
 2. Set the follow-up date, a calendar date and not "later":
    - drafted, not yet sent: deadline minus 2 days (or today + 3 days if there is no deadline). Action: "submit or drop".
    - applied: applied_on + 10 business days, or the posting's stated response date + 3 business days. Action: "polite follow-up".

@@ -42,7 +42,7 @@ Calculation order (documented in the script header): lines (qty × rate, rounded
 
 ## 3. Issue
 1. `invoice.py make <spec> --out deliverables/YYYY-MM-DD_<client>_invoice_<number>.md`. The script picks the next number `INV-YYYY-NNN` from the ledger and refuses duplicates.
-2. Check the Markdown yourself: client name spelled as in the contract, quantities match the counted files, the rate and FX source are on the page, due date right. Then `verify` with those checks.
+2. Check the Markdown yourself: client name spelled as in the contract, quantities match the counted files, the rate and FX source are on the page, due date right. Then `verify` with those checks, as **tier V, which is mandatory here** (client-bound): 2–3 lens verifiers (quantities and arithmetic against the `--dry-run` output, agreement terms, client details and wording). A split goes to the user (`docs/FANOUT.md` §4).
 3. Hand the file to the user. If she wants PDF or DOCX, convert locally (document skills); don't upload.
 4. Append a `task` event with `intent` (what is being billed), `situation` (agreement, PO, deadline) and `meta` (`kind_of_thing: invoice`, unit and rate used, anything unusual such as a rush or a minimum).
 

@@ -40,7 +40,7 @@ For each draft, report:
 - spelling and spacing (맞춤법/띄어쓰기)
 - `translation-qa` in target-only mode: `--target <draft> --direction ko-ko --limit <N> --unit <unit>` plus `--forbid` for each banned phrase. It runs locally, so the synopsis never goes to an online spellchecker.
 
-Then run `verify` with `rubrics/synopsis.yaml`.
+Then run `verify` with `rubrics/synopsis.yaml`. **Client-bound, so tier V is mandatory:** run 2–3 lens verifiers (fidelity, R-rules, language), with the script checks above as proof and a judge ≥ the producer. A split verdict goes to the user (`skills/verify`, `docs/FANOUT.md` §4).
 
 ## 5. The user edits and combines
 - Present the 3 drafts and the check table. The user edits and merges them.

@@ -63,7 +63,10 @@ The machine-readable definition is type `Event` in `schema/ontology.yaml` (v0.2.
 | `unknown` | `hooks/log_event.py` called without a kind | none |
 
 ### Fan-out fields (optional, any type; mainly `task`)
-- **`fanout_tier`**: which fan-out tier the work ran at (string label set by the orchestrator, e.g. `single`, `small`, `wide`).
+- **`fanout_tier`**: the tier from `docs/FANOUT.md`: `0 | 1 | 2 | 3 | V | S`.
+- **`fanout_pattern`**: the pattern used, e.g. `parallel-search`, `map-reduce`, `vote`, `judge-panel`, `refuters`, `hypotheses`, `writer-reviewer`.
+- **`fanout_uncovered`**: a list of the workers or sub-questions that failed or came back empty.
+- **`usage_level`**: the usage budget level at the start, `unknown | normal | conserve | ask | stop` (from `hooks/usage_guard.py`).
 - **`fanout_n`**: number of parallel workers/subagents spawned (integer).
 - **`est_tokens`**: estimated tokens for the unit before it ran (integer), to compare against actual cost.
 

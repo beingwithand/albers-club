@@ -42,6 +42,8 @@ enums:
   event_type: [prompt, session_end, decision, correction, mishap, handoff, session_note, verification, intake, task, label, precompact, postcompact, drill, unknown]
   actor_kind: [me, harness, agent]            # actor = me | harness | agent:<name>
   outcome: [pending, worked, failed, reverted]
+  fanout_tier: ['0', '1', '2', '3', V, S]   # docs/FANOUT.md
+  usage_level: [unknown, normal, conserve, ask, stop]   # hooks/usage_guard.py
   verdict: [pass, fail, needs-human]
   proof_kind: [output, test, quote, diff, screenshot, link]
   confidence: [high, medium, low]
@@ -82,9 +84,9 @@ types:
     id_prefix: evt_
     id_pattern: '^evt_\d{8}_\d{4,6}_[0-9a-f]{4}$'
     unique_id: true
-    fields: [id, ts, actor, model, agent, scope, scope_hint, session_id, transcript_path, type, intent, situation, content, meta, justification, proof, labels, parent_event, pointers, outcome, cost_usd, corrects, end_reason, correction_candidate, correction_confidence, correction_patterns, labels_for, is_correction, source_batch, verdict, items, cold_read, trigger, custom_instructions, claim, summary, result, project_dir, cwd, fanout_tier, fanout_n, est_tokens]
+    fields: [id, ts, actor, model, agent, scope, scope_hint, session_id, transcript_path, type, intent, situation, content, meta, justification, proof, labels, parent_event, pointers, outcome, cost_usd, corrects, end_reason, correction_candidate, correction_confidence, correction_patterns, labels_for, is_correction, source_batch, verdict, items, cold_read, trigger, custom_instructions, claim, summary, result, project_dir, cwd, fanout_tier, fanout_n, est_tokens, fanout_pattern, fanout_uncovered, usage_level]
     required: [id, ts, type, actor]
-    enums: {type: event_type, outcome: outcome, verdict: verdict, model: model}
+    enums: {type: event_type, outcome: outcome, verdict: verdict, model: model, fanout_tier: fanout_tier, usage_level: usage_level}
     value_aliases: {verdict: {passed: pass, ok: pass, failed: fail, needs_human: needs-human}}
     formats: {ts: datetime, scope: scope}
     expected_when:

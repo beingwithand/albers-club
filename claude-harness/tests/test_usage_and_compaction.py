@@ -331,6 +331,86 @@ class UsageGuardTest(Base):
         statusline.run(json.dumps(payload(ctx=205_000, sid="live")), self.env, time.time())
         self.assertIn("/handoff", self.guard(sid="live")["hookSpecificOutput"]["additionalContext"])
 
+    # ---- graduated fan-out advice (docs/FANOUT.md §5)
+
+    def budget_cli(self):
+        p = subprocess.run([sys.executable, "-I", str(HOOKS / "usage_guard.py"), "--fanout-budget"],
+                           input="", env=self.env, capture_output=True, text=True, timeout=30)
+        self.assertEqual(p.returncode, 0, p.stderr)
+        return json.loads(p.stdout)
+
+    def test_conserve_at_70_halves_widths(self):
+        self.write_state(five_hour_pct=72, five_hour_resets=time.time() + 3600, seven_day_pct=40)
+        out = self.guard()
+        ctx = out["hookSpecificOutput"]["additionalContext"]
+        self.assertIn("5-hour usage is 72%", ctx)
+        self.assertIn("halve fan-out widths", ctx)
+        self.assertIn("cheap workers only", ctx)
+        self.assertNotIn("asking the user first", ctx)
+        self.assertIn("fanout_budget: level=conserve max_width=5 tier3=allowed workers=sonnet,haiku", ctx)
+        self.assertNotIn("⛔", out["systemMessage"])
+        self.assertIsNone(self.guard())  # once per window per level
+        b = self.budget_cli()
+        self.assertEqual((b["level"], b["max_width"], b["tier3"], b["workers"]), ("conserve", 5, "allowed", "sonnet,haiku"))
+
+    def test_seven_day_over_75_tier3_asks(self):
+        self.write_state(seven_day_pct=76, seven_day_resets=time.time() + 86400)
+        ctx = self.guard()["hookSpecificOutput"]["additionalContext"]
+        self.assertIn("7-day usage is 76%", ctx)
+        self.assertIn("halve fan-out widths", ctx)
+        self.assertIn("Tier-3 fan-out (5+ agents) requires asking the user first", ctx)
+        self.assertIn("fanout_budget: level=ask max_width=5 tier3=ask", ctx)
+        self.assertEqual(self.budget_cli()["tier3"], "ask")
+        # exactly 75% weekly is not "> 75%": conserve only
+        self.write_state(seven_day_pct=75, seven_day_resets=time.time() + 86400)
+        self.assertEqual(self.budget_cli()["level"], "conserve")
+        # 5-hour above 75% does not trigger the weekly ask rule
+        self.write_state(five_hour_pct=80, five_hour_resets=time.time() + 3600)
+        self.assertEqual(self.budget_cli()["tier3"], "allowed")
+
+    def test_stop_at_90_keeps_minimum_verification(self):
+        self.write_state(seven_day_pct=92, seven_day_resets=time.time() + 86400)
+        ctx = self.guard()["hookSpecificOutput"]["additionalContext"]
+        self.assertIn("no fan-out except minimum verification for client/employer deliverables", ctx)
+        self.assertIn("fanout_budget: level=stop max_width=0 tier3=no workers=sonnet,haiku verify_min=2", ctx)
+        b = self.budget_cli()
+        self.assertEqual((b["level"], b["max_width"], b["tier3"], b["verify_min"]), ("stop", 0, "no", 2))
+
+    def test_climbing_level_speaks_again(self):
+        resets = time.time() + 86400
+        self.write_state(seven_day_pct=71, seven_day_resets=resets)
+        self.assertIn("level=conserve", self.guard()["hookSpecificOutput"]["additionalContext"])
+        self.assertIsNone(self.guard())
+        self.write_state(seven_day_pct=80, seven_day_resets=resets)
+        self.assertIn("level=ask", self.guard()["hookSpecificOutput"]["additionalContext"])
+        self.write_state(seven_day_pct=95, seven_day_resets=resets)
+        self.assertIn("level=stop", self.guard()["hookSpecificOutput"]["additionalContext"])
+        self.assertIsNone(self.guard())
+
+    def test_budget_normal_unknown_and_reset(self):
+        b = self.budget_cli()  # no state file
+        self.assertEqual((b["level"], b["max_width"], b["tier3"]), ("unknown", 10, "ask"))
+        self.write_state(five_hour_pct=40, seven_day_pct=50)
+        b = self.budget_cli()
+        self.assertEqual((b["level"], b["max_width"], b["tier3"], b["workers"]), ("normal", 10, "allowed", "any"))
+        self.write_state(seven_day_pct=95, seven_day_resets=time.time() - 5, five_hour_pct=10)  # window reset
+        self.assertEqual(self.budget_cli()["level"], "normal")
+        self.write_state(seven_day_pct=95, ts=time.time() - 11 * 60)  # stale
+        self.assertEqual(self.budget_cli()["level"], "unknown")
+        self.state.write_text("[1,2")
+        self.assertEqual(self.budget_cli()["level"], "unknown")
+
+    def test_budget_pure_function(self):
+        ug = load(HOOKS / "usage_guard.py", "harness_usage_guard")
+        st = {"ts": NOW, "five_hour_pct": 69.9, "seven_day_pct": 69.9}
+        self.assertEqual(ug.fanout_budget(st, NOW, 600)["level"], "normal")
+        st["five_hour_pct"] = 70
+        self.assertEqual(ug.fanout_budget(st, NOW, 600)["level"], "conserve")
+        st["five_hour_pct"], st["seven_day_pct"] = 90, 80
+        self.assertEqual(ug.fanout_budget(st, NOW, 600)["level"], "stop")
+        self.assertEqual(ug.window_level("five_hour", 89), "conserve")
+        self.assertEqual(ug.window_level("seven_day", 89), "ask")
+
 
 # ---------------------------------------------------------------- compaction hooks
 
@@ -588,6 +668,46 @@ class WiringTest(unittest.TestCase):
         self.assertAlmostEqual(sum(weights), 1.0)
         for cid in ("resumability", "completeness", "accuracy", "concision", "proof_pointers"):
             self.assertIn(f"id: {cid}", r)
+
+    def test_fanout_policy_wiring(self):
+        doc = (ROOT / "docs" / "FANOUT.md").read_text()
+        for k in ("Tier", "**0 Inline**", "**1 Single helper**", "**2 Small fan-out**", "**3 Full fan-out**",
+                  "**V Verification**", "**S Speed / map-reduce**", "Pilot on 5", "≤16 concurrent",
+                  "25 agents or 1.5M", "7d > 75%", "≥ 90%", "minimum width 2", "fanout_tier", "fanout_n",
+                  "est_tokens", "fanout_policy_research.md", "Writer + reviewer", "Refuters", "Judge panel"):
+            self.assertIn(k, doc, k)
+        plan = (ROOT / "skills" / "fanout-plan" / "SKILL.md").read_text()
+        self.assertRegex(plan, r"\A---\nname: fanout-plan\ndescription: .+\n")
+        self.assertIn("usage_guard.py\" --fanout-budget", plan)
+        self.assertIn("PROGRESS.md", plan)
+        orch = (ROOT / "agents" / "orchestrator.md").read_text()
+        self.assertNotIn("subagents cannot spawn subagents", orch)
+        self.assertRegex(orch, r"(?m)^skills: \[.*fanout-plan.*\]$")
+        self.assertIn("docs/FANOUT.md", orch)
+        for name in ("synopsis", "translate", "job-application", "invoice"):
+            self.assertIn("tier V", (ROOT / "skills" / name / "SKILL.md").read_text(), name)
+        v = (ROOT / "skills" / "verify" / "SKILL.md").read_text()
+        for k in ("Default: 1 verifier", "MANDATORY", "3 refuters", "split verdict"):
+            self.assertIn(k, v)
+        wr = (ROOT / "skills" / "web-research" / "SKILL.md").read_text()
+        for k in ("3–10 tool calls", "10–15 calls", "10 per batch", "/deep-research"):
+            self.assertIn(k, wr, k)
+        self.assertRegex((ROOT / "global" / "PRINCIPLES.md").read_text(), r"(?m)^18\. \*\*Fan out deliberately\.\*\*")
+        s = json.loads((ROOT / "config" / "settings.json").read_text())
+        self.assertEqual(s["env"]["CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH"], "2")
+
+    def test_worker_agents_cannot_spawn_and_set_model(self):
+        for f in sorted((ROOT / "agents").glob("*.md")):
+            fm = f.read_text().split("---")[1]
+            self.assertRegex(fm, r"(?m)^model: (haiku|sonnet|opus|fable)$", f.name)
+            if f.stem == "orchestrator":
+                continue
+            tools = re.search(r"(?m)^tools: (.*)$", fm)
+            dis = re.search(r"(?m)^disallowedTools: (.*)$", fm)
+            if tools:
+                self.assertNotIn("Agent", [t.strip() for t in tools.group(1).split(",")], f.name)
+            else:
+                self.assertTrue(dis and "Agent" in [t.strip() for t in dis.group(1).split(",")], f.name)
 
 
 if __name__ == "__main__":

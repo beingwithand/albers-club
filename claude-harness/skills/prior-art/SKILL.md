@@ -11,10 +11,10 @@ Feature or problem: $ARGUMENTS
 ## 1. Scope interview (short)
 - **Intent:** what the feature should achieve for users, and the real goal behind the request.
 - **Constraints:** the stack (read the repo first), budget, performance, platforms (e.g. iOS Safari), and the deadline.
-- **Depth:**
-  - quick: about 3 references
-  - standard: 3 parallel researchers
-  - exhaustive: 5 or more
+- **Depth** (tiers per `docs/FANOUT.md`; run `fanout-plan` before spawning):
+  - quick: about 3 references, inline (tier 0)
+  - standard: 3–4 parallel researchers, one per track below (tier 2)
+  - exhaustive: 5–10 per batch (tier 3; ask first if 7-day usage is above 75%)
 - **Appetite for the new:** proven only, proven plus one experiment, or exploratory.
 
 ## 2. Fan out
