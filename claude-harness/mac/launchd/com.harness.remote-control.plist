@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!--
+  ==========================================================================
+  com.harness.remote-control: keeps `claude remote-control` running so you
+  can drive Claude Code on this Mac from the Claude phone app.
+
+  !!! UNOFFICIAL RECIPE. VERIFY THE COMMAND AND FLAGS AGAINST CURRENT DOCS !!!
+  https://code.claude.com/docs (search "Remote Control")
+  As of 2026-10-16 the docs describe:
+    claude remote-control   (server mode), with these flags, each
+    written with a double-hyphen prefix (XML comments can't contain one):
+      name <name>              name shown on the phone
+      capacity <n>             number of concurrent sessions
+      permission-mode <mode>   e.g. auto
+      continue (or -c)         resume the last session (restart within ~4h)
+  There may also be a settings key `remoteControlAtStartup` (verify). If it
+  exists, it may replace this agent entirely. Anthropic publishes no launchd
+  recipe. This is ours.
+
+  BEFORE LOADING:
+    1. Run it ONCE interactively in the same folder:
+         cd __RC_DIR__ && claude remote-control
+       The first run asks you to enable Remote Control and to trust the
+       directory. launchd can't answer those prompts.
+    2. Do NOT set CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC. It disables
+       Remote Control.
+    3. The phone can't drive a sleeping Mac. See the pmset step in
+       mac/bootstrap.sh. The session reconnects after wake.
+    4. If it exits immediately (logs show "not a TTY" or similar), wrap it in
+       a pseudo-terminal by replacing the last ProgramArguments string with:
+         cd "__RC_DIR__" && exec /usr/bin/caffeinate -ims /usr/bin/script -q /dev/null claude remote-control
+
+  Placeholders __HOME__ and __RC_DIR__ are filled in by mac/bootstrap.sh.
+  Status:  launchctl print gui/$(id -u)/com.harness.remote-control
+  Restart: launchctl kickstart -k gui/$(id -u)/com.harness.remote-control
+  Remove:  launchctl bootout gui/$(id -u)/com.harness.remote-control
+  Logs:    ~/Library/Logs/harness/remote-control.{out,err}.log
+  ==========================================================================
+-->
+<plist version="1.0">
+<dict>
+  <key>Label</key>
+  <string>com.harness.remote-control</string>
+
+  <!-- caffeinate -ims stops idle/system sleep while this process runs (on AC; the
+       display may still sleep). It works alongside the pmset step in bootstrap.sh.
+       A login shell gives PATH ~/.local/bin (native claude install) and Homebrew. -->
+  <key>ProgramArguments</key>
+  <array>
+    <string>/bin/zsh</string>
+    <string>-lc</string>
+    <string>cd "__RC_DIR__" &amp;&amp; exec /usr/bin/caffeinate -ims claude remote-control --name "$(scutil --get LocalHostName)"</string>
+  </array>
+
+  <key>WorkingDirectory</key>
+  <string>__RC_DIR__</string>
+
+  <key>EnvironmentVariables</key>
+  <dict>
+    <key>HARNESS_DATA</key>
+    <string>__HOME__/harness-data</string>
+    <key>PATH</key>
+    <string>__HOME__/.local/bin:/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin</string>
+  </dict>
+
+  <!-- Start at login and restart whenever it exits. Wait 30 s between restarts so a failure doesn't loop fast. -->
+  <key>RunAtLoad</key>
+  <true/>
+  <key>KeepAlive</key>
+  <true/>
+  <key>ThrottleInterval</key>
+  <integer>30</integer>
+
+  <key>StandardOutPath</key>
+  <string>__HOME__/Library/Logs/harness/remote-control.out.log</string>
+  <key>StandardErrorPath</key>
+  <string>__HOME__/Library/Logs/harness/remote-control.err.log</string>
+
+  <!-- Interactive: don't let macOS throttle it like a background job. -->
+  <key>ProcessType</key>
+  <string>Interactive</string>
+</dict>
+</plist>

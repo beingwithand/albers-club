@@ -25,4 +25,5 @@ for rc in "$HOME/.zshrc" "$HOME/.bashrc"; do
   [ -f "$rc" ] && ! grep -q HARNESS_DATA "$rc" && echo "export HARNESS_DATA=\"$DATA\"" >> "$rc"
 done
 
+echo "Settings: run  mac/bootstrap.sh --only settings  to merge config/settings.json into ~/.claude/settings.json (backs up first)."
 echo "Done. Next: install the plugin (see README) and set up the hourly data auto-commit."

@@ -1,0 +1,48 @@
+# Brewfile for a new Mac running the claude-harness.
+# Install everything with:  brew bundle --file="$HOME/code/claude-harness/mac/Brewfile"
+# Safe to re-run: brew bundle skips anything already installed.
+# Cask and formula names change now and then. If one fails, run `brew search <name>`.
+
+# --- Core CLI tools ---------------------------------------------------------
+brew "git"          # newer than Apple's git
+brew "gh"           # GitHub CLI: auth, private plugin marketplace, repo cloning
+brew "node"         # for npx-based MCP servers and tools (Claude Code itself uses the native installer)
+brew "python"       # Python 3 for hooks/log_event.py and scripts
+brew "jq"           # JSON on the command line (settings merge in install.sh)
+brew "ripgrep"      # rg: fast search, used by Claude Code and by you
+brew "tmux"         # keeps long-running sessions alive and lets you reattach over SSH
+brew "fd"           # fast `find`
+brew "shellcheck"   # lint for the harness shell scripts
+brew "uv"           # fast Python env and package manager (optional)
+
+# --- Terminal ----------------------------------------------------------------
+# Ghostty: fast terminal with native notifications for Claude Code.
+# Inside tmux, add `set -g allow-passthrough on` to ~/.tmux.conf so notifications get through.
+cask "ghostty"
+
+# --- Networking / remote access --------------------------------------------
+# Tailscale: private network so your phone and other devices reach this Mac
+# (SSH, screen sharing) without opening ports. The GUI app is the supported
+# install on macOS. The cask was renamed from "tailscale" to "tailscale-app"
+# (verify with `brew info --cask tailscale-app`).
+cask "tailscale-app"
+
+# --- Secrets -----------------------------------------------------------------
+# 1Password is the default here. Alternatives: Bitwarden (cask "bitwarden" +
+# brew "bitwarden-cli", CLI command `bw`) or Proton Pass. Pick ONE and keep
+# 2FA recovery codes in it.
+cask "1password"
+cask "1password-cli"   # provides the `op` command
+
+# --- Claude ------------------------------------------------------------------
+cask "claude"          # Claude desktop app (needed for computer use on the desktop and app settings)
+# Claude Code CLI: bootstrap.sh uses the official native installer, not Homebrew.
+# If you'd rather use Homebrew, there is a "claude-code" cask, but it does not
+# auto-update (verify against the current docs).
+
+# --- Browser (for Claude in Chrome) -----------------------------------------
+cask "google-chrome"
+
+# --- Backup ------------------------------------------------------------------
+cask "google-drive"    # Google Drive for desktop: files, PDFs, client work
+cask "backblaze"       # Backblaze: the offsite copy. Needs a paid account. Comment out if you use only Time Machine.

@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!--
+  com.harness.autocommit: commits and pushes $HARNESS_DATA (~/harness-data) every hour.
+
+  Install (mac/bootstrap.sh "launchd" step does this for you):
+    sed "s#__HOME__#$HOME#g" com.harness.autocommit.plist > ~/Library/LaunchAgents/com.harness.autocommit.plist
+    launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/com.harness.autocommit.plist
+  Run now:    launchctl kickstart -k gui/$(id -u)/com.harness.autocommit
+  Remove:     launchctl bootout gui/$(id -u)/com.harness.autocommit
+  Logs:       ~/Library/Logs/harness/autocommit.{out,err}.log
+
+  launchd does NOT expand ~ or $HOME in plist paths, so __HOME__ is replaced at install time.
+  The script runs via `zsh -l` so Homebrew's PATH and gh's git credential helper
+  are available. The script itself (scripts/autocommit_data.sh) is maintained separately.
+  If the Mac is asleep at the scheduled time, launchd runs the job on wake.
+-->
+<plist version="1.0">
+<dict>
+  <key>Label</key>
+  <string>com.harness.autocommit</string>
+
+  <key>ProgramArguments</key>
+  <array>
+    <string>/bin/zsh</string>
+    <string>-lc</string>
+    <string>exec "$HOME/code/claude-harness/scripts/autocommit_data.sh"</string>
+  </array>
+
+  <key>EnvironmentVariables</key>
+  <dict>
+    <key>HARNESS_DATA</key>
+    <string>__HOME__/harness-data</string>
+  </dict>
+
+  <!-- Every 3600 s (hourly), plus once at login/load. -->
+  <key>StartInterval</key>
+  <integer>3600</integer>
+  <key>RunAtLoad</key>
+  <true/>
+
+  <key>StandardOutPath</key>
+  <string>__HOME__/Library/Logs/harness/autocommit.out.log</string>
+  <key>StandardErrorPath</key>
+  <string>__HOME__/Library/Logs/harness/autocommit.err.log</string>
+
+  <key>ProcessType</key>
+  <string>Background</string>
+  <key>LowPriorityIO</key>
+  <true/>
+</dict>
+</plist>
