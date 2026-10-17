@@ -894,3 +894,41 @@ Earlier sections said Relic "can't drive apps on iOS". That was too absolute. Th
 5. **Capture on iPhone**: a ReplayKit broadcast that the user starts, the share sheet, and Safari Web Extensions for web browsing.
 
 The plan for iPhone is to test route 2 in the Mac test, and to use routes 4–5 for light on-phone features.
+
+---
+## Addendum (2026-10-17): The home agent computer (cloud-agent design, run locally)
+Sources: `research_notes/Local agent computer/` (sandboxes_runtimes.md, phone_remote_home_agents.md, home_agent_security.md). Facts marked [snippet] in the notes are secondary. Sizing is inference, not benchmarked.
+
+**Idea.** Copy Grok Bot and dots: give the agent its own persistent computer, with the phone as remote control and viewer. The difference is that the computer is the user's own Mac mini or home box, and the connection is end-to-end encrypted.
+
+### Architecture
+1. **Relic Gateway (always-on process on the Mac).** It owns tasks, the memory vault, credentials (keychain or password manager) and the audit log. It listens only on localhost. This is the same shape as OpenClaw's gateway, minus its mistakes.
+2. **Agent workspaces, separate from the user's everyday environment:**
+   - **Browser workspace (default):** a Linux container with a persistent Chromium profile. neko (Apache-2.0, WebRTC) provides watch and takeover, and CDP provides agent control. Steel (Apache-2.0) is an alternative browser API with saved sessions. Run it with Apple's `container` (Apache-2.0, macOS 26) or Docker.
+   - **macOS workspace (optional):** one Lume VM running Cua's cua-spacesd, for Mac-only or iPad apps. Lume and the Cua SDK are MIT. cua-spacesd and its streaming are FSL-1.1-MIT, which allows self-hosting but not a competing hosted service, and turns MIT after two years. **Apple's license and Virtualization.framework cap this at 2 macOS VMs per Mac**, and the license excludes time-sharing services.
+   - **Android workspace (optional):** the Android emulator with arm64 images on the Mac, or Redroid on a Linux box. This runs real Android apps for consent-based tasks. Do not disguise the emulator.
+   - **The user's real iPhone (optional):** driven through iPhone Mirroring (open-source examples: Phone Harness, mirroir-mcp). Unlocking the phone pauses mirroring, so this can't run while the same iPhone is used as the remote.
+3. **Phone app (iPhone or Android) as remote:**
+   - **Transport:** the Mac makes an outbound-only connection to a relay. Messages are **end-to-end encrypted**, Happy-style: per-session AES-256-GCM keys wrapped per device, so the relay sees only ciphertext. An optional direct path over Tailscale or Iroh adds speed. There are never any inbound ports.
+   - **Pairing:** a QR code on the Mac, approved on the phone. Then a separate grant of what that device may do (OpenClaw's two-layer model).
+   - **Push:** visible alert pushes only, for approvals, questions and task completion. iOS throttles silent pushes and they may never arrive. Use an attested push relay: App Attest proves a genuine app, and the send grant is bound to one Gateway, as in OpenClaw. **Keep push text generic**, e.g. "Relic needs your approval", so content never sits in plaintext on the relay. This fixes the leak seen in Happy's push code.
+   - **Live view and takeover:** WebRTC stream of the workspace (neko or cua-spacesd). The user takes over for passwords, 2FA and CAPTCHAs. No surveyed product streams this to the phone, so it's a differentiator.
+   - The agent keeps working when the phone is offline. Tasks live in the Gateway's queue (the Omnara model: the agent is an event log, not a connection).
+
+### Security requirements (from documented incidents)
+- **Lessons from incidents:** OpenClaw had more than 1,100 to 135k exposed gateways (counts vary) and CVE-2026-25253, where a crafted link stole the gateway token. ClawHub had 341+ malicious skills that installed a macOS stealer. postmark-mcp silently BCC'd every email it sent. The WhatsApp MCP was exploited through tool descriptions. Ollama servers were exposed in the thousands. Comet was tricked into leaking a Gmail OTP.
+- **Requirements that follow:**
+  - Localhost bind and no inbound ports. Never auto-connect to a gateway URL taken from a link.
+  - Device-key pairing, signed phone approvals for sends, purchases, credential use and policy changes, and a kill switch.
+  - Credentials injected from a vault, never shown to the model (e.g., 1Password agentic autofill, per vendor claims). Keep account recovery methods off the agent box.
+  - Separate agent profile, VM or OS user; a site allowlist per task; an egress allowlist.
+  - Planner/quarantined-parser split (CaMeL: 77% of tasks solved with provable security vs 84% undefended).
+  - A curated, signed, version-pinned skill and MCP registry. No marketplace installs.
+  - Audit log and rate limits. Report injection-resistance results at fixed attempt budgets. Anthropic reported 11.2% attack success for Claude for Chrome with mitigations in one evaluation, and about 1% against an adaptive attacker in another; these are different tests.
+  - Disclose agent use. Amazon v. Perplexity turned on an undisclosed agent using logged-in accounts.
+
+### Sizing (inference)
+- **16 GB Mac mini:** the browser workspace plus small local models, or one macOS VM.
+- **24 GB:** one macOS VM plus 2–3 browser containers.
+- **32 GB:** two macOS VMs, or VMs plus an Android emulator.
+- Heavy models run overnight.
