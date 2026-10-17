@@ -4,6 +4,25 @@
 
 Relic can be built today almost entirely from mechanisms that already exist in open-source code, and most of them need no language model at all. The capture engine should copy Screenpipe's event-driven design: snapshots on app switches, clicks, typing pauses and scroll stops, a cheap 10 ms histogram check, accessibility text first, and OCR only on text regions whose pixels changed. It should then layer ActivityWatch's one-second metadata heartbeats, Dayflow's 15-minute "timeline card" summaries and Timelinize's item/entity/attribute schema on top. The memory engine should combine four things: Mem0 v2's cheap deterministic retrieval (semantic plus BM25 plus an entity boost, zero LLM calls per query), Graphiti's bi-temporal facts and layered entity resolver, a fixed version of Generative Agents' scoring formula, and the two-phase background consolidation that Codex, letta-code and the leaked Claude, Muse and dots prompts all converge on. Context engineering should copy the harnesses, scaled down for an 8K–32K local window: Gemini CLI's early compaction trigger and tool-output masking, Cline's deterministic fallback, Codex's verbatim user messages and Letta's ≤300-word summary with lookup hints. The code also differs from the papers in ways that change the design. Current Mem0 has dropped UPDATE/DELETE. Generative Agents actually weights relevance six times recency, and its recency ranking appears inverted. Letta's sleep-time agent can lose work on a crash. OpenMemory's "deny all" rule appears to return everything. A model is needed in only three places: per-episode extraction and judging (a 3–4B local model with constrained output), compaction summaries (the same small model, with a code fallback), and overnight consolidation, which is the one job that wants a 7–8B model or a home box. Everything below is from static reading of pinned commits; nothing was executed, and every bug claim needs a unit test before Relic relies on it.
 
+## Update 2026-10-16: agent accuracy outlook
+
+**Correction.** Earlier Relic reports said open-weight computer-use agents trail frontier agents by a wide margin. They cited ByteDance's UI-TARS-2 at about **47.5%** on OSWorld, against roughly 85% for frontier agents ("Personal data reclamation app.md" and "AI memory and context engineering.md"). The 2026 generation of small GUI models, built on Qwen3-VL and Qwen3.5, has narrowed that gap on paper:
+
+| Model (≤9B) | OSWorld-Verified | AndroidWorld | ScreenSpot-Pro | Source |
+|---|---|---|---|---|
+| UI-Venus-2-9B (Aug 2026) | **70.8** (150-step budget) | 80.2 | 73.0 | [inclusionAI/UI-Venus README](https://github.com/inclusionAI/UI-Venus) *(self-reported)* |
+| GUI-Owl-1.5-8B-Thinking (Feb 2026) | 52.9 | 71.6 | — | [X-PLUG Mobile-Agent-v3.5 README](https://github.com/X-PLUG/MobileAgent/tree/main/Mobile-Agent-v3.5) *(self-reported)* |
+| GUI-Owl-1.5-4B-Instruct | 48.2 | 69.8 | — | same *(self-reported)* |
+| Qwen3.5-9B (general VLM, no GUI tuning) | 41.8 | 57.8 | — | re-run by the UI-Venus authors *(self-reported by a third party)* |
+| UI-TARS-1.5-7B (2025, for comparison) | 27.5 (OSWorld, 100 steps) | — | 49.6 | [bytedance/UI-TARS README](https://github.com/bytedance/UI-TARS) *(self-reported)* |
+
+**What this means.** If the 70.8 holds up, near-frontier GUI accuracy from a model running locally on a **16 GB or larger Mac** (a 9B VLM at 4-bit) is now plausible, where earlier reports treated it as out of reach. It is not yet established, for three reasons:
+- Every 2026 number is the authors' own, run on their own action scaffold. The OSWorld-Verified leaderboard, where maintainers run agents themselves, could not be reached to confirm any of them ([OSWorld README](https://github.com/xlang-ai/OSWorld) describes the rule) *(verified from repo)*.
+- OSWorld is mostly Ubuntu and AndroidWorld is Android. No small model has reported results on a macOS benchmark.
+- **8 GB Macs cannot hold a 4–9B VLM and a text model at the same time.** About 6–7 GB is available to apps, and one 4B 4-bit model takes ~2.5–3 GB. They must swap models, or use Apple's on-device Foundation Models as the text model.
+
+The deciding evidence is independent leaderboard confirmation plus the **2-week test** of 50–100 of the user's real tasks, local versus frontier (Local research handoff, section 4). Until then, the earlier hybrid plan (deterministic recipes first, a local VLM for step repair, a frontier model on opt-in) stands, and the line between local and frontier may move toward local. Model choices per job are in the third addendum at the end. The correction is logged in CORRECTIONS.md row 22.
+
 ## How to read this guide
 
 The researchers shallow-cloned each repository at a pinned commit on 16 October 2026 and read the code without installing or running it. Line references point at those commits. Paper claims came mostly from search snippets because arXiv was unreachable, so where code and paper disagree, this guide follows the code. Material from the public prompt-leak collections (ChatGPT, Claude, Gemini, Grok, Meta Muse and OpenAI dots) is marked **[leaked, unverified]**: it may be fabricated, redacted or stale, and Relic should treat it as evidence of design direction, not as fact.
@@ -647,90 +666,177 @@ Reading the code rather than the papers turns Relic from a research project into
 Two of Relic's needs are not solved by any code examined here, and both are worth building carefully and contributing upstream: out-of-order backfill (timeline recomputation over single-valued predicates) and cross-platform identity for people with handles, phone numbers and Korean or romanized names. Both are deterministic problems with a small model only at the margin, so they suit on-device work. They are also exactly what a lifelog has and a chat-memory product lacks. The private evaluation set is the critical path. Every tier assignment in this guide is a hypothesis until Relic measures a 3–4B model on its own extraction, judging and compaction prompts, over its own Korean and English data.
 
 ---
-## Addendum (2026-10-16): Agent permissions per platform
-This addendum was written from the earlier research notes plus background knowledge. Verify each OS detail on a device before building on it.
+## Addendum (revised 2026-10-16): Agent permissions per platform
+This addendum replaces the earlier background-knowledge version. It now rests on the gap-research note `research_notes/Relic gap research/os_permissions_protocols.md`. **Confidence labels:** *(verified from repo)* means read in a cloned repository or a fully fetched primary page; *(search-snippet)* means only a search-engine extract of the page was seen; *(self-reported)* means a vendor's own claim or number; *(unverified)* means background knowledge not checked this round. Most vendor help pages were blocked, so most OS facts below are search-snippet grade and still need checking on a device.
 
 **Two layers of permission.** (1) The OS permissions that let Relic see the screen and act at all. (2) Relic's own permission layer, which decides what its agents may do once the OS allows it.
 
-### Layer 1: OS permissions
-| Platform | What Relic needs | Limits |
-|---|---|---|
-| macOS | Screen Recording (monthly re-approval on Sequoia+); Accessibility (to read UI text and click/type in other apps); Automation (Apple Events), prompted per target app; Full Disk Access only if importing local stores the user chooses (e.g., Messages) | Ship as a signed .app; prompts can't be pre-approved outside MDM |
-| Windows | UI Automation and Graphics Capture need no special grant; code signing avoids SmartScreen warnings | Windows apps can opt out of capture (WDA_EXCLUDEFROMCAPTURE) |
-| Browser (any desktop OS) | Relic's own isolated Chromium profile driven by Playwright/CDP, or a Relic extension with per-site permissions (the model Claude for Chrome uses) | Never the user's everyday profile for agent runs; no disguise as a human |
-| Android | MediaProjection (consent each session); AccessibilityService to read and act in apps; AppFunctions (Android 16+) for apps that expose actions | Google Play bans accessibility for autonomous AI agents, so either distribute outside Play for the agent feature or limit Play builds to capture plus AppFunctions |
-| iOS | No general control of other apps. Only App Intents/Shortcuts, the share sheet and a user-started ReplayKit broadcast | Phone automation runs from the Mac (via the browser or the phone's web versions), or through Shortcuts the user triggers |
+### Layer 1: OS permissions and distribution
+
+**macOS (Sequoia 15, Tahoe 26).**
+- **No Mac App Store.** Apple DTS states "we do not support the Accessibility APIs in sandboxed apps", and MAS submissions without the sandbox are rejected (error 90296). The sources partly disagree: another DTS answer says the sandbox does not forbid the Accessibility permission itself and that CGEventTap can work, but a developer reports `AXUIElementSetAttributeValue` writes fail in the sandbox and the AX prompt is suppressed ([forum 756130](https://developer.apple.com/forums/thread/756130); [810677](https://developer.apple.com/forums/thread/810677); [24288](https://developer.apple.com/forums/thread/24288); [836644](https://developer.apple.com/forums/thread/836644)) *(search-snippet; partly disputed)*. Plan for **Developer ID signing, notarization and direct download** (notarization as a Gatekeeper requirement is *unverified* this round).
+- **A signed .app bundle is required for capture.** Since Tahoe 26.1, ScreenCaptureKit returns TCC error -3801 for unbundled command-line tools. The fix is a signed .app with `NSScreenCaptureUsageDescription` ([forum 807323](https://developer.apple.com/forums/thread/807323); [807898](https://developer.apple.com/forums/thread/807898); [trycua/cua #870](https://github.com/trycua/cua/issues/870)) *(search-snippet)*. Window titles from CGWindowList also need Screen Recording ([forum 756130](https://developer.apple.com/forums/thread/756130)) *(search-snippet)*.
+- **Screen Recording re-prompts monthly.** It changed from weekly to monthly during the Sequoia betas, and no longer re-prompts after every reboot. A third-party guide (April 2026) says the 30-day cycle still applies and does not interrupt a recording in progress ([9to5Mac](https://9to5mac.com/2024/08/14/macos-sequoia-screen-recording-prompt-monthly/); [Screenify](https://www.screenify.studio/blog/2026-04-10-screen-record-macos-sequoia)) *(search-snippet)*. Only MDM-managed Macs can suppress it (`forceBypassScreenCaptureAlert`) ([Michael Tsai](https://mjtsai.com/blog/2024/08/08/sequoia-screen-recording-prompts-and-the-persistent-content-capture-entitlement/)) *(search-snippet)*. The persistent-content-capture entitlement is for remote-desktop apps, and Relic is unlikely to qualify *(unverified)*.
+- **Accessibility** is needed to read UI text and to click and type. **Automation** (Apple Events) prompts once per target app, **Full Disk Access** has to be added by the user by hand, and **Input Monitoring** covers event taps *(all unverified this round)*.
+- **The model to copy is Claude's computer use on Mac.** It asks for Accessibility plus Screen Recording at OS level (a restart may be needed after granting Screen Recording), then approves each app per session ("Allow for this session"), and the approval does not carry over to the next session ([Claude Code docs](https://code.claude.com/docs/en/computer-use)) *(search-snippet)*.
+
+**Windows 11.**
+- Win32 capture and UI Automation have no TCC-style prompt. However, **borderless or programmatic Graphics Capture** requires `GraphicsCaptureAccess.RequestAccessAsync`, which shows the user a prompt. Borderless capture also needs the `graphicsCaptureWithoutBorder` capability, and if the user declines, the yellow border stays ([MS Learn](https://learn.microsoft.com/en-us/uwp/api/windows.graphics.capture.graphicscaptureaccess.requestaccessasync?view=winrt-20348)) *(search-snippet)*.
+- Respect `WDA_EXCLUDEFROMCAPTURE`. Windows that set it are invisible to Relic too ([Meziantou](https://www.meziantou.net/how-to-exclude-your-windows-app-from-screen-capture-and-recall.htm)) *(search-snippet)*.
+- **Agent workspace (Copilot Actions)** is opt-in, admin-enabled and device-wide. Agents run under separate accounts with access to known folders only (Documents, Downloads, Desktop, Pictures) unless the user authorizes more. **Agent connectors are MCP servers**, and Microsoft requires agent binaries and connectors to be **signed so they can be revoked** ([Windows blog, 2025-10-16](https://blogs.windows.com/windowsexperience/2025/10/16/securing-ai-agents-on-windows/); [MS Support](https://support.microsoft.com/en-us/windows/ai/ai-features/experimental-agentic-features); [security book](https://learn.microsoft.com/en-us/windows/security/book/operating-system-agentic-security)) *(search-snippet)*. Relic can plug in as a signed MCP connector. Its GA status in 2026 is unconfirmed, and SmartScreen and signing details are *unverified*.
+
+**Android (Play policy and sideloading).**
+- **Play bans autonomous AI agents from using AccessibilityService, effective 2026-01-28** (announced 2025-10-30). The policy forbids accessibility use that lets an app "autonomously initiate, plan, and execute actions or decisions". It exempts "deterministic, rule-based automation, where behavior follows a static, human-defined script", and verified disability tools (`isAccessibilityTool="true"`) ([Play policy](https://support.google.com/googleplay/android-developer/answer/10964491?hl=en); [announcement](https://support.google.com/googleplay/android-developer/answer/16550159?hl=en)) *(search-snippet; page blocked)*. Relic's deterministic export recipes may fit the exemption. Its model-driven step repair does not.
+- **Sideloading is no longer a free exit.** Developer verification is enforced **from 2026-09-30 in Brazil, Indonesia, Singapore and Thailand**, for installs from seven storefronts on certified devices, **with a global rollout in 2027**. An "advanced flow" for installing unverified apps (developer options, warnings, a one-time 24-hour wait) has been rolling out since August 2026, and ADB installs remain exempt ([Android Developers Blog](https://android-developers.googleblog.com/2026/03/android-developer-verification-rolling-out-to-all-developers.html); [9to5Google](https://9to5google.com/2026/08/18/google-gradually-rolling-out-androids-advanced-sideloading-ahead-of-developer-verification/)) *(search-snippet; reports conflict on browser APK downloads)*. Reports also say Android 17 Advanced Protection blocks non-accessibility tools from AccessibilityService ([The Hacker News](https://thehackernews.com/2026/03/android-17-blocks-non-accessibility.html)) *(secondary)*.
+- **The sanctioned routes:**
+  - **AppFunctions** (Android 16+, **experimental**). Apps "behave like on device MCP servers", callers need `EXECUTE_APP_FUNCTIONS`, and the Gemini integration is in private preview as of May 2026 ([Android Developers](https://developer.android.com/ai/appfunctions)) *(verified, page fetched)*.
+  - **MediaProjection.** Per-session consent, with single-app sharing and a status-bar stop chip ([docs](https://developer.android.com/media/grow/media-projection)) *(search-snippet)*. It is not continuous background capture.
+
+**iOS 26/27.** There is still no general path to capture other apps' screens and act on them. The agent surface is **App Intents**: in the 27 releases Siri builds on them, intents declare "when they're safe to run", and **onscreen awareness** works through NSUserActivity and the View Annotation APIs ([WWDC26 240](https://developer.apple.com/videos/play/wwdc2026/240/); [WWDC26 343](https://developer.apple.com/videos/play/wwdc2026/343/)) *(search-snippet)*. Relic on iOS should expose its memory as App Intents and entities. ReplayKit limits are *unverified*.
+
+**Browser (any desktop OS).** Relic's own isolated Chromium profile driven by Playwright/CDP, or a Relic extension with per-site permissions. Never the user's everyday profile, and never disguised as a human. For sites, sign agent traffic with **Web Bot Auth** once it settles (see the next addendum).
 
 ### Layer 2: Relic's own agent permissions (modelled on Claude's computer-use tiers)
 - **Read:** viewing pages and the screen. Allowed on allowlisted sites and apps.
 - **Navigate:** scrolling, opening links and export pages. Allowed within an approved task.
 - **Act:** clicking buttons that change something (requesting an export, saving). Needs task-level approval.
 - **Irreversible:** deleting, posting, purchasing or sending messages. Needs per-action approval every time, and agents can't do it in the backfill phase.
-- **Credentials:** never visible to the model. The user types logins and 2FA codes themselves.
+- **Credentials:** never visible to the model. The user types logins and 2FA codes themselves. Over MCP, any credential or consent step uses URL-mode elicitation, never form mode.
 
-Every run gets a visible indicator, a stop button and an audit log entry. Grants are per-site or per-app, time-limited and revocable.
+As in Claude's design, OS-level grants are the ceiling, and each app or site is approved per session on top of them. Every run gets a visible indicator, a stop button and an audit log entry. Grants are per-site or per-app, time-limited and revocable.
 
-**Timeline impact.** The macOS and browser agent permissions fit into months 3–6. Android adds about a month, and must account for Play policy. On iOS, plan for "drive the phone's data from the Mac", not on-device automation.
+**Timeline impact.** macOS and browser agents fit into months 3–6, shipped by direct download (Developer ID plus notarization), not the Mac App Store. On Android, a Play build is limited to capture via MediaProjection, deterministic recipes and AppFunctions. A model-driven agent build would need developer verification and the advanced install flow, which adds about a month plus policy review. On iOS, plan for App Intents plus "drive the phone's data from the Mac".
 
 ---
-## Addendum (2026-10-16): Agent-friendly by design
-Relic should be easy for AI agents to use (Claude, ChatGPT/dots, Muse, local models, coding agents), always through the gatekeeper. Parts of this draw on background knowledge, so verify protocol details before building.
+## Addendum (revised 2026-10-16): Agent-friendly by design
+This addendum replaces the earlier background-knowledge version. Protocol facts come from read-only clones of the MCP spec repo (HEAD 2026-10-14) and the A2A repo (HEAD 2026-10-15), and are **verified from repo** unless labelled otherwise.
+
+**Standards landscape (October 2026).**
+- **MCP's latest spec is 2026-07-28** ("Version 2026-07-28 (latest)" in the repo's docs.json). It is a breaking revision ([changelog](https://modelcontextprotocol.io/specification/2026-07-28/changelog)) *(verified from repo)*:
+  - **Stateless.** There is no `initialize` handshake and no `Mcp-Session-Id`. Protocol version and capabilities travel in `_meta` on every request.
+  - A mandatory **`server/discover`** RPC.
+  - **`subscriptions/listen`** replaces resources/subscribe and the GET stream. SSE resumability, `ping` and `logging/setLevel` are removed.
+  - **Multi round-trip requests (MRTR)** replace server-initiated `elicitation/create`, `sampling/createMessage` and `roots/list`. The server returns `InputRequiredResult` and the client re-calls.
+  - **Tasks** become an official extension, `io.modelcontextprotocol/tasks`.
+  - Smaller additions: cacheable results (`ttlMs`, `cacheScope`), OpenTelemetry trace propagation, and `Mcp-Method`/`Mcp-Name` headers.
+- **MCP authorization** stays on **OAuth 2.1**. A protected server MUST implement **RFC 9728 Protected Resource Metadata**. Client ID Metadata Documents are recommended, clients validate `iss` per **RFC 9207**, and credentials are bound to the issuing authorization server ([authorization](https://modelcontextprotocol.io/specification/2026-07-28/basic/authorization)) *(verified from repo)*.
+- **MCP elicitation** has form mode and URL mode. Servers "MUST NOT use form mode elicitation to request sensitive information such as passwords, API keys, access tokens, or payment credentials" ([elicitation](https://modelcontextprotocol.io/specification/2026-07-28/client/elicitation)) *(verified from repo)*. Resources and prompts remain. The **MCP Registry is still in preview**.
+- **A2A v1.0** (2026-03-12; v1.0.1 on 2026-05-26) is a Linux Foundation project under Apache-2.0. It adds a normative a2a.proto, **signed Agent Cards** (JWS plus RFC 8785), mTLS and the OAuth device flow, and renames operations, which breaks compatibility ([A2A repo](https://github.com/a2aproject/A2A)) *(verified from repo)*.
+- **AGENTS.md** and MCP now sit under the Linux Foundation's **Agentic AI Foundation**, launched 2025-12-09 with goose as the third founding project ([InfoQ](https://infoq.com/news/2025/12/agentic-ai-foundation/); [SD Times](https://sdtimes.com/ai/linux-foundation-forms-agentic-ai-foundation-to-be-new-home-for-mcp-goose-and-agents-md/)) *(search-snippet)*.
+- **Web Bot Auth** is now an IETF working-group draft, `draft-ietf-webbotauth-httpsig-protocol-00` (September 2026). It covers HTTP Message Signatures, a `Signature-Agent` header and a JWKS key directory ([Datatracker](https://datatracker.ietf.org/doc/html/draft-ietf-webbotauth-httpsig-protocol)) *(search-snippet)*.
+- **llms.txt** is used by protocol projects (the A2A docs publish one) *(verified from repo)*. Its spec status is unverified.
 
 **Interfaces (all local-first):**
-- **MCP server as the main door.** Typed tools: `search`, `timeline(range)`, `get_item(id)`, `get_person(id)`, `profile_summary`, `recent_activity`, `propose_memory` (lands in the review queue), `request_export(platform)` (needs approval). Plus resources for memory files and prompts for common tasks.
-- **CLI with JSON output** (`relic search … --json`), so coding agents and scripts can use it directly.
-- **Local HTTP API with an OpenAPI spec**, bound to localhost by default.
-- **Plain, documented storage:** Markdown memory files with frontmatter, a SQLite schema with documentation, and JSONL export. Agents can read them without special code, and the user can leave Relic without losing anything.
-- **Self-description for agents:** an `AGENTS.md` / `llms.txt` that explains the tools, scopes and limits in plain language.
+- **An MCP server as the main door, targeting 2026-07-28.** It also accepts 2025-06-18 and 2025-11-25 clients, because many hosts will lag behind the spec.
+  - **Typed tools:** `search`, `timeline(range)`, `get_item(id)`, `get_person(id)`, `profile_summary`, `recent_activity`, `propose_memory` (lands in the review queue) and `request_export(platform)`.
+  - **`request_export` runs as a task** (tasks extension). Its approval step is an **MRTR `InputRequiredResult` pointing to a URL-mode page inside Relic**, never a form asking for credentials.
+  - **Memory files as resources**, plus prompts for common tasks.
+  - **Change notifications through `subscriptions/listen`**, so agents don't poll.
+- **Transport and auth.** Use **stdio** for local apps (no OAuth needed) and a per-client pairing token. Because MCP no longer has protocol sessions, "approve this client" is Relic's own pairing record, not an MCP session. Any remote or sync relay uses OAuth 2.1 with PRM (RFC 9728), CIMD and RFC 9207 `iss` checks.
+- **Platform bridges.** On Windows, a signed MCP agent connector. On Android, AppFunctions (experimental). On iOS, App Intents and entities.
+- **A CLI with JSON output** (`relic search … --json`), and a **localhost HTTP API with an OpenAPI spec**.
+- **Plain, documented storage:** Markdown memory files with frontmatter, a documented SQLite schema and JSONL export.
+- **Self-description:** an `AGENTS.md` (an AAIF-hosted convention) and an `llms.txt`.
+- **Optional later:** an A2A Agent Card, signed, if Relic's agents talk to other agents across devices. Web Bot Auth signatures for Relic's browser agent on sites that verify bots.
 
-**Behaviour that makes agents reliable:**
-- Stable IDs, consistent schemas and machine-readable error codes, with a suggested next step in each error.
-- Pagination and token-budget parameters (`max_tokens`, `fields`), so responses fit in an agent's context.
-- Every result carries its provenance (source, platform, time, confidence), and results are cited back to the user.
-- `dry_run` and preview modes for anything that changes state. Write actions are idempotent, using idempotency keys.
-- Events or subscriptions ("new activity matching X"), so agents don't have to poll.
+**Behaviour that makes agents reliable:** stable IDs, consistent schemas, machine-readable errors with a suggested next step, pagination and token budgets (`max_tokens`, `fields`), provenance on every result, `dry_run` and preview modes, idempotency keys on writes, and cacheable results (`ttlMs`) for slow-changing data such as the profile.
 
 **Safety, through the gatekeeper:**
-- Each agent gets its own identity and scoped grant: what it can see, which time range, read or propose, and an expiry. Default deny.
-- Every response is logged to the sharing ledger: which agent saw what, and when.
-- Captured content is wrapped as untrusted data, never as instructions. This defends agents against prompt injection that came in with captured pages.
-- Rate limits for each agent, and an anomaly alert when an agent suddenly reads far more than usual.
+- Each agent has its own identity and a scoped, expiring grant, with default deny. Every response goes to the sharing ledger.
+- Captured content is wrapped as untrusted data.
+- Each agent has rate limits, and an anomaly alert fires when it reads far more than usual.
 - Irreversible actions always need the person's approval, whichever agent asks.
 
 ---
-## Addendum (2026-10-16): Automated distill, train, test and ship loop
-This design draws on background knowledge, not this round's research. Before starting, verify each tool, provider term and model license.
+## Addendum (revised 2026-10-16): Automated distill, train, test and ship loop
+This addendum replaces the earlier background-knowledge version. It draws on `on_device_models.md`, `distillation_synthetic_data.md` and `agent_evaluation.md` in `research_notes/Relic gap research/`. Hugging Face and arXiv were blocked, so **weight licences come from GitHub repos or secondary sources, and every benchmark number is self-reported** unless marked otherwise. Not legal advice.
+
+### Students: model shortlist per job
+| Job | First choice | Alternatives | Licence and notes |
+|---|---|---|---|
+| GUI grounding / step repair | **UI-Venus-2-9B** (16 GB+ Macs) | GUI-Owl-1.5 2B/4B/8B; MAI-UI-2B/8B; GELab-Zero-4B (Ollama Q4/Q8, AndroidWorld 75.9); OpenCUA-7B (2025 baseline) | UI-Venus repo badge Apache-2.0, GUI-Owl repo MIT, MAI-UI Apache-2.0, GELab MIT, OpenCUA MIT with commercial use explicit ([UI-Venus](https://github.com/inclusionAI/UI-Venus); [MobileAgent](https://github.com/X-PLUG/MobileAgent); [MAI-UI](https://github.com/Tongyi-MAI/MAI-UI); [gelab-zero](https://github.com/stepfun-ai/gelab-zero); [OpenCUA](https://github.com/xlang-ai/OpenCUA)) *(verified from repo for code; **weight licences unverified** for UI-Venus-2, GUI-Owl-1.5, MAI-UI)*. Avoid GTA1 (CC-BY-NC-SA data) and Holo1.5-3B (Qwen Research licence). |
+| Browser agent | **Fara1.5-4B/9B** (Microsoft, Qwen3.5-based; WebVoyager 80.8/86.6, Online-Mind2Web 57.3/63.4) | the GUI models above | Repo MIT ([microsoft/fara](https://github.com/microsoft/fara)) *(self-reported scores)* |
+| Extraction, summaries, judging | **Qwen3.5-4B/9B** (Apache-2.0, released 2026-03-02) | **Gemma 4** E2B/E4B (Apache-2.0 since April 2026; best fit on Android); **Apple Foundation Models** (~3B on-device, `@Generable` guided output, image input from WWDC26, about 4K context so short tasks only); **EXAONE 4.0 1.2B** for Korean | Korean knowledge (independent paper): Qwen3-8B thinking 58.8 on KMMLU-Redux, EXAONE 1.2B 46.9, Gemma 3 4B 25.1 ([KMMLU paper](https://arxiv.org/html/2507.08924v2)). EXAONE licence not established. Avoid Llama 3.2 3B for Korean. Qwen3.5/Gemma 4 licences *(search-snippet)*; Apple FM context figures conflict. |
+| OCR | **Apple Vision `RecognizeTextRequest`** (macOS 15+, `ko-KR` in revision 3) | **PaddleOCR PP-OCRv5 Korean** (`korean_PP-OCRv5_mobile_rec`, 88.0% on PaddleOCR's own set; **not v6**, whose unified model has no Korean); **dots.ocr** 1.7B (MIT) or PaddleOCR-VL 0.9B for layout | Apple Vision Korean support from forum reports *(search-snippet)*; PaddleOCR Apache-2.0 *(verified from repo)* ([PaddleOCR](https://github.com/PaddlePaddle/PaddleOCR); [dots.ocr](https://github.com/rednote-hilab/dots.ocr)) |
+| Embeddings, rerank | **Qwen3-Embedding-0.6B** (MMTEB-multilingual 64.33) + Qwen3-Reranker-0.6B; **4B** (69.45) on 32 GB Macs | **EmbeddingGemma-308M** (Android); **colqwen2.5** / colSmol-500M for screenshot retrieval (Apache-2.0) | [Qwen3-Embedding](https://github.com/QwenLM/Qwen3-Embedding); [colpali](https://github.com/illuin-tech/colpali) *(self-reported)*. EmbeddingGemma licence conflicts; avoid jina-v4 commercially. |
+| Speech | **WhisperKit** large-v3-turbo (MIT, Core ML, 626 MB build) or **Qwen3-ASR** 0.6B/1.7B (Apache-2.0, Korean CER 3.54 vs Whisper 4.25 per a vendor blog) | Apple SpeechTranscriber (macOS 26, Korean listed) | **Not Parakeet** for Korean: it covers 25 European languages plus Japanese only ([FluidAudio](https://github.com/FluidInference/FluidAudio); [WhisperKit](https://github.com/argmaxinc/WhisperKit); [Qwen3-ASR](https://github.com/QwenLM/Qwen3-ASR)). Qwen3-ASR has no verified MLX port. |
+| Runtime | **MLX** (mlx-lm, mlx-vlm, MLX-Swift) | **llama.cpp** (GBNF/JSON-schema grammars, better long-context prefill); **LiteRT-LM** on Android (Gemma 4 E2B ~47–52 tok/s on S26 Ultra per Google) | MLX and llama.cpp roughly tie for 3–8B decode; sources conflict ([mlx-lm](https://github.com/ml-explore/mlx-lm); [llama.cpp grammars](https://github.com/ggml-org/llama.cpp/tree/master/grammars)) |
+
+**8 GB Mac budget** (about 6–7 GB for apps): one 4B 4-bit model (~2.5–3 GB), an embedder (~0.5 GB) and ASR (~0.6 GB). A GUI VLM and a text LLM cannot be resident together, so swap them or use Apple FM for text. 16 GB+ Macs can run 8–9B models. These figures are estimates; benchmark on the target hardware.
 
 ### Ground rules
-- **Teachers are open-weight models only** (e.g., Qwen, DeepSeek, Llama or Gemma, each under its own license). Don't train on Claude, GPT or Gemini outputs unless their current terms clearly allow it. Frontier models can still help write code and run the pipeline.
-- **Global models never see real user data.** They're trained only on synthetic data, permissively licensed public data and test accounts. Personalization happens on the device, overnight, from the user's own corrections, and never leaves it.
-- **Every dataset and model has a version.** Every promotion is gated by tests. Every release can be rolled back.
+- **Teachers must allow distillation.**
+  - **Open teachers:**
+    - **DeepSeek-R1** is MIT and explicitly allows "distillation for training other LLMs" ([README §7](https://github.com/deepseek-ai/DeepSeek-R1)) *(verified from repo)*.
+    - **Qwen** open-weight repos are Apache-2.0 ([Qwen3-VL](https://github.com/QwenLM/Qwen3-VL)) *(verified from repo)*.
+  - **Conditional:**
+    - **Llama 3.1 and Llama 4** let you train on their outputs, but a distributed model must start its name with "Llama", display "Built with Llama" and carry the 700M-MAU clause. Llama 3 (original) forbids improving other LLMs ([llama-models](https://github.com/meta-llama/llama-models/blob/main/models/llama3_1/LICENSE)) *(verified from repo)*.
+    - The **Gemma terms** (2024 versions) make models trained on Gemma synthetic outputs "Model Derivatives" that inherit its use restrictions *(search-snippet)*. Gemma 4 is reported as Apache-2.0, so check which terms cover the exact checkpoint.
+    - The original **DeepSeek-V3** model licence counts distillation as creating "Derivatives", which must carry its use restrictions ([LICENSE-MODEL](https://github.com/deepseek-ai/DeepSeek-V3/blob/main/LICENSE-MODEL)) *(verified from repo)*.
+  - **Closed models:** **Anthropic Commercial Terms §D.4** (effective 17 June 2025): "Customer may not and must not attempt to (a) access the Services to build a competing product or service, including to train competing AI models or resell the Services except as expressly approved by Anthropic" ([anthropic.com](https://www.anthropic.com/legal/commercial-terms)) *(verified, primary page)*. OpenAI and Google Gemini API terms bar using outputs or Services to develop competing models *(search-snippet)*. **Claude, GPT and Gemini are used at most as eval judges or coding aids, never as training targets, and only after legal review**, since §D.4 also covers "access[ing] the Services to build a competing product".
+- **Global models never see real user data.** They train only on synthetic data, permissively licensed public data and test accounts. Per-user adapters train on the device, from the user's own corrections, and never leave it.
+- **Every dataset row records its provenance** (teacher, version, licence), so tainted rows can be purged. Every dataset and model is versioned, every promotion is gated, and every release can be rolled back.
 
-### The loop (one task family at a time: fact extraction, step repair, screen grounding, reranking)
-1. **Task registry.** A file per task that defines the input/output schema (JSON Schema), quality rules and test suites.
-2. **Generate.** Scripts make synthetic inputs: fake messages, posts and captures, and deliberately changed page layouts for step repair. Test-account runs of the scripted export flows produce real screenshots.
-3. **Label.** The open teacher, running on rented GPUs or a home box, labels each item.
-4. **Filter automatically.** Discard anything that fails schema validation, rule checks (dates parse, entities appear in the source), self-consistency (the teacher agrees with itself across 2–3 samples) or cross-teacher agreement. Send a small random sample to human review each cycle.
-5. **Version.** Store the datasets with DVC or git-lfs and keep a datasheet: sources, licenses, counts.
-6. **Train.** LoRA fine-tune the 3–8B student. Do it with MLX on a Mac for small runs, or on rented GPUs for bigger ones. Log runs in a local MLflow.
-7. **Evaluate.** Every candidate runs four suites:
-   - a golden set: hand-checked real tasks, never used for training;
-   - a regression set: every past failure;
-   - a safety set: prompt-injection pages, credential-field screens, irreversible-action traps (must refuse or escalate);
-   - a held-out public benchmark slice (e.g., a ScreenSpot-style grounding test, LoCoMo/LongMemEval-style memory questions), checked for contamination.
-   An open teacher acts as judge where exact match isn't possible.
-8. **Gate.** Promote only if the candidate beats the current model on the golden set, has no regression on the safety set and stays within latency and memory budgets on the target Macs.
-9. **Ship carefully.** Run the new model in shadow mode first (it runs alongside but its output isn't used), then on a small share of users who opted in, then everyone. Rollback is automatic if live success rates drop.
-10. **Learn from failures.** When a site changes and a flow breaks, the device records the failure locally. Users can opt in to share an anonymized failure signature (site, step, error type), never content. The pipeline then builds new repair examples from test accounts and the loop starts again.
+### Training recipe (per task family: fact extraction, step repair, screen grounding, reranking)
+1. **Filtered SFT (cold start).** The teacher labels or solves tasks. Rejection-sample with schema checks, rule checks on the end state, self-consistency and spot human review. DeepSeek-R1's 800k-sample SFT shows plain sequence-level distillation is strong ([DeepSeek-R1](https://github.com/deepseek-ai/DeepSeek-R1)) *(verified from repo)*.
+2. **On-policy distillation.** The student samples, and the teacher scores each token by reverse KL. This needs **the open teacher's per-token logprobs**, ideally from the same tokenizer family (for example Qwen3.5 large → Qwen3.5 4–9B). The Tinker cookbook reports ~76.7% AIME'24 after 200 steps for a Qwen3.5-9B student, and recovery of IF-eval within ~100 steps after domain fine-tuning ([tinker-cookbook](https://github.com/thinking-machines-lab/tinker-cookbook/tree/main/tinker_cookbook/recipes/distillation)) *(self-reported)*. TRL ships MiniLLM ([LMOps](https://github.com/microsoft/LMOps/tree/main/minillm)). This step also guards against forgetting after domain SFT.
+3. **GRPO on verifiable tasks.** Use rule rewards: action type, click inside the bounding box, exact text, valid JSON that matches gold. UI-R1 and GUI-R1 show grounding gains at 3B from hundreds to ~10K samples ([UI-R1](https://github.com/lll6gg/UI-R1); [GUI-R1](https://github.com/ritzz-ai/GUI-R1)) *(self-reported)*.
+
+**Agent data**:
+- **OS-Genesis reverse task synthesis.** Explore apps, record (before, action, after) triples, then write the instruction that the interaction accomplished, scored by a trajectory reward model ([OS-Genesis](https://github.com/OS-Copilot/OS-Genesis)).
+- **The UI-TARS flywheel.** Collect traces on many VMs, filter them with rules, a VLM and humans, add error-correction and reflection steps, and keep failed steps as **DPO** negatives ([UI-TARS paper](https://github.com/bytedance/UI-TARS/blob/main/UI_TARS_paper.pdf)) *(verified from repo)*.
+- **OpenCUA-style reflective chain of thought** added to each demonstration step.
+- **Run only on apps Relic is allowed to automate.**
+
+**Synthetic personal data (ground truth first).**
+1. Sample a fake persona and a fact table with timestamps, updates and contradictions.
+2. Have the teacher write chats, emails and screen text that express those facts, mixed with distractor filler.
+3. Keep the triple (document, gold JSON, evidence spans).
+4. Drop any example a second model cannot re-extract.
+5. Include knowledge-update and abstention cases.
+
+Copy the **method** of LoCoMo and LongMemEval, **not their data**: LoCoMo is CC BY-NC 4.0 and PersonaHub is CC BY-NC-SA 4.0 ([LoCoMo LICENSE](https://github.com/snap-research/locomo/blob/main/LICENSE.txt); [persona-hub](https://github.com/tencent-ailab/persona-hub); [LongMemEval](https://github.com/xiaowu0162/LongMemEval)) *(verified from repo)*.
+
+**Public dataset licences (commercial training)**
+| OK, with attribution | Non-commercial: do not train | Unverified: hold until checked on Hugging Face |
+|---|---|---|
+| AgentNet/OpenCUA (MIT, commercial use explicit); Mind2Web (CC BY 4.0, research-release note) | WebLINX (CC BY-NC-SA); GTA1 data (CC BY-NC-SA); LoCoMo (CC BY-NC); PersonaHub (CC BY-NC-SA) | AITW, AndroidControl, AMEX, OS-Atlas, Aguvis, GUI-World, Rico, Multimodal-Mind2Web, GUI-R1's 800K set (inherits OS-Atlas) |
+
+Never train on eval sets (ScreenSpot-Pro, OSWorld, LongMemEval). Use dedup and canary-GUID scans as a contamination gate. Screenshots of third-party apps carry their own IP and terms-of-service risk.
+
+**Compute.** Use the Mac (MLX LoRA/QLoRA, ~250 tok/s for Mistral-7B LoRA on an M1 Max per Apple's docs) for small SFT, per-user adapters and evaluation ([LORA.md](https://github.com/ml-explore/mlx-lm/blob/main/mlx_lm/LORA.md)). **Rent H100s at ~$2–4 per GPU-hour** (October 2026 range $1.99–$12.29) for on-policy distillation, GRPO with long rollouts and any VLM training ([IntuitionLabs](https://intuitionlabs.ai/articles/h100-rental-prices-cloud-comparison)) *(search-snippet)*. Managed LoRA services such as Tinker are an alternative.
+
+### Evaluation and gating
+- **Method (Anthropic, "Demystifying evals for AI agents")** ([link](https://www.anthropic.com/engineering/demystifying-evals-for-ai-agents)) *(verified, primary page)*:
+  - **Grade outcomes and environment state**, not the agent's claims or path. For Relic that means the DOM, network trace, files, or rows present or absent in the memory store.
+  - **Start with 20–50 real tasks** drawn from failures, each with a reference solution, two experts agreeing on its verdict, and balanced should-act and should-not-act cases.
+  - **Keep capability suites** (low pass rate, a hill to climb) **separate from regression suites** (near 100%). Graduate saturated tasks into the regression suite.
+  - Run every trial from a **clean environment**.
+  - **Read transcripts.** A task that fails on every trial is usually a broken task.
+- **Report reliability as pass^k** (k = 3–5) for the computer-use agent. A 75% per-trial success rate gives pass^3 ≈ 42%. tau2-bench computes it as C(successes, k)/C(trials, k), with infrastructure errors excluded ([tau2-bench](https://github.com/sierra-research/tau2-bench)) *(verified from repo)*.
+- **Assume benchmarks inflate.**
+  - The ABC checklist found setup and reward flaws can misstate agent performance by up to 100% in relative terms ([NeurIPS 2025](https://neurips.cc/virtual/2025/poster/121769)) *(search-snippet)*.
+  - **WebArena-Verified** replaces LLM judging and substring matching with deterministic, type-aware comparison over responses and captured network traces, replayable offline. It has 812 tasks plus a 258-task Hard subset ([repo](https://github.com/ServiceNow/webarena-verified)) *(verified from repo)*. Copy that replay pattern.
+- **LLM judges** carry position, verbosity and self-preference bias. Swap the order of options, use one rubric per dimension, allow an "Unknown" verdict, and calibrate the judge on a human-labelled slice ([2406.07791](https://arxiv.org/html/2406.07791v1); [AgentJudgeBench](https://huggingface.co/papers/2608.26623)) *(search-snippet)*. Prefer an open judge. A closed-model judge needs the legal review above.
+- **Memory evals.** Use **LongMemEval** (cleaned in September 2025), **MemoryAgentBench** and **BEAM** slices for comparability ([LongMemEval](https://github.com/xiaowu0162/LongMemEval); [MemoryAgentBench](https://github.com/HUST-AI-HYZ/MemoryAgentBench); [BEAM](https://iclr.cc/virtual/2026/poster/10006595)). Avoid **LoCoMo** except as a smoke test: it has wrong gold answers, a lenient judge, and top_k retrieval that returns the whole corpus ([Penfield audit](https://penfieldlabs.substack.com/p/we-audited-locomo-64-of-the-answer), informal). Add a **private deletion test**, which no public benchmark covers. After a delete, check the item is gone from raw storage, the vector index, summaries, caches and answers (including paraphrased probes), check that paused windows yield abstention, and check that updated facts supersede old ones.
+- **Injection safety.** Plant injections in captured screens, pages, emails and invites. Report utility with and without attack, and **attack success rate at fixed attempt budgets (1, 10 and 100 attempts)**. Reference points: Anthropic reports **~1% ASR at 100 adaptive attempts** for its browser agent ([Anthropic](https://www.anthropic.com/research/prompt-injection-defenses)) *(self-reported)*. Gray Swan's independent test of Opus 4.5 found **4.7% at 1 attempt, 33.6% at 10 and 63% at 100** ([The Decoder](https://the-decoder.com/claude-opus-4-5-resists-prompt-injections-better-than-rivals-but-still-falls-to-strong-attacks-alarmingly-often/)) *(search-snippet)*. Add irreversible-action traps and canary secrets, graded by regex and state checks. Use AgentDojo- and WASP-style end-to-end tasks ([AgentDojo](https://github.com/ethz-spylab/agentdojo); [WASP](https://github.com/facebookresearch/wasp)).
+- **Tooling.** Use **Inspect AI** (MIT, UK AISI) as the backbone for tasks, solvers, scorers and Docker sandboxes, all offline with local models ([inspect.aisi.org.uk](https://inspect.aisi.org.uk)). Add promptfoo for quick red-team assertions, and Harbor only for containerized end-to-end runs.
+- **Statistics** ([Anthropic](https://www.anthropic.com/research/statistical-approach-to-model-evals)) *(verified, primary page)*:
+  - Report the SEM with every score. At **n = 50 and p = 0.8 the 95% CI is about ±11 points**, so small sets catch only large regressions.
+  - **Cluster standard errors** by fixture or scenario. Clustered SEs can be over three times the naive ones.
+  - Use **paired comparisons** against the previous build.
+  - Run **repeated trials** (k = 3–5) per task. Detecting a 3-point paired difference needs about 2,180 items (at σ_d = 0.5).
+- **Gate.** Promote only with zero regression-suite failures (safety, deletion, credential canaries). The candidate must beat the current model on the golden set beyond its confidence interval, and stay within latency and memory budgets on the target Macs, including 8 GB. Then ship in shadow mode, then to an opt-in canary cohort, then to everyone, with automatic rollback.
+- **Version the eval set like code.** A grading change makes results incomparable with earlier runs, as tau2's v1.0.1 shows.
 
 ### Orchestration
-- **Scheduling:** a simple scheduler (cron or launchd, or Prefect/Dagster as it grows) runs generate → label → filter → train → evaluate nightly or weekly per task.
-- **CI on every code change:** GitHub Actions runs unit tests plus a small, fast evaluation. GPU jobs run on rented machines (e.g., Modal or RunPod) triggered by the pipeline.
-- **An AI coding agent such as Claude Code operates it:** it reads evaluation failures, groups them, proposes data or code fixes and opens pull requests. Humans approve promotions, licenses and anything touching privacy.
-- **Scorecard:** a dashboard per task showing accuracy, regressions, safety, latency and cost per run over time.
+- **Scheduling:** launchd or cron, or Prefect/Dagster as the pipeline grows, runs generate → label → filter → train → evaluate per task.
+- **CI on every code change:** GitHub Actions runs unit tests plus a fast Inspect suite. GPU jobs run on rented H100s.
+- **An AI coding agent such as Claude Code operates it.** It reads eval failures, groups them and opens pull requests with data or code fixes. Its outputs are code and analysis, never training targets.
+- **Scorecard per task:** pass^k with CIs, regressions, ASR at each attempt budget, latency, memory and cost.
 
 ### Human checkpoints (kept on purpose)
-- Approving each new data source and its license.
+- Approving each new data source and its licence, including teacher terms.
 - Approving model promotion to users.
-- Spot-checking labels each cycle.
+- Spot-checking labels each cycle, and calibrating any LLM judge.
 - Reviewing anything flagged as a privacy or safety risk.

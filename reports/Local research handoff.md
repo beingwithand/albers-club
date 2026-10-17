@@ -72,3 +72,11 @@ These can't be done in the cloud at all:
 ## 5. When you're done
 - Commit the updated reports and CORRECTIONS.md to `research/personal-data-ownership`.
 - Check that the files are actually in the commit (`git show --stat HEAD`) before pushing. This rule exists because of CORRECTIONS row 13.
+
+## Added 2026-10-17 (video feeds round)
+- [ ] xAI Grok Bot: read xAI's own docs/news post (launch 11 Aug 2026, pricing, connectors, MCP rules, whether it uses screenshots or DOM, video analysis method). Find any demo of it scrolling TikTok.
+- [ ] TikTok's official Terms of Service: the automation and download clauses.
+- [ ] Hugging Face model cards and weight licenses: Qwen3-VL, Qwen3.5 (VLM), Gemma 4, InternVL3.5, SmolVLM2, MiniCPM-V 4.7. Official Video-MME, MVBench and MLVU scores.
+- [ ] Gemini video-understanding docs (ai.google.dev): tokens per second, frame rate options.
+- [ ] Hands-on: Qwen3-VL-4B video on your Mac via mlx-vlm. Measure seconds per TikTok clip and Korean caption quality.
+- Blocked this round: huggingface.co, arxiv.org (Qwen3-VL and InternVL3.5 reports), ai.google.dev, xAI pages, TikTok terms.
