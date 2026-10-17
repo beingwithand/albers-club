@@ -884,3 +884,13 @@ Source: `research_notes/Relic gap research/feed_agents_video_rag_code.md`, from 
 - **Desktop feed capture:** an opt-in extension, limited to sites the user picks, reads the feed data the page already receives (the same pattern as LikeVault, which is GPL-3.0, so rewrite it rather than copy it). It adds watch time from the visible video element. It is read-only and stores everything locally.
 - **Per-video understanding:** use the platform's subtitles or Whisper for the transcript, PySceneDetect for keyframes (content threshold 27, minimum 15 frames), and drop near-duplicate frames. Make one VLM call per video with the transcript inside the caption prompt (VideoRAG's trick). It returns a `VideoUnderstanding` record: summary, format, topics, entities, on-screen text, key claims, timestamped segments, sponsored flag, confidence. Join that with the page metadata and watch time, then index it as text plus image embeddings.
 - **Out of scope:** "stealth" or tap randomization, engagement bots, and anything that disguises automation.
+
+### Correction (2026-10-17): iPhone routes, more precisely
+Earlier sections said Relic "can't drive apps on iOS". That was too absolute. The accurate version: an app running **on** the iPhone can't control other iPhone apps. There are still several routes to the iPhone. These come from background knowledge and are **not researched or tested this session**:
+1. **Cloud agent, with the phone as a remote control** (how Grok Bot, dots and similar products "work on iPhone"): the agent runs on a cloud computer and the iPhone app is only the viewer. That conflicts with local-first, and it uses web versions of services, not your iPhone apps.
+2. **Mac drives the iPhone through iPhone Mirroring** (macOS Sequoia+): the iPhone's screen appears as a window on the Mac, so a Mac agent could see it and click through it with vision. This is the most promising local route. Check on device how reliable input is, whether the window exposes any accessibility text, and Apple's terms.
+3. **Developer tooling** (XCTest / WebDriverAgent with Xcode and developer mode): this is how open-source agents do it today. It's fine for you as a developer, but not viable for ordinary consumers.
+4. **Shortcuts, App Intents and iOS 27 Siri on-screen awareness**: these can trigger actions in apps that support them, and the user starts them.
+5. **Capture on iPhone**: a ReplayKit broadcast that the user starts, the share sheet, and Safari Web Extensions for web browsing.
+
+The plan for iPhone is to test route 2 in the Mac test, and to use routes 4–5 for light on-phone features.

@@ -80,3 +80,4 @@ These can't be done in the cloud at all:
 - [ ] Gemini video-understanding docs (ai.google.dev): tokens per second, frame rate options.
 - [ ] Hands-on: Qwen3-VL-4B video on your Mac via mlx-vlm. Measure seconds per TikTok clip and Korean caption quality.
 - Blocked this round: huggingface.co, arxiv.org (Qwen3-VL and InternVL3.5 reports), ai.google.dev, xAI pages, TikTok terms.
+- [ ] iPhone Mirroring on your Mac: can a Mac agent reliably click and type into the mirrored iPhone? Does the window expose accessibility text? What do Apple's terms say? Test it with TikTok and Instagram.
