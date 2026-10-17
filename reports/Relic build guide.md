@@ -4,6 +4,17 @@
 
 Relic can be built today almost entirely from mechanisms that already exist in open-source code, and most of them need no language model at all. The capture engine should copy Screenpipe's event-driven design: snapshots on app switches, clicks, typing pauses and scroll stops, a cheap 10 ms histogram check, accessibility text first, and OCR only on text regions whose pixels changed. It should then layer ActivityWatch's one-second metadata heartbeats, Dayflow's 15-minute "timeline card" summaries and Timelinize's item/entity/attribute schema on top. The memory engine should combine four things: Mem0 v2's cheap deterministic retrieval (semantic plus BM25 plus an entity boost, zero LLM calls per query), Graphiti's bi-temporal facts and layered entity resolver, a fixed version of Generative Agents' scoring formula, and the two-phase background consolidation that Codex, letta-code and the leaked Claude, Muse and dots prompts all converge on. Context engineering should copy the harnesses, scaled down for an 8K–32K local window: Gemini CLI's early compaction trigger and tool-output masking, Cline's deterministic fallback, Codex's verbatim user messages and Letta's ≤300-word summary with lookup hints. The code also differs from the papers in ways that change the design. Current Mem0 has dropped UPDATE/DELETE. Generative Agents actually weights relevance six times recency, and its recency ranking appears inverted. Letta's sleep-time agent can lose work on a crash. OpenMemory's "deny all" rule appears to return everything. A model is needed in only three places: per-episode extraction and judging (a 3–4B local model with constrained output), compaction summaries (the same small model, with a code fallback), and overnight consolidation, which is the one job that wants a 7–8B model or a home box. Everything below is from static reading of pinned commits; nothing was executed, and every bug claim needs a unit test before Relic relies on it.
 
+
+> **Decision (2026-10-17): English only, for the English-language market first (US primary).** Korean-specific material in this guide is deferred, not deleted: Korean OCR and ASR choices, Korean name keys in identity resolution, KakaoTalk/Naver/Daum, and Korean law (PIPA, CPPA recording rules). What changes:
+> - **Speech:** Parakeet (English, faster than Whisper) becomes the default ASR, with Whisper as fallback.
+> - **OCR:** Apple Vision covers English text; PaddleOCR Korean is no longer needed.
+> - **Siri AI:** its English-only launch is no longer a limitation.
+> - **Text models:** pick on English quality and speed (Qwen3.5, Gemma 4, Apple on-device). The Korean benchmarks no longer apply.
+> - **Identity:** phone numbers (E.164), emails and platform-prefixed handles. No Korean name keys.
+> - **Law:** US first (CCPA/CPRA authorized agents, state two-party-consent recording laws, CFAA/ToS). EU and UK (GDPR, DMA portability) come later.
+> - **Platforms:** Google, Meta, X, Reddit, TikTok, YouTube, LinkedIn, Apple, Microsoft and US email providers.
+
+
 ## Update 2026-10-16: agent accuracy outlook
 
 **Correction.** Earlier Relic reports said open-weight computer-use agents trail frontier agents by a wide margin. They cited ByteDance's UI-TARS-2 at about **47.5%** on OSWorld, against roughly 85% for frontier agents ("Personal data reclamation app.md" and "AI memory and context engineering.md"). The 2026 generation of small GUI models, built on Qwen3-VL and Qwen3.5, has narrowed that gap on paper:

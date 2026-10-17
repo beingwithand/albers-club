@@ -932,3 +932,66 @@ Sources: `research_notes/Local agent computer/` (sandboxes_runtimes.md, phone_re
 - **24 GB:** one macOS VM plus 2–3 browser containers.
 - **32 GB:** two macOS VMs, or VMs plus an Android emulator.
 - Heavy models run overnight.
+
+---
+## Addendum (2026-10-17): Building on Apple's agent platform (iPhone and Mac)
+Sources: `research_notes/Apple agentic platform/`: apple_agentic_apis.md and apple_strategy_rules.md (developer.apple.com and WWDC26 session pages were read directly; press facts are snippets [S]), and iphone_frontier_ideas_validation.md.
+
+### What Apple now provides (iOS/macOS 27)
+- **App Intents is the agent surface on iPhone.**
+  - Relic exposes its memories and actions to Siri:
+    - **Personal context:** `IndexedEntity` + `CSSearchableIndex.indexAppEntities` feed the Spotlight semantic index that Siri uses.
+    - **Natural-language actions:** entity and intent schemas let Siri act on requests with no set phrases.
+    - **Learning from use:** `IntentDonationManager.donate` reports what the user did in Relic.
+    - **On-screen awareness:** `NSUserActivity` covers the main item, and `.appEntityIdentifier` tags individual items.
+    - **Long jobs:** `LongRunningIntent` runs past the time limit and shows a Live Activity.
+  - **Watch:** Siri may skip confirmation for entities it assumes are private (`OwnershipProvidingEntity`). Relic must keep its own consent checks.
+  - **Limit:** no public API lets one app call another app's intents. The only route is a user-built Shortcut via `shortcuts://`.
+- **Siri AI** (iOS 27, beta from about 14 Sep 2026): personal context, on-screen awareness and in-app actions. English only (Korean was promised for about 27.1 [S], unconfirmed); not on iPhone in the EU or in mainland China. Its next-generation models are based on Gemini (joint Apple–Google statement, 12 Jan 2026).
+- **Foundation Models framework:**
+  - **On-device model:** 8,192-token context on OS 27 (4,096 on OS 26), with image input.
+  - **One API for any model:** a `LanguageModel` protocol takes Apple's model, **Claude or Gemini Swift packages**, MLX or Core AI local models, or any Chat Completions server.
+  - **Agent helpers:** `DynamicProfile`, transcript compaction and a skills API.
+  - **Private Cloud Compute is open to developers** (`PrivateCloudComputeLanguageModel`): 32K context, reasoning levels, no API keys or token cost, and a per-user daily quota. Available to apps with fewer than 2M downloads, by application.
+  - **Adapters are effectively closed:** the toolkit doesn't support OS 27, and training was only ever possible on a 32 GB Mac or Linux GPUs, never on the device.
+  - **Korean** support in the on-device model is unconfirmed. Test it.
+- **Shortcuts (iOS 27):**
+  - **Use Model action:** on-device, Cloud, Cloud Pro or ChatGPT.
+  - **New triggers:** Screenshot, Keyboard, and notifications from a specific app with keyword filters.
+  - **Persistence:** Storage keeps data between runs.
+  - **No silent runs:** only the user can set "Run Immediately".
+- **Visual Intelligence:** apps answer `IntentValueQuery` on a `SemanticContentDescriptor` (iPhone, iPad and Mac in 2026).
+- **MCP:** there's no verified OS-level MCP in iOS or macOS. Apple's only official MCP surface is Xcode (built-in Claude Agent, Codex and Gemini agents, `xcrun mcpbridge`, Agent Client Protocol).
+- **Background work:**
+  - `BGProcessingTask` with `requiresExternalPower` covers charging-time jobs such as overnight consolidation.
+  - `BGContinuedProcessingTask` must start from a user action.
+  - Background GPU worked only on iPad in iOS 26 (forum report).
+  - The OS 27 betas reportedly gate background Neural Engine use behind a new entitlement [gist only].
+
+### Rules that bind Relic (App Review Guidelines, updated 16 Oct 2026)
+- **2.5.14:** explicit consent plus a visible or audible indicator for any recording or logging of user activity.
+- **5.1.2(i)** (added Nov 2025): name the third-party AI provider and get permission before sharing personal data with it.
+- **2.5.2:** no downloading code that changes the app.
+- **4.7.2/4.7.3:** chatbots need per-instance consent before data or permissions are shared.
+- **4.4.1:** keyboards may collect activity only to improve the keyboard.
+- **5.4:** VPN apps need organization enrollment and no use or disclosure of the data.
+- **Mac:** stricter Full Disk Access controls are coming "as AI agents become increasingly capable" (2 Oct 2026).
+- **EU:** Siri AI is withheld on iPhone, and no 2026 decision opens iOS to third-party assistants.
+- **Japan:** the side button can map to a third-party assistant (needs an entitlement; users in Japan only).
+
+### What Relic does on iPhone
+1. **Siri integration:** Relic's vault becomes Siri's personal context through App Intents and Spotlight entities, and Relic's actions become Siri actions. Siri is the agent and Relic is the memory and gatekeeper.
+2. **One model API:** use the Foundation Models `LanguageModel` protocol. On-device by default, then Private Cloud Compute, then Claude or Gemini only with a 5.1.2(i) disclosure and opt-in. Cloud models get placeholders only (idea 4 below).
+3. **Capture on iPhone:** Safari Web Extension, share sheet, Shortcuts triggers (screenshot, notifications with keyword filters), imports, and a user-started broadcast with a visible indicator.
+4. **Overnight jobs:** `BGProcessingTask` with `requiresExternalPower`. Heavy work goes to the Mac.
+
+## Frontier ideas: validation results (2026-10-17)
+| # | Idea | Feasible | Policy risk | Novelty | Keep? |
+|---|---|---|---|---|---|
+| 1 | Co-pilot: user-started broadcast as eyes, Live Activity or voice for guidance, user's finger as hands | Partly: ~50 MB extension limit; main app usually suspended; non-video PiP review status unknown | Medium | Low–medium (Gemini Live and ChatGPT voice share the screen to the cloud) | Prototype on-device OCR plus Live Activity guidance |
+| 2 | Domain-log VPN plus Screen Time skeleton | Partly: no per-app attribution without MDM; Screen Time can't be exported | Medium–high (5.4) | Low | Drop on iOS; keep on Android |
+| 3 | Typing-log keyboard | Partly: secure fields use the system keyboard; apps can refuse custom keyboards | Medium–high (4.4.1) | Low–medium | Only as a visible "recall what I typed" feature |
+| 4 | Cloud plans on placeholders, phone executes | Yes | Low | Low (CaMeL, PAPILLON, PAAC 2026) | **Core design** |
+| 5 | Surprise-based retention | Yes | None | **Highest**: no study yet tests it on lifelog recall | **Research contribution** |
+| 6 | Training on iPhone | Partly: 0.5–1.5B MLX LoRA only; Apple adapters closed for OS 27 | Low | Medium | Train on the Mac; the phone only collects corrections |
+| 7 | Follow-the-power device cluster | Partly: Macs cluster well (exo, MLX distributed); the iPhone queues jobs | Low | Low–medium | Use Mac clustering; the iPhone is the queue |

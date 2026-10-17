@@ -81,3 +81,7 @@ These can't be done in the cloud at all:
 - [ ] Hands-on: Qwen3-VL-4B video on your Mac via mlx-vlm. Measure seconds per TikTok clip and Korean caption quality.
 - Blocked this round: huggingface.co, arxiv.org (Qwen3-VL and InternVL3.5 reports), ai.google.dev, xAI pages, TikTok terms.
 - [ ] iPhone Mirroring on your Mac: can a Mac agent reliably click and type into the mirrored iPhone? Does the window expose accessibility text? What do Apple's terms say? Test it with TikTok and Instagram.
+
+
+## Decision 2026-10-17: English only
+Skip the Korean-specific checks: Korean OCR comparison, Korean ASR, Korean name keys, Kakao/Naver exports, Korean law. Instead, test English OCR and accessibility coverage, Parakeet versus Whisper speed on your Mac, and US-specific items (CCPA authorized-agent flow, two-party-consent states).

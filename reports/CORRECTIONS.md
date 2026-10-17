@@ -51,3 +51,8 @@ Every time a fact in a report or chat answer turns out wrong, or a process step 
 | 30 | 2026-10-17 | I said the seven iPhone ideas were combinations "nobody has" made | Prior work exists for most (CaMeL/PAPILLON/PAAC; Gemini Live/ChatGPT screen sharing; Lockdown; BiAffect; exo). Only surprise-based lifelog retention looks untested | Relic build guide.md, frontier ideas table | Check prior work before calling anything new |
 | 31 | 2026-10-17 | Earlier: Apple Foundation Models has a 4,096-token on-device context; adapters may be trainable | 8,192 on OS 27 (4,096 on OS 26). The adapter toolkit doesn't support OS 27 and never trained on device | Relic build guide.md, Apple section | Version-qualify OS-specific limits |
 | 32 | 2026-10-17 | Reports that Apple added MCP to App Intents in iOS 26.1 | No documented OS-level MCP. Xcode is Apple's only official MCP surface | Relic build guide.md, Apple section | Beta-code findings aren't features until documented |
+
+## Decisions (not corrections)
+| Date | Decision | Effect |
+|---|---|---|
+| 2026-10-17 | English only, English-language market first (US primary) | Korean material deferred; Parakeet default ASR; US law first; checklist updated |
