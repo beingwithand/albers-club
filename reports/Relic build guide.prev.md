@@ -840,3 +840,36 @@ Never train on eval sets (ScreenSpot-Pro, OSWorld, LongMemEval). Use dedup and c
 - Approving model promotion to users.
 - Spot-checking labels each cycle, and calibrating any LLM judge.
 - Reviewing anything flagged as a privacy or safety risk.
+
+---
+## Addendum (2026-10-17): Video feeds (TikTok, Reels, Shorts) and lessons from xAI Grok Bot
+Sources: `research_notes/Relic gap research/grokbot_video_agents.md` and `local_video_understanding.md`. Most web facts come from search snippets because primary pages were blocked. Benchmarks are self-reported unless marked.
+
+### What Grok Bot shows (xAI, early beta since 11 Aug 2026; mostly secondary sources)
+- **Architecture:** each account gets a persistent cloud computer (browser, files, terminal) shared by all its Bots. It uses official connectors (OAuth) where they exist, and otherwise drives the browser like a person, with a live preview and user takeover for passwords, 2FA, CAPTCHAs and payments. Logins persist. User-added MCP servers must be reachable over the internet, and tokens stay on xAI's servers.
+- **Not documented:** whether it clicks using screenshots or the page structure, and how it analyzes video.
+- **No xAI–TikTok partnership exists.** TikTok access is only through third-party connectors. No source shows Grok Bot scrolling a TikTok feed.
+- **Relic copies:** connector-first, then browser fallback; user takeover for secrets; approvals for irreversible actions; schedules and triggers. **Relic changes:** everything runs on the user's own device, with tokens in the local keychain and local MCP servers allowed.
+
+### Relic's approach: watch passively, don't drive
+TikTok's terms ban bots and scrapers without written permission. Relic therefore records what the user actually watches, on the user's own device, and doesn't run an agent that scrolls TikTok. Engagement bots that post fake likes and comments are explicitly out of scope.
+
+### Per-video pipeline
+1. **Identify:** a browser extension on tiktok.com reads the page's embedded JSON (`__UNIVERSAL_DATA_FOR_REHYDRATION__`): video ID, caption, author, hashtags, sound name, and like/share/comment/save counts. It also records **dwell time**, which TikTok's own export doesn't include, making it Relic's unique signal. Deduplicate by video ID. On mobile or in apps, the same fields come from accessibility text plus OCR.
+2. **Sample:** about 1 fps (≤32 frames per clip) plus scene changes.
+3. **Understand (overnight):** one small-VLM call per clip for a description and on-screen text, ASR for speech (Qwen3-ASR or Whisper for Korean), then a text-LLM summary into one structured record (topic, people, products, places, sound, language, why it may matter).
+4. **Store:** thumbnail, transcript, OCR text, summary, metadata and embeddings. **Not the MP4**, so that downloads stay out of ToS risk and storage stays small.
+5. **Index:** hybrid search over keywords, multilingual text embeddings (transcript, OCR, summary) and frame embeddings (Qwen3-VL-Embedding, MVEB leader at 75.8 nDCG@10 per an independent benchmark).
+
+### Model shortlist for video (licenses need checking on the weights)
+| Role | Candidates | Notes |
+|---|---|---|
+| Clip understanding | Qwen3-VL 2B/4B/8B (Apache-2.0); Qwen3.5 small (VLM; license unverified); Gemma 4 E2B/E4B (Apache-2.0; video ≤60 s at 1 fps); InternVL3.5-4B (Video-MME 65.4, self-reported); MiniCPM-V 4.7 (Apache-2.0, Oct 2026) | All are in mlx-vlm. Avoid FastVLM (research-only) and VideoLLaMA3 (non-commercial) |
+| Speech | Qwen3-ASR 0.6B/1.7B, which has a Korean forced aligner; WhisperKit | Parakeet has no Korean |
+| Music | Use the TikTok sound name from page data. Local fingerprinting only matches the user's own library | — |
+
+### Throughput (estimate, not measured)
+Qwen3-VL-4B at 4-bit on a 16 GB M4 comes to roughly 12–20 s per clip, or about 180–300 clips an hour. An 8B model is about twice as slow. Capture metadata and thumbnails live, and run the VLM, ASR, summaries and embeddings overnight. Measure this in the Mac test.
+
+### Backfill
+TikTok's export and DMA portability API give watch history, favorites and likes as date plus link only. Relic can enrich only items the user chooses, by opening each link in the user's own browser at a human pace, using the extension's page reading. That carries ToS risk, so disclose it at consent. yt-dlp's TikTok extractor was fixed in 2026.08.19 but has no favorites or likes extractor.
